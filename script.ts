@@ -70,12 +70,27 @@ function prod_vet(A: Dot, B: Dot){
     return C;
 }
 
+function print_matriz(A: number [][], matriz_name: string){
+    // console.log("Matriz = [" + A[0][0] + "," + A[0][1])
+    let aux_str: string;
+    console.log("------------- Matriz " + matriz_name + " -------------")
+    aux_str = ""
+    for(let i = 0; i < A.length; i++){
+        for(let j = 0; j < A[0].length; j++){
+            aux_str += A[i][j] + ", "
+        }
+        console.log(aux_str)
+        aux_str = ""
+    }
+}
+
 class Camera {
     vrp: Dot;
     focal_point: Dot;
     vet_n: Vet;
     vet_v: Vet;
     vet_u: Vet;
+    matriz_SRU_SRC: number[][];
 
     constructor(view_reference_point: Dot, focal_p: Dot){
         this.vrp = view_reference_point;
@@ -89,6 +104,17 @@ class Camera {
 
         this.vet_u = prod_vet(this.vet_v, this.vet_n);
         this.vet_u.print_obj("Vet u ");
+
+        this.matriz_SRU_SRC = ([
+            [this.vet_u.unitary.x, this.vet_u.unitary.y, this.vet_u.unitary.z, -prod_escalar(this.vrp, this.vet_u.unitary)],
+
+            [this.vet_v.unitary.x, this.vet_v.unitary.y, this.vet_v.unitary.z, -prod_escalar(this.vrp, this.vet_v.unitary)],
+
+            [this.vet_n.unitary.x, this.vet_n.unitary.y, this.vet_n.unitary.z, -prod_escalar(this.vrp, this.vet_n.unitary)],
+            [0, 0, 0, 1]
+        ])
+
+        print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
 
     }
 
@@ -107,6 +133,7 @@ class Camera {
 
 class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-end deve ser feita
     ctx: CanvasRenderingContext2D;
+    matriz_SRU_SRT: number[][];
 
     constructor(ctx_out: CanvasRenderingContext2D, width_limit: number, height_limit: number){
         this.ctx = ctx_out;

@@ -69,6 +69,19 @@ function prod_vet(A, B) {
     var C = new Vet(prod_x, prod_y, prod_z);
     return C;
 }
+function print_matriz(A, matriz_name) {
+    // console.log("Matriz = [" + A[0][0] + "," + A[0][1])
+    var aux_str;
+    console.log("------------- Matriz " + matriz_name + " -------------");
+    aux_str = "";
+    for (var i = 0; i < A.length; i++) {
+        for (var j = 0; j < A[0].length; j++) {
+            aux_str += A[i][j] + ", ";
+        }
+        console.log(aux_str);
+        aux_str = "";
+    }
+}
 var Camera = /** @class */ (function () {
     function Camera(view_reference_point, focal_p) {
         this.vrp = view_reference_point;
@@ -79,6 +92,13 @@ var Camera = /** @class */ (function () {
         this.vet_v.print_obj("Vet v ");
         this.vet_u = prod_vet(this.vet_v, this.vet_n);
         this.vet_u.print_obj("Vet u ");
+        this.matriz_SRU_SRC = ([
+            [this.vet_u.unitary.x, this.vet_u.unitary.y, this.vet_u.unitary.z, -prod_escalar(this.vrp, this.vet_u.unitary)],
+            [this.vet_v.unitary.x, this.vet_v.unitary.y, this.vet_v.unitary.z, -prod_escalar(this.vrp, this.vet_v.unitary)],
+            [this.vet_n.unitary.x, this.vet_n.unitary.y, this.vet_n.unitary.z, -prod_escalar(this.vrp, this.vet_n.unitary)],
+            [0, 0, 0, 1]
+        ]);
+        print_matriz(this.matriz_SRU_SRC, "SRU_SRC");
     }
     Camera.prototype.define_vector_v = function () {
         var y = new Vet(0, 1, 0);
