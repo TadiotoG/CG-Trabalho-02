@@ -51,7 +51,7 @@ var Obj_3D = /** @class */ (function () {
     }
     return Obj_3D;
 }());
-function A_minus_B(A, B) {
+function VetA_minus_VetB(A, B) {
     var x, y, z;
     x = A.x - B.x;
     y = A.y - B.y;
@@ -82,11 +82,33 @@ function print_matriz(A, matriz_name) {
         aux_str = "";
     }
 }
+function mult_matriz(A, B) {
+    if (A[0].length !== B.length) {
+        throw new Error("O número de colunas de A deve ser igual ao número de linhas de B.");
+    }
+    //let result: number[][];
+    var result = Array(A.length).fill(null).map(function () { return Array(B[0].length).fill(0); });
+    for (var i = 0; i < A.length; i++) {
+        for (var j = 0; j < B[0].length; j++) {
+            for (var k = 0; k < B.length; k++) {
+                result[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+    return result;
+}
 var Camera = /** @class */ (function () {
-    function Camera(view_reference_point, focal_p) {
+    function Camera(view_reference_point, focal_p, dp, wid, heig, min_x, min_y, max_x, max_y) {
         this.vrp = view_reference_point;
         this.focal_point = focal_p;
-        this.vet_n = A_minus_B(this.vrp, this.focal_point);
+        this.dp = dp;
+        this.x_min = min_x;
+        this.y_min = min_y;
+        this.x_max = max_x;
+        this.y_max = max_y;
+        this.width = wid;
+        this.height = heig;
+        this.vet_n = VetA_minus_VetB(this.vrp, this.focal_point);
         this.vet_n.print_obj("Vet n ");
         this.define_vector_v();
         this.vet_v.print_obj("Vet v ");
@@ -99,6 +121,9 @@ var Camera = /** @class */ (function () {
             [0, 0, 0, 1]
         ]);
         print_matriz(this.matriz_SRU_SRC, "SRU_SRC");
+        this.define_matriz_pesp();
+        print_matriz(this.matriz_persp, "Persp");
+        this.define_matriz_jp();
     }
     Camera.prototype.define_vector_v = function () {
         var y = new Vet(0, 1, 0);
@@ -107,7 +132,52 @@ var Camera = /** @class */ (function () {
         var aux_y = this.vet_n.unitary.y * y_ProdEsc_unitaryN;
         var aux_z = this.vet_n.unitary.z * y_ProdEsc_unitaryN;
         var aux = new Vet(aux_x, aux_y, aux_z);
-        this.vet_v = A_minus_B(y, aux);
+        this.vet_v = VetA_minus_VetB(y, aux);
+    };
+    Camera.prototype.define_matriz_pesp = function () {
+        var mat_sru;
+        var mat_src;
+        var x_vp = (this.vrp.x + (this.dp * (-this.vet_n.unitary.x)));
+        var y_vp = (this.vrp.y + (this.dp * (-this.vet_n.unitary.y)));
+        var z_vp = (this.vrp.z + (this.dp * (-this.vet_n.unitary.z)));
+        mat_sru = ([[x_vp, this.vrp.x],
+            [y_vp, this.vrp.y],
+            [z_vp, this.vrp.z],
+            [1, 1]]);
+        mat_src = mult_matriz(this.matriz_SRU_SRC, mat_sru);
+        print_matriz(mat_src, "SRC");
+        var new_z_vp = mat_src[2][0];
+        var new_z_prp = mat_src[2][1];
+        this.matriz_persp = ([[1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, -(new_z_vp / this.dp), new_z_vp * (new_z_prp / this.dp)],
+            [0, 0, -1 / this.dp, new_z_prp / this.dp]
+        ]);
+    };
+    Camera.prototype.define_matriz_jp = function () {
+        var u_min = this.x_min;
+        var u_max = this.x_max;
+        var v_min = this.y_min;
+        var v_max = this.y_max;
+        var x_max = this.width / 2;
+        var x_min = -this.width / 2;
+        var y_max = this.height / 2;
+        var y_min = -this.height / 2;
+        var aux_1 = -x_min * ((u_max - u_min) / (x_max - x_min)) + u_min;
+        var aux_2 = y_min * ((v_max - v_min) / (y_max - y_min)) + v_max;
+        console.log("Teste = " + this.height);
+        this.matriz_jp = ([[(u_max - u_min) / (x_max - x_min), 0, 0, aux_1],
+            [0, (v_min - v_max) / (y_max - y_min), 0, aux_2],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]]);
+        print_matriz(this.matriz_jp, "JP");
+    };
+    Camera.prototype.get_this_fucking_matriz = function () {
+        var mat_aux;
+        mat_aux = mult_matriz(this.matriz_jp, this.matriz_persp);
+        mat_aux = mult_matriz(mat_aux, this.matriz_SRU_SRC);
+        print_matriz(mat_aux, "Final");
+        return mat_aux;
     };
     return Camera;
 }());
@@ -127,6 +197,22 @@ var Universe = /** @class */ (function () {
         this.ctx.fillRect(100, 100, 100, 100);
         this.ctx.stroke();
     };
+    ;
+    Universe.prototype.draw_dot = function (x, y, color) {
+        this.ctx.beginPath();
+        this.ctx.fillStyle = color;
+        this.ctx.arc(x, y, 2, 0, 360, false);
+        this.ctx.fill();
+    };
+    Universe.prototype.test_drawing = function (cam, matriz) {
+        var points;
+        this.matriz_SRU_SRT = cam.get_this_fucking_matriz();
+        points = mult_matriz(this.matriz_SRU_SRT, matriz);
+        // print_matriz(points, "Pontos")
+        for (var i = 0; i < points[0].length; i++) {
+            this.draw_dot(points[0][i] / points[3][i], points[1][i] / points[3][i], "black");
+        }
+    };
     return Universe;
 }());
 var canvas = document.createElement("canvas");
@@ -143,4 +229,18 @@ document.body.appendChild(canvas);
 var uni = new Universe(ctx, canvas.width, canvas.height);
 var vrp_camera = new Dot(25, 15, 80);
 var focal_point_camera = new Dot(20, 10, 25);
-var camera = new Camera(vrp_camera, focal_point_camera);
+var distance_point = 20;
+var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 16, 12, 0, 0, 319, 239);
+var A = new Dot(21.2, 0.7, 42.3);
+var B = new Dot(34.1, 3.4, 27.2);
+var C = new Dot(18.8, 5.6, 14.6);
+var E = new Dot(20, 20.9, 31.6);
+var pyramid_dots;
+pyramid_dots = [A, B, C, E];
+var matriz_teste;
+matriz_teste = ([[21.2, 34.1, 18.8, 20],
+    [0.7, 3.4, 5.6, 20.9],
+    [42.3, 27.2, 14.6, 31.6],
+    [1, 1, 1, 1]]);
+uni.test_drawing(camera, matriz_teste);
+var pyramid = new Obj_3D("blue", pyramid_dots);
