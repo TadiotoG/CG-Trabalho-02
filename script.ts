@@ -1,3 +1,21 @@
+function get_matriz_translada(x: number, y: number, z: number): number[][]{
+    let mat_aux: number[][];
+    mat_aux = ([[1, 0, 0, x],
+                [0, 1, 0, y],
+                [0, 0, 0, z],
+                [0, 0, 0, 1]])
+    return mat_aux;
+}
+
+function get_matriz_rot_y(angle: number): number[][] {
+    let mat_aux: number[][];
+    mat_aux = ([[Math.cos(angle), 0, Math.sin(angle), 0],
+                [0, 1, 0, 0],
+                [-Math.sin(angle), 0, Math.cos(angle), 0],
+                [0, 0, 0, 1]])
+    return mat_aux;
+}
+
 class Dot{ // Classe para pontos ou vertices
     x: number;
     y: number;
@@ -37,12 +55,46 @@ class Vet extends Dot { // Adicionei esta classe para que assim que declarado o 
 
 class Obj_3D{
     dots: Array<Dot>;
+    mat_dots: number[][];
     color: string;
+    centroide: Dot;
 
     constructor(new_color: string, dots_array: Array<Dot>){
         this.color = new_color;
         this.dots = [];
         this.dots = dots_array;
+        this.mat_dots = this.get_mat_from_dots();
+        this.centroide = this.get_centroide();
+    }
+
+    get_mat_from_dots(): number[][]{
+        let mat_aux: number[][] = Array(4).fill(null).map(() => Array(this.dots.length).fill(0));
+
+        for(let i = 0; i < this.dots.length; i++){
+            mat_aux[0][i] = this.dots[i].x;
+            mat_aux[1][i] = this.dots[i].y;
+            mat_aux[2][i] = this.dots[i].z;
+            mat_aux[3][i] = 1;
+        }
+
+        return mat_aux;
+    }
+
+    get_centroide(): Dot{
+        let sum_x = 0;
+        let sum_y = 0;
+        let sum_z = 0;
+        for(let i=0; i < this.dots.length; i++){
+            sum_x += this.dots[i].x;
+            sum_y += this.dots[i].y;
+            sum_z += this.dots[i].z;
+        }
+
+        return new Dot(sum_x/this.dots.length, sum_y/this.dots.length, sum_z/this.dots.length);
+    }
+
+    update_centroide(): void {
+        this.centroide = this.get_centroide();
     }
 }
 
@@ -89,7 +141,6 @@ function mult_matriz(A: number[][], B: number[][]): number[][] {
         throw new Error("O número de colunas de A deve ser igual ao número de linhas de B.");
     }
 
-    //let result: number[][];
     let result: number[][] = Array(A.length).fill(null).map(() => Array(B[0].length).fill(0));
 
     for (let i = 0; i < A.length; i++) {
@@ -113,14 +164,14 @@ class Camera {
     matriz_SRU_SRC: number[][];
     matriz_persp: number[][];
     matriz_jp: number[][];
-    width: number;
-    height: number;
+    width: number = 100;
+    height: number = 100;
     x_min: number;
     y_min: number;
     x_max: number;
     y_max: number;
 
-    constructor(view_reference_point: Dot, focal_p: Dot, dp: number, wid: number, heig: number, min_x: number, min_y: number, max_x: number, max_y: number){
+    constructor(view_reference_point: Dot, focal_p: Dot, dp: number, min_x: number, min_y: number, max_x: number, max_y: number){
         this.vrp = view_reference_point;
         this.focal_point = focal_p;
         this.dp = dp;
@@ -128,13 +179,14 @@ class Camera {
         this.y_min = min_y;
         this.x_max = max_x;
         this.y_max = max_y;
-        this.width = wid;
-        this.height = heig;
+        this.calc_matrizes();
+    }
 
+    calc_matrizes(){
         this.vet_n = VetA_minus_VetB(this.vrp, this.focal_point);
         this.vet_n.print_obj("Vet n ");
 
-        this.define_vector_v();
+        this.vet_v = this.define_vector_v();
         this.vet_v.print_obj("Vet v ");
 
         this.vet_u = prod_vet(this.vet_v, this.vet_n);
@@ -149,13 +201,15 @@ class Camera {
             [0, 0, 0, 1]
         ])
         print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
-        this.define_matriz_pesp();
+
+        this.matriz_persp = this.define_matriz_persp();
         print_matriz(this.matriz_persp, "Persp");
 
-        this.define_matriz_jp();
+        this.matriz_jp = this.define_matriz_jp();
+        print_matriz(this.matriz_jp, "Jp")
     }
 
-    private define_vector_v(){
+    private define_vector_v(): Vet{
         let y = new Vet(0, 1, 0);
         let y_ProdEsc_unitaryN = prod_escalar(y, this.vet_n.unitary);
         let aux_x: number = this.vet_n.unitary.x * y_ProdEsc_unitaryN;
@@ -164,10 +218,14 @@ class Camera {
 
         let aux = new Vet(aux_x, aux_y, aux_z);
 
-        this.vet_v = VetA_minus_VetB(y, aux);
+        let mat_aux: Vet;
+
+        mat_aux = VetA_minus_VetB(y, aux);
+
+        return mat_aux;
     }
 
-    private define_matriz_pesp(){
+    private define_matriz_persp(): number[][]{
         let mat_sru: number[][];
         let mat_src: number[][];
 
@@ -181,19 +239,21 @@ class Camera {
                     [1, 1]])
 
         mat_src = mult_matriz(this.matriz_SRU_SRC, mat_sru);
-        print_matriz(mat_src, "SRC");
+        // print_matriz(mat_src, "SRC");
 
         let new_z_vp = mat_src[2][0]
         let new_z_prp = mat_src[2][1]
 
-        this.matriz_persp = ([[1, 0, 0, 0],
-            [0, 1, 0, 0],
-            [0, 0, -(new_z_vp / this.dp), new_z_vp * (new_z_prp/this.dp)],
-            [0, 0, -1/this.dp, new_z_prp/this.dp]
+        let mat_aux: number[][];// 
+        mat_aux = ([[1, 0, 0, 0],
+                    [0, 1, 0, 0],
+                    [0, 0, -(new_z_vp / this.dp), new_z_vp * (new_z_prp/this.dp)],
+                    [0, 0, -1/this.dp, new_z_prp/this.dp]
         ])
+        return mat_aux;
     }
 
-    private define_matriz_jp(){
+    private define_matriz_jp(): number[][]{
         let u_min:number = this.x_min;
         let u_max:number = this.x_max;
         let v_min:number = this.y_min;
@@ -208,23 +268,21 @@ class Camera {
         let aux_1:number = -x_min * ((u_max - u_min)/(x_max - x_min)) + u_min;
         let aux_2:number = y_min * ((v_max - v_min)/(y_max - y_min)) + v_max;
 
-        console.log("Teste = " + this.height)
+        let mat_aux: number[][];
 
-        this.matriz_jp = ([[(u_max - u_min)/(x_max - x_min), 0, 0, aux_1],
+        mat_aux = ([[(u_max - u_min)/(x_max - x_min), 0, 0, aux_1],
                             [0, (v_min - v_max) / (y_max - y_min), 0, aux_2],
                             [0, 0, 1, 0],
                             [0, 0, 0, 1]])
-
-        print_matriz(this.matriz_jp, "JP");
+        
+        return mat_aux;
     }
 
-    get_this_fucking_matriz(){
+    get_mat_SRU_SRT(): number[][]{
         let mat_aux: number[][];
 
         mat_aux = mult_matriz(this.matriz_jp, this.matriz_persp);
         mat_aux = mult_matriz(mat_aux, this.matriz_SRU_SRC);
-        
-        print_matriz(mat_aux, "Final");
         return mat_aux;
     }
 }
@@ -232,23 +290,26 @@ class Camera {
 class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-end deve ser feita
     ctx: CanvasRenderingContext2D;
     matriz_SRU_SRT: number[][];
+    camera: Camera;
+    objects: Array<Obj_3D> = [];
 
-    constructor(ctx_out: CanvasRenderingContext2D, width_limit: number, height_limit: number){
+    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera){
         this.ctx = ctx_out;
+        this.camera = cam;
+        this.matriz_SRU_SRT = this.camera.get_mat_SRU_SRT();
     }
 
     animate_world = () => {
         this.ctx.fillStyle = "white";
         this.ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for(let i = 0; i < this.objects.length; i++){   
+            this.draw_obj(this.objects[i]);
+            let new_matriz_obj: number[][];
+            new_matriz_obj = mult_matriz(get_matriz_rot_y(0.007), this.objects[i].mat_dots); // Faz a animacao rotacionando o objeto no eixo y
+            this.objects[i].mat_dots = new_matriz_obj;
+        }
         requestAnimationFrame(this.animate_world);
     }
-
-    draw_it() {
-        this.ctx.beginPath();
-        this.ctx.fillStyle = "black";
-        this.ctx.fillRect(100, 100, 100, 100);
-        this.ctx.stroke();
-    };
 
     draw_dot(x, y, color){
         this.ctx.beginPath();
@@ -257,17 +318,17 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         this.ctx.fill();
     }
 
-    test_drawing(cam: Camera, matriz: number[][]){
+    draw_obj(obj: Obj_3D){
         let points: number[][];
-        
-        this.matriz_SRU_SRT = cam.get_this_fucking_matriz();
-
-        points = mult_matriz(this.matriz_SRU_SRT, matriz);
-        // print_matriz(points, "Pontos")
+        points = mult_matriz(this.matriz_SRU_SRT, obj.mat_dots);
 
         for(let i = 0; i < points[0].length; i++){
-            this.draw_dot(points[0][i] / points[3][i], points[1][i] / points[3][i], "black");
+            this.draw_dot(points[0][i] / points[3][i], points[1][i] / points[3][i], "black"); // Divide pelo fator homogenio
         }
+    }
+
+    add_obj(obj: Obj_3D){
+        this.objects.push(obj);
     }
 }
 
@@ -278,33 +339,32 @@ canvas.style.border = "1px solid black"
 canvas.style.width = "1000px"
 canvas.style.height = "800px"
 var ctx = canvas.getContext("2d")
-canvas.width = 1000;
+canvas.width = 800;
 canvas.height = 800;
 ctx.imageSmoothingEnabled = false;
 document.body.appendChild(canvas);
 
-let uni = new Universe(ctx, canvas.width, canvas.height);
+let vrp_camera = new Dot(30, 50, 300);
+let focal_point_camera = new Dot(30, 20, 50);
+let distance_point = 248.194;
 
-let vrp_camera = new Dot(25, 15, 80);
-let focal_point_camera = new Dot(20, 10, 25);
-let distance_point = 20;
+let camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas.width, canvas.height);
+// constructor(view_reference_point: Dot, focal_p: Dot, dp: number, wid: number, heig: number, min_x: number, min_y: number, max_x: number, max_y: number){
+let uni = new Universe(ctx, camera);
 
-let camera = new Camera(vrp_camera, focal_point_camera, distance_point, 16, 12, 0, 0, 319, 239);
-
-let A = new Dot(21.2, 0.7, 42.3);
-let B = new Dot(34.1, 3.4, 27.2);
-let C = new Dot(18.8, 5.6, 14.6);
-let E = new Dot(20, 20.9, 31.6);
+let A = new Dot(-10, -20, 10);
+let B = new Dot(10, -20, 10);
+let C = new Dot(7, 20, 10);
+let D = new Dot(-7, 20, 10);
+let E = new Dot(10, -20, -10);
+let F = new Dot(7, 20, -10);
+let G = new Dot(-7, 20, -10);
+let H = new Dot(-10, -20, -10);
 
 let pyramid_dots: Array<Dot>;
-pyramid_dots = [A, B, C, E];
-
-let matriz_teste:number [][];
-matriz_teste = ([[21.2, 34.1, 18.8, 20],
-                [0.7, 3.4, 5.6, 20.9],
-                [42.3, 27.2, 14.6, 31.6],
-                [1, 1, 1, 1]])
-
-uni.test_drawing(camera, matriz_teste);
+pyramid_dots = [A, B, C, D, E, F, G, H];
 
 let pyramid = new Obj_3D("blue", pyramid_dots);
+
+uni.add_obj(pyramid);
+uni.animate_world();
