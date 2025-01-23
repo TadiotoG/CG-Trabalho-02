@@ -202,7 +202,7 @@ class Camera {
         ])
         print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
 
-        // this.matriz_persp = this.define_matriz_persp();
+        // this.matriz_persp = this.define_matriz_persp();// Projecao perspectiva, nao vai ser mais utilizado...
         // print_matriz(this.matriz_persp, "Persp");
 
         this.matriz_jp = this.define_matriz_jp();
@@ -225,7 +225,7 @@ class Camera {
         return mat_aux;
     }
 
-    // private define_matriz_persp(): number[][]{
+    // private define_matriz_persp(): number[][]{ // Projecao perspectiva, nao vai ser mais utilizado...
     //     let mat_sru: number[][];
     //     let mat_src: number[][];
 
