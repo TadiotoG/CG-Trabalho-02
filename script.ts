@@ -193,17 +193,17 @@ class Camera {
         this.vet_u.print_obj("Vet u ");
 
         this.matriz_SRU_SRC = ([
-            [this.vet_u.unitary.x, this.vet_u.unitary.y, this.vet_u.unitary.z, -prod_escalar(this.vrp, this.vet_u.unitary)],
+            [this.vet_u.unitary.x, this.vet_u.unitary.y, this.vet_u.unitary.z, 0],
 
-            [this.vet_v.unitary.x, this.vet_v.unitary.y, this.vet_v.unitary.z, -prod_escalar(this.vrp, this.vet_v.unitary)],
+            [this.vet_v.unitary.x, this.vet_v.unitary.y, this.vet_v.unitary.z, 0],
 
-            [this.vet_n.unitary.x, this.vet_n.unitary.y, this.vet_n.unitary.z, -prod_escalar(this.vrp, this.vet_n.unitary)],
+            [this.vet_n.unitary.x, this.vet_n.unitary.y, this.vet_n.unitary.z, 0],
             [0, 0, 0, 1]
         ])
         print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
 
-        this.matriz_persp = this.define_matriz_persp();
-        print_matriz(this.matriz_persp, "Persp");
+        // this.matriz_persp = this.define_matriz_persp();
+        // print_matriz(this.matriz_persp, "Persp");
 
         this.matriz_jp = this.define_matriz_jp();
         print_matriz(this.matriz_jp, "Jp")
@@ -225,33 +225,33 @@ class Camera {
         return mat_aux;
     }
 
-    private define_matriz_persp(): number[][]{
-        let mat_sru: number[][];
-        let mat_src: number[][];
+    // private define_matriz_persp(): number[][]{
+    //     let mat_sru: number[][];
+    //     let mat_src: number[][];
 
-        let x_vp: number  = (this.vrp.x + (this.dp * (-this.vet_n.unitary.x)))
-        let y_vp: number = (this.vrp.y + (this.dp * (-this.vet_n.unitary.y)))
-        let z_vp: number = (this.vrp.z + (this.dp * (-this.vet_n.unitary.z)))
+    //     let x_vp: number  = (this.vrp.x + (this.dp * (-this.vet_n.unitary.x)))
+    //     let y_vp: number = (this.vrp.y + (this.dp * (-this.vet_n.unitary.y)))
+    //     let z_vp: number = (this.vrp.z + (this.dp * (-this.vet_n.unitary.z)))
 
-        mat_sru = ([[x_vp, this.vrp.x],
-                    [y_vp, this.vrp.y],
-                    [z_vp, this.vrp.z],
-                    [1, 1]])
+    //     mat_sru = ([[x_vp, this.vrp.x],
+    //                 [y_vp, this.vrp.y],
+    //                 [z_vp, this.vrp.z],
+    //                 [1, 1]])
 
-        mat_src = mult_matriz(this.matriz_SRU_SRC, mat_sru);
-        // print_matriz(mat_src, "SRC");
+    //     mat_src = mult_matriz(this.matriz_SRU_SRC, mat_sru);
+    //     // print_matriz(mat_src, "SRC");
 
-        let new_z_vp = mat_src[2][0]
-        let new_z_prp = mat_src[2][1]
+    //     let new_z_vp = mat_src[2][0]
+    //     let new_z_prp = mat_src[2][1]
 
-        let mat_aux: number[][];// 
-        mat_aux = ([[1, 0, 0, 0],
-                    [0, 1, 0, 0],
-                    [0, 0, -(new_z_vp / this.dp), new_z_vp * (new_z_prp/this.dp)],
-                    [0, 0, -1/this.dp, new_z_prp/this.dp]
-        ])
-        return mat_aux;
-    }
+    //     let mat_aux: number[][];// 
+    //     mat_aux = ([[1, 0, 0, 0],
+    //                 [0, 1, 0, 0],
+    //                 [0, 0, -(new_z_vp / this.dp), new_z_vp * (new_z_prp/this.dp)],
+    //                 [0, 0, -1/this.dp, new_z_prp/this.dp]
+    //     ])
+    //     return mat_aux;
+    // }
 
     private define_matriz_jp(): number[][]{
         let u_min:number = this.x_min;
@@ -281,8 +281,10 @@ class Camera {
     get_mat_SRU_SRT(): number[][]{
         let mat_aux: number[][];
 
-        mat_aux = mult_matriz(this.matriz_jp, this.matriz_persp);
-        mat_aux = mult_matriz(mat_aux, this.matriz_SRU_SRC);
+        // mat_aux = mult_matriz(this.matriz_jp, this.matriz_persp);
+        // mat_aux = mult_matriz(mat_aux, this.matriz_SRU_SRC);
+
+        mat_aux = mult_matriz(this.matriz_jp, this.matriz_SRU_SRC);
         return mat_aux;
     }
 }
