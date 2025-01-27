@@ -1,3 +1,4 @@
+/// <reference path= "./spline.ts" />
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -27,6 +28,61 @@ function get_matriz_rot_y(angle) {
         [0, 1, 0, 0],
         [-Math.sin(angle), 0, Math.cos(angle), 0],
         [0, 0, 0, 1]]);
+    return mat_aux;
+}
+function VetA_minus_VetB(A, B) {
+    var x, y, z;
+    x = A.x - B.x;
+    y = A.y - B.y;
+    z = A.z - B.z;
+    var C = new Vet(x, y, z);
+    return C;
+}
+function prod_escalar(A, B) {
+    return (A.x * B.x + A.y * B.y + A.z * B.z);
+}
+function prod_vet(A, B) {
+    var prod_x = A.y * B.z - A.z * B.y;
+    var prod_y = A.z * B.x - A.x * B.z;
+    var prod_z = A.x * B.y - A.y * B.x;
+    var C = new Vet(prod_x, prod_y, prod_z);
+    return C;
+}
+function print_matriz(A, matriz_name) {
+    // console.log("Matriz = [" + A[0][0] + "," + A[0][1])
+    var aux_str;
+    console.log("------------- Matriz " + matriz_name + " -------------");
+    aux_str = "";
+    for (var i = 0; i < A.length; i++) {
+        for (var j = 0; j < A[0].length; j++) {
+            aux_str += A[i][j] + ", ";
+        }
+        console.log(aux_str);
+        aux_str = "";
+    }
+}
+function mult_matriz(A, B) {
+    if (A[0].length !== B.length) {
+        throw new Error("O número de colunas de A deve ser igual ao número de linhas de B.");
+    }
+    var result = Array(A.length).fill(null).map(function () { return Array(B[0].length).fill(0); });
+    for (var i = 0; i < A.length; i++) {
+        for (var j = 0; j < B[0].length; j++) {
+            for (var k = 0; k < B.length; k++) {
+                result[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+    return result;
+}
+function get_ArrDots_as_mat(arr_dots) {
+    var mat_aux = Array(4).fill(null).map(function () { return Array(arr_dots.length).fill(0); });
+    for (var i = 0; i < arr_dots.length; i++) {
+        mat_aux[0][i] = arr_dots[i].x;
+        mat_aux[1][i] = arr_dots[i].y;
+        mat_aux[2][i] = arr_dots[i].z;
+        mat_aux[3][i] = 1;
+    }
     return mat_aux;
 }
 var Dot = /** @class */ (function () {
@@ -94,51 +150,6 @@ var Obj_3D = /** @class */ (function () {
     };
     return Obj_3D;
 }());
-function VetA_minus_VetB(A, B) {
-    var x, y, z;
-    x = A.x - B.x;
-    y = A.y - B.y;
-    z = A.z - B.z;
-    var C = new Vet(x, y, z);
-    return C;
-}
-function prod_escalar(A, B) {
-    return (A.x * B.x + A.y * B.y + A.z * B.z);
-}
-function prod_vet(A, B) {
-    var prod_x = A.y * B.z - A.z * B.y;
-    var prod_y = A.z * B.x - A.x * B.z;
-    var prod_z = A.x * B.y - A.y * B.x;
-    var C = new Vet(prod_x, prod_y, prod_z);
-    return C;
-}
-function print_matriz(A, matriz_name) {
-    // console.log("Matriz = [" + A[0][0] + "," + A[0][1])
-    var aux_str;
-    console.log("------------- Matriz " + matriz_name + " -------------");
-    aux_str = "";
-    for (var i = 0; i < A.length; i++) {
-        for (var j = 0; j < A[0].length; j++) {
-            aux_str += A[i][j] + ", ";
-        }
-        console.log(aux_str);
-        aux_str = "";
-    }
-}
-function mult_matriz(A, B) {
-    if (A[0].length !== B.length) {
-        throw new Error("O número de colunas de A deve ser igual ao número de linhas de B.");
-    }
-    var result = Array(A.length).fill(null).map(function () { return Array(B[0].length).fill(0); });
-    for (var i = 0; i < A.length; i++) {
-        for (var j = 0; j < B[0].length; j++) {
-            for (var k = 0; k < B.length; k++) {
-                result[i][j] += A[i][k] * B[k][j];
-            }
-        }
-    }
-    return result;
-}
 var Camera = /** @class */ (function () {
     function Camera(view_reference_point, focal_p, dp, min_x, min_y, max_x, max_y) {
         this.width = 100;
@@ -166,7 +177,7 @@ var Camera = /** @class */ (function () {
             [0, 0, 0, 1]
         ]);
         print_matriz(this.matriz_SRU_SRC, "SRU_SRC");
-        // this.matriz_persp = this.define_matriz_persp();
+        // this.matriz_persp = this.define_matriz_persp();// Projecao perspectiva, nao vai ser mais utilizado...
         // print_matriz(this.matriz_persp, "Persp");
         this.matriz_jp = this.define_matriz_jp();
         print_matriz(this.matriz_jp, "Jp");
@@ -182,7 +193,7 @@ var Camera = /** @class */ (function () {
         mat_aux = VetA_minus_VetB(y, aux);
         return mat_aux;
     };
-    // private define_matriz_persp(): number[][]{
+    // private define_matriz_persp(): number[][]{ // Projecao perspectiva, nao vai ser mais utilizado...
     //     let mat_sru: number[][];
     //     let mat_src: number[][];
     //     let x_vp: number  = (this.vrp.x + (this.dp * (-this.vet_n.unitary.x)))
@@ -285,16 +296,24 @@ var distance_point = 248.194;
 var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas.width, canvas.height);
 // constructor(view_reference_point: Dot, focal_p: Dot, dp: number, wid: number, heig: number, min_x: number, min_y: number, max_x: number, max_y: number){
 var uni = new Universe(ctx, camera);
-var A = new Dot(-10, -20, 10);
-var B = new Dot(10, -20, 10);
-var C = new Dot(7, 20, 10);
-var D = new Dot(-7, 20, 10);
-var E = new Dot(10, -20, -10);
-var F = new Dot(7, 20, -10);
-var G = new Dot(-7, 20, -10);
-var H = new Dot(-10, -20, -10);
-var pyramid_dots;
-pyramid_dots = [A, B, C, D, E, F, G, H];
-var pyramid = new Obj_3D("blue", pyramid_dots);
-uni.add_obj(pyramid);
+// let A = new Dot(-10, -20, 10);
+// let B = new Dot(10, -20, 10);
+// let C = new Dot(7, 20, 10);
+// let D = new Dot(-7, 20, 10);
+// let E = new Dot(10, -20, -10);
+// let F = new Dot(7, 20, -10);
+// let G = new Dot(-7, 20, -10);
+// let H = new Dot(-10, -20, -10);
+// let pyramid_dots: Array<Dot>;
+// pyramid_dots = [A, B, C, D, E, F, G, H];
+// let pyramid = new Obj_3D("blue", pyramid_dots);
+// uni.add_obj(pyramid);
+var H = new Dot(-7.5, -0.75, 2.25);
+var I = new Dot(-3.5, -4.75, 6.25);
+var J = new Dot(3.5, 4.25, -9.75);
+var K = new Dot(7.5, 1.25, 1.25);
+var control_dots;
+control_dots = [H, I, J, K];
+var spline = new Spline(control_dots);
+uni.add_obj(spline.create_obj(0.1));
 uni.animate_world();

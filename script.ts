@@ -1,3 +1,5 @@
+/// <reference path= "./spline.ts" />
+
 function get_matriz_translada(x: number, y: number, z: number): number[][]{
     let mat_aux: number[][];
     mat_aux = ([[1, 0, 0, x],
@@ -13,6 +15,74 @@ function get_matriz_rot_y(angle: number): number[][] {
                 [0, 1, 0, 0],
                 [-Math.sin(angle), 0, Math.cos(angle), 0],
                 [0, 0, 0, 1]])
+    return mat_aux;
+}
+
+function VetA_minus_VetB(A: Dot, B: Dot) { // Subtracao entre 2 pontos ou vetores, resultando em um Vetor
+    let x: number, y: number, z: number;
+    x = A.x - B.x;
+    y = A.y - B.y;
+    z = A.z - B.z;
+
+    let C = new Vet(x, y, z);
+
+    return C;
+}
+
+function prod_escalar(A: Dot, B: Dot){ // Passagem de parametros utilizando Dot, pois como Dot é a classe pai, utilizando a classe filho tambem funciona (polimorfismo), isso serve para que caso seja necessario fazer prod_escalar de Dot com Vet, funcionara...
+    return (A.x * B.x + A.y * B.y + A.z * B.z);
+}
+
+function prod_vet(A: Dot, B: Dot){
+    let prod_x = A.y * B.z - A.z * B.y;
+    let prod_y = A.z * B.x - A.x * B.z;
+    let prod_z = A.x * B.y - A.y * B.x;
+
+    let C = new Vet(prod_x, prod_y, prod_z);
+    return C;
+}
+
+function print_matriz(A: number [][], matriz_name: string){
+    // console.log("Matriz = [" + A[0][0] + "," + A[0][1])
+    let aux_str: string;
+    console.log("------------- Matriz " + matriz_name + " -------------")
+    aux_str = ""
+    for(let i = 0; i < A.length; i++){
+        for(let j = 0; j < A[0].length; j++){
+            aux_str += A[i][j] + ", "
+        }
+        console.log(aux_str)
+        aux_str = ""
+    }
+}
+
+function mult_matriz(A: number[][], B: number[][]): number[][] {
+    if (A[0].length !== B.length) {
+        throw new Error("O número de colunas de A deve ser igual ao número de linhas de B.");
+    }
+
+    let result: number[][] = Array(A.length).fill(null).map(() => Array(B[0].length).fill(0));
+
+    for (let i = 0; i < A.length; i++) {
+        for (let j = 0; j < B[0].length; j++) {
+            for (let k = 0; k < B.length; k++) {
+                result[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+
+    return result;
+}
+
+function get_ArrDots_as_mat(arr_dots: Array<Dot>): number[][]{
+    let mat_aux: number[][] = Array(4).fill(null).map(() => Array(arr_dots.length).fill(0));
+
+    for(let i = 0; i < arr_dots.length; i++){
+        mat_aux[0][i] = arr_dots[i].x;
+        mat_aux[1][i] = arr_dots[i].y;
+        mat_aux[2][i] = arr_dots[i].z;
+        mat_aux[3][i] = 1;
+    }
     return mat_aux;
 }
 
@@ -96,62 +166,6 @@ class Obj_3D{
     update_centroide(): void {
         this.centroide = this.get_centroide();
     }
-}
-
-function VetA_minus_VetB(A: Dot, B: Dot) { // Subtracao entre 2 pontos ou vetores, resultando em um Vetor
-    let x: number, y: number, z: number;
-    x = A.x - B.x;
-    y = A.y - B.y;
-    z = A.z - B.z;
-
-    let C = new Vet(x, y, z);
-
-    return C;
-}
-
-function prod_escalar(A: Dot, B: Dot){ // Passagem de parametros utilizando Dot, pois como Dot é a classe pai, utilizando a classe filho tambem funciona (polimorfismo), isso serve para que caso seja necessario fazer prod_escalar de Dot com Vet, funcionara...
-    return (A.x * B.x + A.y * B.y + A.z * B.z);
-}
-
-function prod_vet(A: Dot, B: Dot){
-    let prod_x = A.y * B.z - A.z * B.y;
-    let prod_y = A.z * B.x - A.x * B.z;
-    let prod_z = A.x * B.y - A.y * B.x;
-
-    let C = new Vet(prod_x, prod_y, prod_z);
-    return C;
-}
-
-function print_matriz(A: number [][], matriz_name: string){
-    // console.log("Matriz = [" + A[0][0] + "," + A[0][1])
-    let aux_str: string;
-    console.log("------------- Matriz " + matriz_name + " -------------")
-    aux_str = ""
-    for(let i = 0; i < A.length; i++){
-        for(let j = 0; j < A[0].length; j++){
-            aux_str += A[i][j] + ", "
-        }
-        console.log(aux_str)
-        aux_str = ""
-    }
-}
-
-function mult_matriz(A: number[][], B: number[][]): number[][] {
-    if (A[0].length !== B.length) {
-        throw new Error("O número de colunas de A deve ser igual ao número de linhas de B.");
-    }
-
-    let result: number[][] = Array(A.length).fill(null).map(() => Array(B[0].length).fill(0));
-
-    for (let i = 0; i < A.length; i++) {
-        for (let j = 0; j < B[0].length; j++) {
-            for (let k = 0; k < B.length; k++) {
-                result[i][j] += A[i][k] * B[k][j];
-            }
-        }
-    }
-
-    return result;
 }
 
 class Camera {
@@ -354,19 +368,32 @@ let camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, ca
 // constructor(view_reference_point: Dot, focal_p: Dot, dp: number, wid: number, heig: number, min_x: number, min_y: number, max_x: number, max_y: number){
 let uni = new Universe(ctx, camera);
 
-let A = new Dot(-10, -20, 10);
-let B = new Dot(10, -20, 10);
-let C = new Dot(7, 20, 10);
-let D = new Dot(-7, 20, 10);
-let E = new Dot(10, -20, -10);
-let F = new Dot(7, 20, -10);
-let G = new Dot(-7, 20, -10);
-let H = new Dot(-10, -20, -10);
+// let A = new Dot(-10, -20, 10);
+// let B = new Dot(10, -20, 10);
+// let C = new Dot(7, 20, 10);
+// let D = new Dot(-7, 20, 10);
+// let E = new Dot(10, -20, -10);
+// let F = new Dot(7, 20, -10);
+// let G = new Dot(-7, 20, -10);
+// let H = new Dot(-10, -20, -10);
 
-let pyramid_dots: Array<Dot>;
-pyramid_dots = [A, B, C, D, E, F, G, H];
+// let pyramid_dots: Array<Dot>;
+// pyramid_dots = [A, B, C, D, E, F, G, H];
 
-let pyramid = new Obj_3D("blue", pyramid_dots);
+// let pyramid = new Obj_3D("blue", pyramid_dots);
 
-uni.add_obj(pyramid);
+// uni.add_obj(pyramid);
+
+
+let H = new Dot(-7.5, -0.75, 2.25);
+let I = new Dot(-3.5, -4.75, 6.25);
+let J = new Dot(3.5, 4.25, -9.75);
+let K = new Dot(7.5, 1.25, 1.25);
+
+let control_dots: Array<Dot>; 
+control_dots = [H, I, J, K];
+
+let spline = new Spline(control_dots);
+
+uni.add_obj(spline.create_obj(0.1));
 uni.animate_world();
