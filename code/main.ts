@@ -1,4 +1,4 @@
-/// <reference path= "./script.ts" />
+/// <reference path= "./universe.ts" />
 
 const canvas = document.createElement("canvas")
 canvas.id = "canvas-giratorio"
@@ -47,5 +47,5 @@ control_dots = [H, I, J, K];
 
 let spline = new Spline(control_dots);
 
-uni.add_obj(spline.create_obj(0.01));
+uni.add_obj_spline(spline);
 uni.animate_world();

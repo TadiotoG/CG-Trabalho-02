@@ -1,4 +1,39 @@
-/// <reference path= "./Dot_Vet.ts" />
+class Dot{ // Classe para pontos ou vertices
+    x: number;
+    y: number;
+    z: number;
+
+    constructor(new_x: number, new_y: number, new_z: number){
+        this.x = new_x;
+        this.y = new_y;
+        this.z = new_z;
+    }
+
+    print_obj(dot_name: string){
+        console.log(dot_name + "-> (" + this.x + "," + this.y + "," + this.z + ")")
+    }
+}
+
+class Vet extends Dot { // Adicionei esta classe para que assim que declarado o vetor, tenhamos ja calculado seus possiveis diferentes atributos, como o vetor unitario...
+    unitary: Dot; // Vetor unitario deve ser um Dot, pq se definirmos como um Vet, na sua construcao sera calculado o seu vetor unitario, criando um looping recursivo e infinito...
+
+    constructor (new_x: number, new_y: number, new_z: number){
+        super(new_x, new_y, new_z);
+        this.unitary = this.get_unitary_vector()
+    }
+
+    get_unitary_vector(){
+        let norma_A: number;
+        norma_A = Math.sqrt(this.x**2 + this.y**2 + this.z**2)
+        return new Dot(this.x/norma_A, this.y/norma_A, this.z/norma_A)
+    }
+
+    print_obj(vet_name: string){
+        console.log(vet_name + "-> (" + this.x + "," + this.y + "," + this.z + ")")
+        this.unitary.print_obj("Unitary ")
+        console.log()
+    }
+}
 
 class Spline{
     control_points: Array<Dot>;
@@ -31,7 +66,7 @@ class Spline{
         // return mat_return;
     }
 
-    create_obj(t: number){
+    create_dots_to_the_entire_curve(t: number){
         let list_dots = this.control_points;
         let quant = 1/t;
 
@@ -42,7 +77,7 @@ class Spline{
             list_dots.push(new_one);
         }
 
-        return new Obj_3D("blue", list_dots);
+        return list_dots;
     }
 
     get_centroide(): Dot{
@@ -67,6 +102,10 @@ class Spline{
         }
         return mat_aux;
     }
+
+    update_mat_control_points(){
+        this.mat_control_points = this.get_control_points_as_mat();
+    }
 }
 
 // let H = new Dot(-7.5, -0.75, 2.25);
@@ -82,3 +121,91 @@ class Spline{
 // print_matriz(get_ArrDots_as_mat(spline.control_points), "Spline");
 
 // print_matriz(spline.calc_curve(0.1), "Result");
+
+// Abaixo foram implementadas funções uteis para manipulação de matrizes ou vetores
+
+function get_matriz_translada(x: number, y: number, z: number): number[][]{
+    let mat_aux: number[][];
+    mat_aux = ([[1, 0, 0, x],
+                [0, 1, 0, y],
+                [0, 0, 0, z],
+                [0, 0, 0, 1]])
+    return mat_aux;
+}
+
+function get_matriz_rot_y(angle: number): number[][] {
+    let mat_aux: number[][];
+    mat_aux = ([[Math.cos(angle), 0, Math.sin(angle), 0],
+                [0, 1, 0, 0],
+                [-Math.sin(angle), 0, Math.cos(angle), 0],
+                [0, 0, 0, 1]])
+    return mat_aux;
+}
+
+function VetA_minus_VetB(A: Dot, B: Dot) { // Subtracao entre 2 pontos ou vetores, resultando em um Vetor
+    let x: number, y: number, z: number;
+    x = A.x - B.x;
+    y = A.y - B.y;
+    z = A.z - B.z;
+
+    let C = new Vet(x, y, z);
+
+    return C;
+}
+
+function prod_escalar(A: Dot, B: Dot){ // Passagem de parametros utilizando Dot, pois como Dot é a classe pai, utilizando a classe filho tambem funciona (polimorfismo), isso serve para que caso seja necessario fazer prod_escalar de Dot com Vet, funcionara...
+    return (A.x * B.x + A.y * B.y + A.z * B.z);
+}
+
+function prod_vet(A: Dot, B: Dot){
+    let prod_x = A.y * B.z - A.z * B.y;
+    let prod_y = A.z * B.x - A.x * B.z;
+    let prod_z = A.x * B.y - A.y * B.x;
+
+    let C = new Vet(prod_x, prod_y, prod_z);
+    return C;
+}
+
+function print_matriz(A: number [][], matriz_name: string){
+    // console.log("Matriz = [" + A[0][0] + "," + A[0][1])
+    let aux_str: string;
+    console.log("------------- Matriz " + matriz_name + " -------------")
+    aux_str = ""
+    for(let i = 0; i < A.length; i++){
+        for(let j = 0; j < A[0].length; j++){
+            aux_str += A[i][j] + ", "
+        }
+        console.log(aux_str)
+        aux_str = ""
+    }
+}
+
+function mult_matriz(A: number[][], B: number[][]): number[][] {
+    if (A[0].length !== B.length) {
+        throw new Error("O número de colunas de A deve ser igual ao número de linhas de B.");
+    }
+
+    let result: number[][] = Array(A.length).fill(null).map(() => Array(B[0].length).fill(0));
+
+    for (let i = 0; i < A.length; i++) {
+        for (let j = 0; j < B[0].length; j++) {
+            for (let k = 0; k < B.length; k++) {
+                result[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+
+    return result;
+}
+
+function get_ArrDots_as_mat(arr_dots: Array<Dot>): number[][]{
+    let mat_aux: number[][] = Array(4).fill(null).map(() => Array(arr_dots.length).fill(0));
+
+    for(let i = 0; i < arr_dots.length; i++){
+        mat_aux[0][i] = arr_dots[i].x;
+        mat_aux[1][i] = arr_dots[i].y;
+        mat_aux[2][i] = arr_dots[i].z;
+        mat_aux[3][i] = 1;
+    }
+    return mat_aux;
+}

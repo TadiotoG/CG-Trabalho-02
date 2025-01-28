@@ -1,4 +1,48 @@
-/// <reference path= "./script.ts" />
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var Dot = /** @class */ (function () {
+    function Dot(new_x, new_y, new_z) {
+        this.x = new_x;
+        this.y = new_y;
+        this.z = new_z;
+    }
+    Dot.prototype.print_obj = function (dot_name) {
+        console.log(dot_name + "-> (" + this.x + "," + this.y + "," + this.z + ")");
+    };
+    return Dot;
+}());
+var Vet = /** @class */ (function (_super) {
+    __extends(Vet, _super);
+    function Vet(new_x, new_y, new_z) {
+        var _this = _super.call(this, new_x, new_y, new_z) || this;
+        _this.unitary = _this.get_unitary_vector();
+        return _this;
+    }
+    Vet.prototype.get_unitary_vector = function () {
+        var norma_A;
+        norma_A = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2) + Math.pow(this.z, 2));
+        return new Dot(this.x / norma_A, this.y / norma_A, this.z / norma_A);
+    };
+    Vet.prototype.print_obj = function (vet_name) {
+        console.log(vet_name + "-> (" + this.x + "," + this.y + "," + this.z + ")");
+        this.unitary.print_obj("Unitary ");
+        console.log();
+    };
+    return Vet;
+}(Dot));
 var Spline = /** @class */ (function () {
     function Spline(arr) {
         this.gap = 0.1;
@@ -22,7 +66,7 @@ var Spline = /** @class */ (function () {
         return new Dot(mat_return[0][0], mat_return[0][1], mat_return[0][2]);
         // return mat_return;
     };
-    Spline.prototype.create_obj = function (t) {
+    Spline.prototype.create_dots_to_the_entire_curve = function (t) {
         var list_dots = this.control_points;
         var quant = 1 / t;
         for (var i = 0; i < quant; i++) {
@@ -31,7 +75,7 @@ var Spline = /** @class */ (function () {
             // new_one.print_obj("Pontos");
             list_dots.push(new_one);
         }
-        return new Obj_3D("blue", list_dots);
+        return list_dots;
     };
     Spline.prototype.get_centroide = function () {
         var sum_x = 0;
@@ -52,6 +96,9 @@ var Spline = /** @class */ (function () {
         }
         return mat_aux;
     };
+    Spline.prototype.update_mat_control_points = function () {
+        this.mat_control_points = this.get_control_points_as_mat();
+    };
     return Spline;
 }());
 // let H = new Dot(-7.5, -0.75, 2.25);
@@ -63,3 +110,75 @@ var Spline = /** @class */ (function () {
 // let spline = new Spline(control_dots);
 // print_matriz(get_ArrDots_as_mat(spline.control_points), "Spline");
 // print_matriz(spline.calc_curve(0.1), "Result");
+// Abaixo foram implementadas funções uteis para manipulação de matrizes ou vetores
+function get_matriz_translada(x, y, z) {
+    var mat_aux;
+    mat_aux = ([[1, 0, 0, x],
+        [0, 1, 0, y],
+        [0, 0, 0, z],
+        [0, 0, 0, 1]]);
+    return mat_aux;
+}
+function get_matriz_rot_y(angle) {
+    var mat_aux;
+    mat_aux = ([[Math.cos(angle), 0, Math.sin(angle), 0],
+        [0, 1, 0, 0],
+        [-Math.sin(angle), 0, Math.cos(angle), 0],
+        [0, 0, 0, 1]]);
+    return mat_aux;
+}
+function VetA_minus_VetB(A, B) {
+    var x, y, z;
+    x = A.x - B.x;
+    y = A.y - B.y;
+    z = A.z - B.z;
+    var C = new Vet(x, y, z);
+    return C;
+}
+function prod_escalar(A, B) {
+    return (A.x * B.x + A.y * B.y + A.z * B.z);
+}
+function prod_vet(A, B) {
+    var prod_x = A.y * B.z - A.z * B.y;
+    var prod_y = A.z * B.x - A.x * B.z;
+    var prod_z = A.x * B.y - A.y * B.x;
+    var C = new Vet(prod_x, prod_y, prod_z);
+    return C;
+}
+function print_matriz(A, matriz_name) {
+    // console.log("Matriz = [" + A[0][0] + "," + A[0][1])
+    var aux_str;
+    console.log("------------- Matriz " + matriz_name + " -------------");
+    aux_str = "";
+    for (var i = 0; i < A.length; i++) {
+        for (var j = 0; j < A[0].length; j++) {
+            aux_str += A[i][j] + ", ";
+        }
+        console.log(aux_str);
+        aux_str = "";
+    }
+}
+function mult_matriz(A, B) {
+    if (A[0].length !== B.length) {
+        throw new Error("O número de colunas de A deve ser igual ao número de linhas de B.");
+    }
+    var result = Array(A.length).fill(null).map(function () { return Array(B[0].length).fill(0); });
+    for (var i = 0; i < A.length; i++) {
+        for (var j = 0; j < B[0].length; j++) {
+            for (var k = 0; k < B.length; k++) {
+                result[i][j] += A[i][k] * B[k][j];
+            }
+        }
+    }
+    return result;
+}
+function get_ArrDots_as_mat(arr_dots) {
+    var mat_aux = Array(4).fill(null).map(function () { return Array(arr_dots.length).fill(0); });
+    for (var i = 0; i < arr_dots.length; i++) {
+        mat_aux[0][i] = arr_dots[i].x;
+        mat_aux[1][i] = arr_dots[i].y;
+        mat_aux[2][i] = arr_dots[i].z;
+        mat_aux[3][i] = 1;
+    }
+    return mat_aux;
+}

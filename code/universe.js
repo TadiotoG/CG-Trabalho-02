@@ -1,0 +1,99 @@
+/// <reference path= "camera.ts" />
+// class Obj_3D{
+//     dots: Array<Dot>;
+//     mat_dots: number[][];
+//     color: string;
+//     centroide: Dot;
+//     constructor(new_color: string, dots_array: Array<Dot>){
+//         this.color = new_color;
+//         this.dots = [];
+//         this.dots = dots_array;
+//         this.mat_dots = this.get_mat_from_dots();
+//         this.centroide = this.get_centroide();
+//     }
+//     get_mat_from_dots(): number[][]{
+//         let mat_aux: number[][] = Array(4).fill(null).map(() => Array(this.dots.length).fill(0));
+//         for(let i = 0; i < this.dots.length; i++){
+//             mat_aux[0][i] = this.dots[i].x;
+//             mat_aux[1][i] = this.dots[i].y;
+//             mat_aux[2][i] = this.dots[i].z;
+//             mat_aux[3][i] = 1;
+//         }
+//         return mat_aux;
+//     }
+//     get_centroide(): Dot{
+//         let sum_x = 0;
+//         let sum_y = 0;
+//         let sum_z = 0;
+//         for(let i=0; i < this.dots.length; i++){
+//             sum_x += this.dots[i].x;
+//             sum_y += this.dots[i].y;
+//             sum_z += this.dots[i].z;
+//         }
+//         return new Dot(sum_x/this.dots.length, sum_y/this.dots.length, sum_z/this.dots.length);
+//     }
+//     update_centroide(): void {
+//         this.centroide = this.get_centroide();
+//     }
+// }
+var canvas_width = 800;
+var canvas_height = 800;
+var Universe = /** @class */ (function () {
+    function Universe(ctx_out, cam) {
+        var _this = this;
+        this.objects = []; // TROCAR POR SPLINE
+        this.animate_world = function () {
+            _this.ctx.fillStyle = "white";
+            _this.ctx.fillRect(0, 0, canvas_width, canvas_height);
+            for (var i = 0; i < _this.objects.length; i++) {
+                _this.draw_obj(_this.objects[i]);
+                var new_matriz_obj = void 0;
+                new_matriz_obj = mult_matriz(get_matriz_rot_y(0.007), _this.get_mat_from_list_of_dots(_this.objects[i].control_points)); // Faz a animacao rotacionando o objeto no eixo y
+                var new_dots = _this.get_dots_from_mat(new_matriz_obj); // Precisa fazer isso, pq a matriz dos pontos de controle são diferentes da matriz dos vertices dos objetos
+                _this.objects[i].control_points = new_dots;
+                _this.objects[i].update_mat_control_points();
+            }
+            requestAnimationFrame(_this.animate_world);
+        };
+        this.ctx = ctx_out;
+        this.camera = cam;
+        this.matriz_SRU_SRT = this.camera.get_mat_SRU_SRT();
+    }
+    Universe.prototype.draw_dot = function (x, y, color) {
+        this.ctx.beginPath();
+        this.ctx.fillStyle = color;
+        this.ctx.arc(x, y, 2, 0, 360, false);
+        this.ctx.fill();
+    };
+    Universe.prototype.draw_obj = function (obj) {
+        var points;
+        // points = mult_matriz(this.matriz_SRU_SRT, obj.mat_control_points);
+        var curve_as_mat_dots = this.get_mat_from_list_of_dots(obj.create_dots_to_the_entire_curve(0.01));
+        points = mult_matriz(this.matriz_SRU_SRT, curve_as_mat_dots);
+        for (var i = 0; i < points[0].length; i++) {
+            this.draw_dot(points[0][i] / points[3][i], points[1][i] / points[3][i], "black"); // Divide pelo fator homogenio
+        }
+    };
+    Universe.prototype.add_obj_spline = function (obj) {
+        this.objects.push(obj);
+    };
+    Universe.prototype.get_mat_from_list_of_dots = function (arr_dots) {
+        var mat_aux = Array(4).fill(null).map(function () { return Array(arr_dots.length).fill(0); });
+        for (var i = 0; i < arr_dots.length; i++) {
+            mat_aux[0][i] = arr_dots[i].x;
+            mat_aux[1][i] = arr_dots[i].y;
+            mat_aux[2][i] = arr_dots[i].z;
+            mat_aux[3][i] = 1;
+        }
+        return mat_aux;
+    };
+    Universe.prototype.get_dots_from_mat = function (mat) {
+        var list_d;
+        list_d = [new Dot(mat[0][0], mat[1][0], mat[2][0])];
+        for (var i = 1; i < mat.length; i++) {
+            list_d.push(new Dot(mat[0][i], mat[1][i], mat[2][i]));
+        }
+        return list_d;
+    };
+    return Universe;
+}());
