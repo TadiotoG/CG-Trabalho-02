@@ -1,4 +1,5 @@
-/// <reference path= "camera.ts" />
+/// <reference path= "./surface.ts" />
+/// <reference path= "./camera.ts" />
 // class Obj_3D{
 //     dots: Array<Dot>;
 //     mat_dots: number[][];
@@ -41,17 +42,24 @@ var canvas_height = 800;
 var Universe = /** @class */ (function () {
     function Universe(ctx_out, cam) {
         var _this = this;
-        this.objects = []; // TROCAR POR SPLINE
+        this.splines = [];
+        this.surfaces = [];
         this.animate_world = function () {
             _this.ctx.fillStyle = "white";
             _this.ctx.fillRect(0, 0, canvas_width, canvas_height);
-            for (var i = 0; i < _this.objects.length; i++) {
-                _this.draw_obj(_this.objects[i]);
+            for (var i = 0; i < _this.splines.length; i++) {
+                _this.draw_spline_curve(_this.splines[i]);
                 var new_matriz_obj = void 0;
-                new_matriz_obj = mult_matriz(get_matriz_rot_y(0.007), _this.get_mat_from_list_of_dots(_this.objects[i].control_points)); // Faz a animacao rotacionando o objeto no eixo y
+                new_matriz_obj = mult_matriz(get_matriz_rot_y(0.001), _this.get_mat_from_list_of_dots(_this.splines[i].control_points)); // Faz a animacao rotacionando o objeto no eixo y
                 var new_dots = _this.get_dots_from_mat(new_matriz_obj); // Precisa fazer isso, pq a matriz dos pontos de controle são diferentes da matriz dos vertices dos objetos
-                _this.objects[i].control_points = new_dots;
-                _this.objects[i].update_mat_control_points();
+                _this.splines[i].control_points = new_dots;
+                _this.splines[i].update_mat_control_points();
+            }
+            for (var i = 0; i < _this.surfaces.length; i++) {
+                _this.draw_control_points(_this.surfaces[i]);
+                var new_matriz_obj = void 0;
+                new_matriz_obj = mult_matriz(get_matriz_rot_y(0.001), _this.surfaces[i].get_cp_as_mat()); // Faz a animacao rotacionando o objeto no eixo y
+                _this.surfaces[i].update_cp_with_mat(new_matriz_obj);
             }
             requestAnimationFrame(_this.animate_world);
         };
@@ -65,7 +73,7 @@ var Universe = /** @class */ (function () {
         this.ctx.arc(x, y, 2, 0, 360, false);
         this.ctx.fill();
     };
-    Universe.prototype.draw_obj = function (obj) {
+    Universe.prototype.draw_spline_curve = function (obj) {
         var points;
         // points = mult_matriz(this.matriz_SRU_SRT, obj.mat_control_points);
         var curve_as_mat_dots = this.get_mat_from_list_of_dots(obj.create_dots_to_the_entire_curve(0.01));
@@ -75,7 +83,18 @@ var Universe = /** @class */ (function () {
         }
     };
     Universe.prototype.add_obj_spline = function (obj) {
-        this.objects.push(obj);
+        this.splines.push(obj);
+    };
+    Universe.prototype.add_surface = function (obj) {
+        this.surfaces.push(obj);
+    };
+    Universe.prototype.draw_control_points = function (obj) {
+        var mat_control_p = obj.get_cp_as_mat();
+        var points;
+        points = mult_matriz(this.matriz_SRU_SRT, mat_control_p);
+        for (var i = 0; i < points[0].length; i++) {
+            this.draw_dot(points[0][i] / points[3][i], points[1][i] / points[3][i], "red"); // Divide pelo fator homogenio
+        }
     };
     Universe.prototype.get_mat_from_list_of_dots = function (arr_dots) {
         var mat_aux = Array(4).fill(null).map(function () { return Array(arr_dots.length).fill(0); });

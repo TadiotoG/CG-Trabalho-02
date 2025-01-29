@@ -1,4 +1,5 @@
-/// <reference path= "camera.ts" />
+/// <reference path= "./surface.ts" />
+/// <reference path= "./camera.ts" />
 
 // class Obj_3D{
 //     dots: Array<Dot>;
@@ -52,7 +53,8 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     ctx: CanvasRenderingContext2D;
     matriz_SRU_SRT: number[][];
     camera: Camera;
-    objects: Array<Spline> = []; // TROCAR POR SPLINE
+    splines: Array<Spline> = [];
+    surfaces: Array<Surface> = []; 
 
     constructor(ctx_out: CanvasRenderingContext2D, cam: Camera){
         this.ctx = ctx_out;
@@ -63,13 +65,19 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     animate_world = () => {
         this.ctx.fillStyle = "white";
         this.ctx.fillRect(0, 0, canvas_width, canvas_height);
-        for(let i = 0; i < this.objects.length; i++){   
-            this.draw_obj(this.objects[i]);
+        for(let i = 0; i < this.splines.length; i++){   
+            this.draw_spline_curve(this.splines[i]);
             let new_matriz_obj: number[][];
-            new_matriz_obj = mult_matriz(get_matriz_rot_y(0.007), this.get_mat_from_list_of_dots(this.objects[i].control_points)); // Faz a animacao rotacionando o objeto no eixo y
+            new_matriz_obj = mult_matriz(get_matriz_rot_y(0.001), this.get_mat_from_list_of_dots(this.splines[i].control_points)); // Faz a animacao rotacionando o objeto no eixo y
             let new_dots = this.get_dots_from_mat(new_matriz_obj); // Precisa fazer isso, pq a matriz dos pontos de controle são diferentes da matriz dos vertices dos objetos
-            this.objects[i].control_points = new_dots;
-            this.objects[i].update_mat_control_points();
+            this.splines[i].control_points = new_dots;
+            this.splines[i].update_mat_control_points();
+        }
+        for(let i = 0; i < this.surfaces.length; i++){   
+            this.draw_control_points(this.surfaces[i]);
+            let new_matriz_obj: number[][];
+            new_matriz_obj = mult_matriz(get_matriz_rot_y(0.001), this.surfaces[i].get_cp_as_mat()); // Faz a animacao rotacionando o objeto no eixo y
+            this.surfaces[i].update_cp_with_mat(new_matriz_obj);
         }
         requestAnimationFrame(this.animate_world);
     }
@@ -81,7 +89,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         this.ctx.fill();
     }
 
-    draw_obj(obj: Spline){
+    draw_spline_curve(obj: Spline){
         let points: number[][];
         // points = mult_matriz(this.matriz_SRU_SRT, obj.mat_control_points);
 
@@ -95,7 +103,23 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     }
 
     add_obj_spline(obj: Spline){
-        this.objects.push(obj);
+        this.splines.push(obj);
+    }
+
+    add_surface(obj: Surface){
+        this.surfaces.push(obj);
+    }
+
+    draw_control_points(obj: Surface){
+        let mat_control_p = obj.get_cp_as_mat();
+
+        let points: number[][];
+
+        points = mult_matriz(this.matriz_SRU_SRT, mat_control_p);
+
+        for(let i = 0; i < points[0].length; i++){
+            this.draw_dot(points[0][i] / points[3][i], points[1][i] / points[3][i], "red"); // Divide pelo fator homogenio
+        }
     }
 
     get_mat_from_list_of_dots(arr_dots: Array<Dot>): number[][]{

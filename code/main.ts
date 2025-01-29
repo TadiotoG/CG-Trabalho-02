@@ -41,11 +41,24 @@ let H = new Dot(-7.5, -0.75, 2.25);
 let I = new Dot(-3.5, -4.75, 6.25);
 let J = new Dot(3.5, 4.25, -9.75);
 let K = new Dot(7.5, 1.25, 1.25);
+let L = new Dot(16, 10, -5);
+let M = new Dot(16, 10, -20);
 
 let control_dots: Array<Dot>; 
+let control_dots_2: Array<Dot>; 
+let control_dots_3: Array<Dot>; 
 control_dots = [H, I, J, K];
+control_dots_2 = [I, J, K, L];
+control_dots_3 = [J, K, L, M];
 
 let spline = new Spline(control_dots);
+let spline_2 = new Spline(control_dots_2);
+let spline_3 = new Spline(control_dots_3);
 
-uni.add_obj_spline(spline);
+let surface_01 = new Surface([5,5]);
+
+// uni.add_obj_spline(spline);
+// uni.add_obj_spline(spline_2);
+// uni.add_obj_spline(spline_3);
+uni.add_surface(surface_01);
 uni.animate_world();
