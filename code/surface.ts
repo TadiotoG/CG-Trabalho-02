@@ -6,6 +6,7 @@
 
 class Surface{
     control_points: Dot[][];
+    splines: Array<Spline>;
     resolution: [number, number];
 
     constructor(res: [number, number]){
@@ -17,15 +18,55 @@ class Surface{
                 // this.control_points[i][j].x = i;
                 // this.control_points[i][j].y = j;
                 // this.control_points[i][j].z = Math.random()*10;
-                this.control_points[i][j] = new Dot(i*7, Math.random()*10, j*7);
-                console.log(i + "," + j + " DOT = "+ "(" + this.control_points[i][j].x + ", " + this.control_points[i][j].y + ", " + this.control_points[i][j].z + ")")
+                this.control_points[i][j] = new Dot(i*14, Math.random()*10, j*14);
+                // console.log(i + "," + j + " DOT = "+ "(" + this.control_points[i][j].x + ", " + this.control_points[i][j].y + ", " + this.control_points[i][j].z + ")")
             }
         }
-        this.control_points[0][0].print_obj("Dots");
-        this.control_points[0][1].print_obj("Dots");
-        this.control_points[1][0].print_obj("Dots");
-        this.control_points[1][1].print_obj("Dots");
-        print_matriz(this.get_cp_as_mat(), "INFERNO")
+        // this.control_points[0][0].print_obj("Dots");
+        // this.control_points[0][1].print_obj("Dots");
+        // this.control_points[1][0].print_obj("Dots");
+        // this.control_points[1][1].print_obj("Dots");
+        // print_matriz(this.get_cp_as_mat(), "INFERNO")
+    }
+
+    create_splines(arr_spline: Array<Spline>){
+        let i:number, j: number;
+        i = 0;
+        j = 0;
+        while(i < this.resolution[0]-1){
+            j = 0;
+            while(j < this.resolution[1]-1){
+                let arr_dots: Array<Dot>;
+                
+                arr_dots = [this.control_points[i][j], this.control_points[i+1][j], this.control_points[i][j+1], this.control_points[i+1][j+1]];
+                arr_spline.push(new Spline(arr_dots))
+            
+                if(j != this.resolution[1]-2){
+                    arr_dots = [this.control_points[i+1][j], this.control_points[i][j+1], this.control_points[i+1][j+1], this.control_points[i][j+2]];
+                    arr_spline.push(new Spline(arr_dots))
+                }
+                j++;
+            }
+            i++;
+        }
+        i = 0;
+        j = 0;
+        while(j < this.resolution[1]-1){
+            i = 0;
+            while(i < this.resolution[0]-1){
+                let arr_dots: Array<Dot>;
+                
+                arr_dots = [this.control_points[i][j], this.control_points[i][j+1], this.control_points[i+1][j], this.control_points[i+1][j+1]];
+                arr_spline.push(new Spline(arr_dots))
+            
+                if(i != this.resolution[0]-2){
+                    arr_dots = [this.control_points[i][j+1], this.control_points[i+1][j], this.control_points[i+1][j+1], this.control_points[i+2][j]];
+                    arr_spline.push(new Spline(arr_dots))
+                }
+                i++;
+            }
+            j++;
+        }
     }
 
     print_all_cp(){

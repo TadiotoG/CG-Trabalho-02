@@ -12,7 +12,7 @@ canvas.height = 800;
 ctx.imageSmoothingEnabled = false;
 document.body.appendChild(canvas);
 
-let vrp_camera = new Dot(0, 0, 1);
+let vrp_camera = new Dot(0, 0.2, 1);
 let focal_point_camera = new Dot(0, 0, 0);
 let distance_point = 240;
 
@@ -37,28 +37,37 @@ let uni = new Universe(ctx, camera);
 // uni.add_obj(pyramid);
 
 
-let H = new Dot(-7.5, -0.75, 2.25);
-let I = new Dot(-3.5, -4.75, 6.25);
-let J = new Dot(3.5, 4.25, -9.75);
-let K = new Dot(7.5, 1.25, 1.25);
-let L = new Dot(16, 10, -5);
-let M = new Dot(16, 10, -20);
+let A = new Dot(-7.5, -0.75, 2.25);
+let B = new Dot(-3.5, -4.75, 6.25);
+let C = new Dot(3.5, 4.25, -9.75);
+let D = new Dot(7.5, 1.25, 1.25);
 
-let control_dots: Array<Dot>; 
+let E = new Dot(16, 10, -5);
+let F = new Dot(16, 10, -20);
+
+let control_dots: Array<Dot>;
+let other_dots: Array<Dot>;
 let control_dots_2: Array<Dot>; 
 let control_dots_3: Array<Dot>; 
-control_dots = [H, I, J, K];
-control_dots_2 = [I, J, K, L];
-control_dots_3 = [J, K, L, M];
+control_dots = [A, B, C, D];
+control_dots_2 = [B, C, D, E];
+control_dots_3 = [C, D, E, F];
+
+other_dots = [B, D, A, C]
 
 let spline = new Spline(control_dots);
 let spline_2 = new Spline(control_dots_2);
 let spline_3 = new Spline(control_dots_3);
 
-let surface_01 = new Surface([5,5]);
+let other = new Spline(other_dots);
+
+let surface_01 = new Surface([10,10]);
 
 // uni.add_obj_spline(spline);
+
+surface_01.create_splines(uni.splines);
 // uni.add_obj_spline(spline_2);
 // uni.add_obj_spline(spline_3);
+// uni.add_obj_spline(other);
 uni.add_surface(surface_01);
 uni.animate_world();

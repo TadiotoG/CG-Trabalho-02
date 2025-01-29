@@ -93,7 +93,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         let points: number[][];
         // points = mult_matriz(this.matriz_SRU_SRT, obj.mat_control_points);
 
-        let curve_as_mat_dots = this.get_mat_from_list_of_dots(obj.create_dots_to_the_entire_curve(0.01));
+        let curve_as_mat_dots = this.get_mat_from_list_of_dots(obj.create_dots_to_the_entire_curve(0.05));
 
         points = mult_matriz(this.matriz_SRU_SRT, curve_as_mat_dots);
 
