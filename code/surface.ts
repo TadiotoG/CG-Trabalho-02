@@ -6,19 +6,28 @@
 
 class Surface{
     control_points: Dot[][];
-    splines: Array<Spline>;
-    resolution: [number, number];
+    ni: number;
+    nj: number;
+    ti: number;
+    tj: number;
+    resi: number;
+    resj: number;
+    outp: Dot[][];
 
-    constructor(res: [number, number]){
-        this.control_points = Array(res[0]).fill(null).map(() => Array(res[1]).fill(new Dot(4,5,6)))
-        this.resolution = res;
-        for(let i=0; i<res[0]; i++){
-            for(let j=0; j<res[1]; j++){
-                // console.log(i + " <- i     j ->" + j);
-                // this.control_points[i][j].x = i;
-                // this.control_points[i][j].y = j;
-                // this.control_points[i][j].z = Math.random()*10;
-                this.control_points[i][j] = new Dot(i*14, Math.random()*10, j*14);
+    constructor(ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number){
+        this.control_points = Array(ni+1).fill(null).map(() => Array(nj+1).fill(new Dot(0,0,0)))
+        this.outp = Array(resolutioni).fill(null).map(() => Array(resolutionj).fill(new Dot(0,0,0)))
+        this.ni = ni;
+        this.nj = nj;
+        this.ti = ti;
+        this.tj = tj;
+        this.resi = resolutioni;
+        this.resj = resolutionj;
+        let counter = 0;
+        for(let i=0; i<ni; i++){
+            for(let j=0; j<nj; j++){
+                counter++;
+                this.control_points[i][j] = new Dot(i*13, Math.random()*10, j*13);
                 // console.log(i + "," + j + " DOT = "+ "(" + this.control_points[i][j].x + ", " + this.control_points[i][j].y + ", " + this.control_points[i][j].z + ")")
             }
         }
@@ -26,44 +35,153 @@ class Surface{
         // this.control_points[0][1].print_obj("Dots");
         // this.control_points[1][0].print_obj("Dots");
         // this.control_points[1][1].print_obj("Dots");
-        // print_matriz(this.get_cp_as_mat(), "INFERNO")
+        console.log("Counter "+  this.control_points.length + "  " + this.control_points[0].length)
+        print_matriz(this.get_cp_as_mat(), "INFERNO")
     }
 
-    create_splines(arr_spline: Array<Spline>){
-        let i:number, j: number;
-        i = 0;
-        j = 0;
-        while(i < this.resolution[0]-1){
-            j = 0;
-            while(j < this.resolution[1]-3){
-                let arr_dots: Array<Dot>;
-                
-                arr_dots = [this.control_points[i][j], this.control_points[i][j+1], this.control_points[i][j+2], this.control_points[i][j+3]];
-                arr_spline.push(new Spline(arr_dots))
-
-                j++;
-            }
-            i++;
+    SplineKnots(u: number[], n: number, t: number): void {
+        for (let j = 0; j <= n + t; j++) {
+          if (j < t){
+            u[j] = 0;
+          }
+          else if(j <= n){
+            u[j] = j - t + 1;
+          }
+          else{
+            u[j] = n - t + 2;
+          }
         }
-        i = 0;
-        j = 0;
-        while(j < this.resolution[1]-1){
-            i = 0;
-            while(i < this.resolution[0]-3){
-                let arr_dots: Array<Dot>;
+    }
+
+    SplineBlend(k: number, t: number, u: number[], v: number): number {
+        if (t === 1) {
+          return u[k] <= v && v < u[k + 1] ? 1 : 0;
+        }
+        let value = 0;
+        if (u[k + t - 1] !== u[k]) {
+          value += (v - u[k]) / (u[k + t - 1] - u[k]) * this.SplineBlend(k, t - 1, u, v);
+        }
+        if (u[k + t] !== u[k + 1]) {
+          value += (u[k + t] - v) / (u[k + t] - u[k + 1]) * this.SplineBlend(k + 1, t - 1, u, v);
+        }
+        return value;
+    }
+
+    generateSurface(): void {
+        let counter = 0;
+        let intervalI = 0;
+        const incrementI = (this.ni - this.ti + 2) / (this.resi - 1);
+        const incrementJ = (this.nj - this.tj + 2) / (this.resj - 1);
+
+        let knotsI: number[] = new Array(this.ni + this.ti + 1);
+        let knotsJ: number[] = new Array(this.nj + this.tj + 1);
+        
+        this.SplineKnots(knotsI, this.ni, this.ti);
+        this.SplineKnots(knotsJ, this.nj, this.tj);
+      
+        for (let i = 0; i < this.resi - 1; i++) {
+          let intervalJ = 0;
+          for (let j = 0; j < this.resj - 1; j++) {
+            let x = 0, y = 0, z = 0;
+            for (let ki = 0; ki <= this.ni; ki++) {
+              for (let kj = 0; kj <= this.nj; kj++) {
+                const bi = this.SplineBlend(ki, this.ti, knotsI, intervalI);
+                const bj = this.SplineBlend(kj, this.tj, knotsJ, intervalJ);
+                x += this.control_points[ki][kj].x * bi * bj;
+                y += this.control_points[ki][kj].y * bi * bj;
+                z += this.control_points[ki][kj].z * bi * bj;
+              }
+            }
+            // this.outp[i][j].x = x;
+            // this.outp[i][j].y = y;
+            // this.outp[i][j].z = z;
+            this.outp[i][j] = new Dot(x, y, z);
+            intervalJ += incrementJ;
+          }
+          intervalI += incrementI;
+        }
+        console.log("COunter = "+ counter)
+
+        intervalI = 0;
+        intervalI = 0;
+        for (let i = 0; i < this.resi - 1; i++) {
+            this.outp[i][this.resj - 1] = new Dot(0, 0, 0);
+            for (let ki = 0; ki <= this.ni; ki++) {
+                let bi = this.SplineBlend(ki, this.ti, knotsI, intervalI);
+                this.outp[i][this.resj - 1].x += (this.control_points[ki][this.nj].x * bi);
+                this.outp[i][this.resj - 1].y += (this.control_points[ki][this.nj].y * bi);
+                this.outp[i][this.resj - 1].z += (this.control_points[ki][this.nj].z * bi);
+            }
+            intervalI += incrementI;
+        }
+        this.outp[this.resi - 1][this.resj - 1] = this.control_points[this.ni][this.nj];
+        
+        let intervalJ = 0;
+        for (let j = 0; j < this.resj - 1; j++) {
+            this.outp[this.resi - 1][j] = new Dot(0, 0, 0);
+            for (let kj = 0; kj <= this.nj; kj++) {
+                let bj = this.SplineBlend(kj, this.tj, knotsJ, intervalJ);
+                this.outp[this.resi - 1][j].x += (this.control_points[this.ni][kj].x * bj);
+                this.outp[this.resi - 1][j].y += (this.control_points[this.ni][kj].y * bj);
+                this.outp[this.resi - 1][j].z += (this.control_points[this.ni][kj].z * bj);
+            }
+            intervalJ += incrementJ;
+        }
+        this.outp[this.resi - 1][this.resj - 1] = this.control_points[this.ni][this.nj];
+        
+      }
+
+      displaySurface(): void {
+        console.log("LIST");
+        console.log("{ = CQUAD");
+        for (let i = 0; i < this.resi - 1; i++) {
+          for (let j = 0; j < this.resj - 1; j++) {
+            console.log(
+              `${this.outp[i][j].x} ${this.outp[i][j].y} ${this.outp[i][j].z} 1 1 1 1`,
+              `${this.outp[i][j+1].x} ${this.outp[i][j+1].y} ${this.outp[i][j+1].z} 1 1 1 1`,
+              `${this.outp[i+1][j+1].x} ${this.outp[i+1][j+1].y} ${this.outp[i+1][j+1].z} 1 1 1 1`,
+              `${this.outp[i+1][j].x} ${this.outp[i+1][j].y} ${this.outp[i+1][j].z} 1 1 1 1`
+            );
+          }
+        }
+        console.log("}");
+      }
+
+    // create_splines(arr_spline: Array<Spline>){
+    //     let i:number, j: number;
+    //     i = 0;
+    //     j = 0;
+    //     while(i < this.resolution[0]-1){
+    //         j = 0;
+    //         while(j < this.nj-3){
+    //             let arr_dots: Array<Dot>;
                 
-                arr_dots = [this.control_points[i][j], this.control_points[i+1][j], this.control_points[i+2][j], this.control_points[i+3][j]];
-                arr_spline.push(new Spline(arr_dots))
+    //             arr_dots = [this.control_points[i][j], this.control_points[i][j+1], this.control_points[i][j+2], this.control_points[i][j+3]];
+    //             arr_spline.push(new Spline(arr_dots))
+
+    //             j++;
+    //         }
+    //         i++;
+    //     }
+    //     i = 0;
+    //     j = 0;
+    //     while(j < this.nj-1){
+    //         i = 0;
+    //         while(i < this.resolution[0]-3){
+    //             let arr_dots: Array<Dot>;
+                
+    //             arr_dots = [this.control_points[i][j], this.control_points[i+1][j], this.control_points[i+2][j], this.control_points[i+3][j]];
+    //             arr_spline.push(new Spline(arr_dots))
             
-                i++;
-            }
-            j++;
-        }
-    }
+    //             i++;
+    //         }
+    //         j++;
+    //     }
+    // }
 
     print_all_cp(){
-        for(let i=0; i<this.resolution[0]; i++){
-            for(let j=0; j<this.resolution[1]; j++){
+        for(let i=0; i<this.ni; i++){
+            for(let j=0; j<this.nj; j++){
                 this.control_points[i][j].print_obj("Dots");
             }
         }
@@ -71,14 +189,31 @@ class Surface{
 
 // Transforma os pontos em uma matriz normal para a conversao utilizando a matriz_SRU_SRT
     get_cp_as_mat(){
-        let mat_aux: number[][] = Array(4).fill(null).map(() => Array(this.resolution[0] * this.resolution[1]).fill(2));
+        let mat_aux: number[][] = Array(4).fill(null).map(() => Array((this.ni+1) * (this.nj+1)).fill(2));
 
-        for(let x = 0; x < this.resolution[0]; x++){
-            for(let y = 0; y < this.resolution[1]; y++){
-                mat_aux[0][x*this.resolution[0]+y] = this.control_points[x][y].x;
-                mat_aux[1][x*this.resolution[0]+y] = this.control_points[x][y].y;
-                mat_aux[2][x*this.resolution[0]+y] = this.control_points[x][y].z;
-                mat_aux[3][x*this.resolution[0]+y] = 1;
+        for(let x = 0; x <= this.ni; x++){
+            for(let y = 0; y <= this.nj; y++){
+                mat_aux[0][x*this.ni+y] = this.control_points[x][y].x;
+                mat_aux[1][x*this.ni+y] = this.control_points[x][y].y;
+                mat_aux[2][x*this.ni+y] = this.control_points[x][y].z;
+                mat_aux[3][x*this.ni+y] = 1;
+                // alert(x+y)
+            }
+        }
+        // print_matriz(mat_aux, "MINHA MATRIZINHA")
+        // alert("ESTOPI")
+        return mat_aux; 
+    }
+
+    get_outp_as_mat(){
+        let mat_aux: number[][] = Array(4).fill(null).map(() => Array(this.resi * this.resj).fill(2));
+
+        for(let x = 0; x < this.resi; x++){
+            for(let y = 0; y < this.resj; y++){
+                mat_aux[0][x*this.resi+y] = this.outp[x][y].x;
+                mat_aux[1][x*this.resi+y] = this.outp[x][y].y;
+                mat_aux[2][x*this.resi+y] = this.outp[x][y].z;
+                mat_aux[3][x*this.resi+y] = 1;
                 // alert(x+y)
             }
         }
@@ -90,11 +225,21 @@ class Surface{
 
  // A estrutura utilizada para multiplicar a matriz (M_SRU_SRT), pede para que cada "Dot" seja uma coluna e o x, y, z e 1, sejam as linhas, a funcao abaixo faz com que dessa estrutura possamos converter novamente para uma matriz de dots "normal" (Dot[][])
     update_cp_with_mat(normal_mat: number[][]){
-        for(let i=0; i<this.resolution[0]; i++){
-            for(let j=0; j<this.resolution[1]; j++){
-                this.control_points[i][j].x = normal_mat[0][i*this.resolution[0]+j];
-                this.control_points[i][j].y = normal_mat[1][i*this.resolution[0]+j];
-                this.control_points[i][j].z = normal_mat[2][i*this.resolution[0]+j];
+        for(let i=0; i<this.ni; i++){
+            for(let j=0; j<this.nj; j++){
+                this.control_points[i][j].x = normal_mat[0][i*this.ni+j];
+                this.control_points[i][j].y = normal_mat[1][i*this.ni+j];
+                this.control_points[i][j].z = normal_mat[2][i*this.ni+j];
+            }
+        }
+    }
+
+    update_outp_with_mat(normal_mat: number[][]){
+        for(let i=0; i<this.resi; i++){
+            for(let j=0; j<this.resj; j++){
+                this.outp[i][j].x = normal_mat[0][i*this.resi+j];
+                this.outp[i][j].y = normal_mat[1][i*this.resi+j];
+                this.outp[i][j].z = normal_mat[2][i*this.resi+j];
             }
         }
     }

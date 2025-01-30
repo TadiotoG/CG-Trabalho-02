@@ -61,11 +61,12 @@ let spline_3 = new Spline(control_dots_3);
 
 let other = new Spline(other_dots);
 
-let surface_01 = new Surface([10,10]);
+let surface_01 = new Surface(4, 4, 3, 3, 60, 60);
 
 // uni.add_obj_spline(spline);
 
-surface_01.create_splines(uni.splines);
+surface_01.generateSurface();
+// surface_01.displaySurface();
 // uni.add_obj_spline(spline_2);
 // uni.add_obj_spline(spline_3);
 // uni.add_obj_spline(other);
