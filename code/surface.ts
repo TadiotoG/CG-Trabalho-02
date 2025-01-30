@@ -56,7 +56,7 @@ class Surface{
             while(i < this.resolution[0]-3){
                 let arr_dots: Array<Dot>;
                 
-                arr_dots = [this.control_points[i][j], this.control_points[i+1][j], this.control_points[i+2][j], this.control_points[i+3][j+1]];
+                arr_dots = [this.control_points[i][j], this.control_points[i+1][j], this.control_points[i+2][j], this.control_points[i+3][j]];
                 arr_spline.push(new Spline(arr_dots))
             
                 // if(i != this.resolution[0]-2){
