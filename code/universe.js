@@ -76,7 +76,7 @@ var Universe = /** @class */ (function () {
     Universe.prototype.draw_spline_curve = function (obj) {
         var points;
         // points = mult_matriz(this.matriz_SRU_SRT, obj.mat_control_points);
-        var curve_as_mat_dots = this.get_mat_from_list_of_dots(obj.create_dots_to_the_entire_curve(0.05));
+        var curve_as_mat_dots = this.get_mat_from_list_of_dots(obj.create_dots_to_the_entire_curve(0.02));
         points = mult_matriz(this.matriz_SRU_SRT, curve_as_mat_dots);
         for (var i = 0; i < points[0].length; i++) {
             this.draw_dot(points[0][i] / points[3][i], points[1][i] / points[3][i], "black"); // Divide pelo fator homogenio

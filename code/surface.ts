@@ -35,16 +35,12 @@ class Surface{
         j = 0;
         while(i < this.resolution[0]-1){
             j = 0;
-            while(j < this.resolution[1]-1){
+            while(j < this.resolution[1]-3){
                 let arr_dots: Array<Dot>;
                 
-                arr_dots = [this.control_points[i][j], this.control_points[i+1][j], this.control_points[i][j+1], this.control_points[i+1][j+1]];
+                arr_dots = [this.control_points[i][j], this.control_points[i][j+1], this.control_points[i][j+2], this.control_points[i][j+3]];
                 arr_spline.push(new Spline(arr_dots))
-            
-                if(j != this.resolution[1]-2){
-                    arr_dots = [this.control_points[i+1][j], this.control_points[i][j+1], this.control_points[i+1][j+1], this.control_points[i][j+2]];
-                    arr_spline.push(new Spline(arr_dots))
-                }
+
                 j++;
             }
             i++;
@@ -53,16 +49,12 @@ class Surface{
         j = 0;
         while(j < this.resolution[1]-1){
             i = 0;
-            while(i < this.resolution[0]-1){
+            while(i < this.resolution[0]-3){
                 let arr_dots: Array<Dot>;
                 
-                arr_dots = [this.control_points[i][j], this.control_points[i][j+1], this.control_points[i+1][j], this.control_points[i+1][j+1]];
+                arr_dots = [this.control_points[i][j], this.control_points[i+1][j], this.control_points[i+2][j], this.control_points[i+3][j]];
                 arr_spline.push(new Spline(arr_dots))
             
-                if(i != this.resolution[0]-2){
-                    arr_dots = [this.control_points[i][j+1], this.control_points[i+1][j], this.control_points[i+1][j+1], this.control_points[i+2][j]];
-                    arr_spline.push(new Spline(arr_dots))
-                }
                 i++;
             }
             j++;
