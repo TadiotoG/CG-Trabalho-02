@@ -10,7 +10,7 @@ canvas.width = 800;
 canvas.height = 800;
 ctx.imageSmoothingEnabled = false;
 document.body.appendChild(canvas);
-var vrp_camera = new Dot(0, 0.2, 1);
+var vrp_camera = new Dot(0, 0.4, 1);
 var focal_point_camera = new Dot(0, 0, 0);
 var distance_point = 240;
 var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
