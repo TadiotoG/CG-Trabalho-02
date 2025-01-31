@@ -95,7 +95,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         let points: number[][];
 
         points = mult_matriz(this.matriz_SRU_SRT, mat_control_p);
-        print_matriz(points, "POINTS")
+        // print_matriz(points, "POINTS")
 
         for(let i = 0; i < points[0].length; i++){
             this.draw_dot(points[0][i] / points[3][i], points[1][i] / points[3][i], "black"); // Divide pelo fator homogenio
@@ -108,7 +108,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         let points: number[][];
 
         points = mult_matriz(this.matriz_SRU_SRT, mat_control_p);
-        print_matriz(points, "POINTS")
+        // print_matriz(points, "POINTS")
 
         for(let i = 0; i < points[0].length; i++){
             this.draw_dot(points[0][i] / points[3][i], points[1][i] / points[3][i], "red"); // Divide pelo fator homogenio

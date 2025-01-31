@@ -61,11 +61,14 @@ let spline_3 = new Spline(control_dots_3);
 
 let other = new Spline(other_dots);
 
-let surface_01 = new Surface(4, 4, 3, 3, 60, 60);
+let surface_01 = new Surface(4, 4, 3, 3, 6,6);
+print_matriz(surface_01.get_cp_as_mat(), "Teste 01")
 
 // uni.add_obj_spline(spline);
 
 surface_01.generateSurface();
+print_matriz(surface_01.get_outp_as_mat(), "Teste 02")
+
 // surface_01.displaySurface();
 // uni.add_obj_spline(spline_2);
 // uni.add_obj_spline(spline_3);

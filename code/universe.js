@@ -77,7 +77,7 @@ var Universe = /** @class */ (function () {
         var mat_control_p = obj.get_outp_as_mat();
         var points;
         points = mult_matriz(this.matriz_SRU_SRT, mat_control_p);
-        print_matriz(points, "POINTS");
+        // print_matriz(points, "POINTS")
         for (var i = 0; i < points[0].length; i++) {
             this.draw_dot(points[0][i] / points[3][i], points[1][i] / points[3][i], "black"); // Divide pelo fator homogenio
         }
@@ -86,7 +86,7 @@ var Universe = /** @class */ (function () {
         var mat_control_p = obj.get_cp_as_mat();
         var points;
         points = mult_matriz(this.matriz_SRU_SRT, mat_control_p);
-        print_matriz(points, "POINTS");
+        // print_matriz(points, "POINTS")
         for (var i = 0; i < points[0].length; i++) {
             this.draw_dot(points[0][i] / points[3][i], points[1][i] / points[3][i], "red"); // Divide pelo fator homogenio
         }

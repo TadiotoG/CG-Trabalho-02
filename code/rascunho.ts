@@ -1,8 +1,8 @@
-type Dot = {
-    x: number;
-    y: number;
-    z: number;
-  };
+// type Dot = {
+//     x: number;
+//     y: number;
+//     z: number;
+//   };
   
   const NI = 3;
   const NJ = 4;

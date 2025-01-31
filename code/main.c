@@ -28,13 +28,13 @@ char **argv;
       }
    }
 
-   /* Step size along the curve 3 - 3 + 2 / 30 - 1*/
+   /* Step size along the curve (3 - 3 + 2) / (30 - 1)*/
    incrementI = (NI - TI + 2) / ((double)RESOLUTIONI - 1);
    incrementJ = (NJ - TJ + 2) / ((double)RESOLUTIONJ - 1);
 
    /* Calculate the knots */
-   SplineKnots(knotsI,NI,TI); // Criou 6 pontos = [0,0,0,1,2,2]
-   SplineKnots(knotsJ,NJ,TJ); // Criou 7 pontos = [0,0,0,1,1,2,2]
+   SplineKnots(knotsI,NI,TI); // Criou 6 pontos = [0,0,0,1,2,2,2]
+   SplineKnots(knotsJ,NJ,TJ); // Criou 7 pontos = [0,0,0,1,1,2,2,2]
 
    intervalI = 0;
    for (i=0;i<RESOLUTIONI-1;i++) {// ate 30
@@ -187,6 +187,23 @@ void SplineKnots(int *u,int n,int t)
          u[j] = n - t + 2;	
    }
 }
+
+void SplineKnots(int *u, int n, int t) {
+    int j;
+
+    // Primeiros 't' nós iguais a 0
+    for (j = 0; j < t; j++)
+        u[j] = 0;
+
+    // Nós intermediários uniformemente distribuídos
+    for (; j <= n; j++)
+        u[j] = j - t + 1;
+
+    // Últimos 't' nós iguais ao último valor
+    for (; j <= n + t; j++)
+        u[j] = n - t + 2;
+}
+
 
 /*-------------------------------------------------------------------------
    Create all the points along a spline curve
