@@ -219,5 +219,24 @@ var Surface = /** @class */ (function () {
             }
         }
     };
+    Surface.prototype.create_faces = function (matriz_SRU_SRT) {
+        var ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat()); // ps = points_screen
+        console.log("PS = " + ps[0].length);
+        console.log("Resj = " + this.resj);
+        console.log("Resi = " + this.resi);
+        console.log("OUTP = " + this.outp.length);
+        this.faces = [new Face([new Dot(0, 0, 0), new Dot(0, 0, 0)])];
+        for (var i = 0; i < this.resi - 1; i++) {
+            for (var j = 0; j < this.resj - 1; j++) {
+                console.log("Onde eu estava = " + i + "  " + j);
+                var A = new Dot(ps[0][i * this.resj + j] / ps[3][i * this.resj + j], ps[1][i * this.resj + j] / ps[3][i * this.resj + j], ps[2][i * this.resj + j]);
+                var B = new Dot(ps[0][i * this.resj + (j + 1)] / ps[3][i * this.resj + (j + 1)], ps[1][i * this.resj + (j + 1)] / ps[3][i * this.resj + (j + 1)], ps[2][i * this.resj + (j + 1)]);
+                var C = new Dot(ps[0][(i + 1) * this.resj + (j + 1)] / ps[3][(i + 1) * this.resj + (j + 1)], ps[1][(i + 1) * this.resj + (j + 1)] / ps[3][(i + 1) * this.resj + (j + 1)], ps[2][(i + 1) * this.resj + (j + 1)]);
+                var D = new Dot(ps[0][(i + 1) * this.resj + j] / ps[3][(i + 1) * this.resj + j], ps[1][(i + 1) * this.resj + j] / ps[3][(i + 1) * this.resj + j], ps[2][(i + 1) * this.resj + j]);
+                var arr_dots = [A, B, C, D];
+                this.faces.push(new Face(arr_dots));
+            }
+        }
+    };
     return Surface;
 }());

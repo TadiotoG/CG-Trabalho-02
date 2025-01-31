@@ -13,6 +13,7 @@ class Surface{
     resi: number;
     resj: number;
     outp: Dot[][];
+    faces: Array<Face>;
 
     constructor(ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number){
         this.control_points = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
@@ -133,7 +134,7 @@ class Surface{
             intervalI += incrementI;
         }
         this.outp[this.resi - 1][this.resj - 1] = this.control_points[this.ni-1][this.nj-1];
-        
+
         let intervalJ = 0;
         for (let j = 0; j < this.resj - 1; j++) {
             this.outp[this.resi - 1][j] = new Dot(0, 0, 0);
@@ -258,6 +259,32 @@ class Surface{
                 this.outp[i][j].x = normal_mat[0][i*this.resi+j];
                 this.outp[i][j].y = normal_mat[1][i*this.resi+j];
                 this.outp[i][j].z = normal_mat[2][i*this.resi+j];
+            }
+        }
+    }
+
+    create_faces(matriz_SRU_SRT: number[][]){ // Essa funcao foi projetada para ser chamada no momento de plotar, para que tenhamos as coordenadas de tela de cada vértice/face, pois se pegassemos diretamente os pontos sem a conversao SRU_SRT, teriamos as coordenadas de mundo, o que nao traria informações uteis
+        let ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat()) // ps = points_screen
+
+        console.log("PS = " + ps[0].length)
+        console.log("Resj = " + this.resj)
+        console.log("Resi = " + this.resi)
+        console.log("OUTP = " + this.outp.length)
+        this.faces = [new Face([new Dot(0,0,0), new Dot(0,0,0)])];
+
+        for(let i=0; i<this.resi-1; i++){
+            for(let j=0; j<this.resj-1; j++){
+                console.log("Onde eu estava = " + i + "  " + j)
+                let A = new Dot(ps[0][i*this.resj+j]/ps[3][i*this.resj+j], ps[1][i*this.resj+j]/ps[3][i*this.resj+j], ps[2][i*this.resj+j])
+
+                let B = new Dot(ps[0][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[1][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[2][i*this.resj+(j+1)])
+
+                let C = new Dot(ps[0][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[1][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[2][(i+1)*this.resj+(j+1)])
+
+                let D = new Dot(ps[0][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[1][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[2][(i+1)*this.resj+j])
+
+                let arr_dots = [A, B, C, D]
+                this.faces.push(new Face(arr_dots));
             }
         }
     }

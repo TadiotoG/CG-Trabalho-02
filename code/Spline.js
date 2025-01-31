@@ -43,6 +43,12 @@ var Vet = /** @class */ (function (_super) {
     };
     return Vet;
 }(Dot));
+var Face = /** @class */ (function () {
+    function Face(array_dots) {
+        this.dots = array_dots;
+    }
+    return Face;
+}());
 var Spline = /** @class */ (function () {
     function Spline(arr) {
         this.gap = 0.1;

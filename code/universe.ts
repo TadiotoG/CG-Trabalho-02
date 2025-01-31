@@ -54,7 +54,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     matriz_SRU_SRT: number[][];
     camera: Camera;
     splines: Array<Spline> = [];
-    surfaces: Array<Surface> = []; 
+    surfaces: Array<Surface> = [];
 
     constructor(ctx_out: CanvasRenderingContext2D, cam: Camera){
         this.ctx = ctx_out;
@@ -73,8 +73,16 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         //     this.splines[i].control_points = new_dots;
         //     this.splines[i].update_mat_control_points();
         // }
-        for(let i = 0; i < this.surfaces.length; i++){   
-            this.draw_outp(this.surfaces[i]);
+        // for(let i = 0; i < this.surfaces.length; i++){   
+        //     this.draw_outp(this.surfaces[i]);
+        //     let new_matriz_obj: number[][];
+        //     new_matriz_obj = mult_matriz(get_matriz_rot_y(0.002), this.surfaces[i].get_outp_as_mat()); // Faz a animacao rotacionando o objeto no eixo y
+        //     this.surfaces[i].update_outp_with_mat(new_matriz_obj);
+        // }
+
+        for(let i = 0; i < this.surfaces.length; i++){
+            this.surfaces[i].create_faces(this.matriz_SRU_SRT);
+            this.draw_whole_surface(this.surfaces[i]);
             let new_matriz_obj: number[][];
             new_matriz_obj = mult_matriz(get_matriz_rot_y(0.002), this.surfaces[i].get_outp_as_mat()); // Faz a animacao rotacionando o objeto no eixo y
             this.surfaces[i].update_outp_with_mat(new_matriz_obj);
@@ -87,6 +95,43 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
             this.surfaces[i].update_cp_with_mat(new_matriz_obj);
         }
         requestAnimationFrame(this.animate_world);
+    }
+
+    draw_whole_surface(surface: Surface){
+        for(let i=0; i < surface.faces.length; i++){
+            this.draw_face(surface.faces[i]);
+        }
+    }
+
+    draw_face(face: Face){;
+        // let points = mult_matriz(this.matriz_SRU_SRT, this.get_mat_from_list_of_dots(face.dots))
+
+        // let dots_on_screen: Array<Dot>; // Pontos em coordenada de tela, após a conversao utilizando a matriz SRU_SRT
+        // dots_on_screen = this.get_dots_from_mat(face.dots)
+        
+        for (let i = 0; i < face.dots.length; i++){
+            if ( i === face.dots.length-1){
+                this.draw_line(face.dots[i], face.dots[0], "blue");
+                console.log("PAS")
+            } else {
+                this.draw_line(face.dots[i], face.dots[i+1], "blue");
+            }
+        }
+    }
+
+    draw_line(dot0, dot1, color){
+        this.ctx.beginPath();
+        this.ctx.moveTo(dot0.x, dot0.y);
+        this.ctx.lineTo(dot1.x, dot1.y);
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = 2;
+        this.ctx.stroke();
+        // this.ctx.beginPath();
+        // this.ctx.moveTo(dot0.x, dot0.y);
+        // this.ctx.lineTo(dot1.x, dot1.y);
+        // this.ctx.strokeStyle = color;
+        // this.ctx.lineWidth = 2;
+        // this.ctx.stroke();
     }
 
     draw_outp(obj: Surface){
