@@ -3,8 +3,8 @@
 // import { random } from "lodash"
 var Surface = /** @class */ (function () {
     function Surface(ni, nj, ti, tj, resolutioni, resolutionj) {
-        this.control_points = Array(ni + 1).fill(null).map(function () { return Array(nj + 1).fill(new Dot(Math.random() * 30, Math.random() * 30, Math.random() * 30)); });
-        this.outp = Array(resolutioni).fill(null).map(function () { return Array(resolutionj).fill(new Dot(Math.random() * 30, Math.random() * 30, Math.random() * 30)); });
+        this.control_points = Array(ni + 1).fill(null).map(function () { return Array(nj + 1).fill(new Dot(0, 0, 0)); });
+        this.outp = Array(resolutioni).fill(null).map(function () { return Array(resolutionj).fill(new Dot(0, 0, 0)); });
         this.ni = ni;
         this.nj = nj;
         this.ti = ti;
@@ -26,34 +26,34 @@ var Surface = /** @class */ (function () {
         console.log("Counter " + this.control_points.length + "  " + this.control_points[0].length);
         print_matriz(this.get_cp_as_mat(), "INFERNO");
     }
-    // SplineKnots(u: number[], n: number, t: number): void {
-    //     for (let j = 0; j <= n + t; j++) {
-    //       if (j < t){
-    //         u[j] = 0;
-    //       }
-    //       else if(j <= n){
-    //         u[j] = j - t + 1;
-    //       }
-    //       else{
-    //         u[j] = n - t + 2;
-    //       }
-    //     }
-    // }
     Surface.prototype.SplineKnots = function (u, n, t) {
-        var j;
-        // Primeiros 't' nós iguais a 0
-        for (j = 0; j < t; j++) {
-            u[j] = 0;
-        }
-        // Nós intermediários uniformemente distribuídos
-        for (; j <= n; j++) {
-            u[j] = j - t + 1;
-        }
-        // Últimos 't' nós iguais ao último valor válido
-        for (; j <= n + t; j++) {
-            u[j] = n - t + 1; // Alterado de "n - t + 2" para "n - t + 1" para evitar fechamento
+        for (var j = 0; j <= n + t; j++) {
+            if (j < t) {
+                u[j] = 0;
+            }
+            else if (j <= n) {
+                u[j] = j - t + 1;
+            }
+            else {
+                u[j] = n - t + 2;
+            }
         }
     };
+    // SplineKnots(u: number[], n: number, t: number): void {
+    //   let j: number;
+    //   // Primeiros 't' nós iguais a 0
+    //   for (j = 0; j < t; j++) {
+    //       u[j] = 0;
+    //   }
+    //   // Nós intermediários uniformemente distribuídos
+    //   for (; j <= n; j++) {
+    //       u[j] = j - t + 1;
+    //   }
+    //   // Últimos 't' nós iguais ao último valor válido
+    //   for (; j <= n + t; j++) {
+    //       u[j] = n - t + 1; // Alterado de "n - t + 2" para "n - t + 1" para evitar fechamento
+    //   }
+    // }
     Surface.prototype.SplineBlend = function (k, t, u, v) {
         if (t === 1) {
             return u[k] <= v && v < u[k + 1] ? 1 : 0;
@@ -77,13 +77,13 @@ var Surface = /** @class */ (function () {
         this.SplineKnots(knotsI, this.ni, this.ti);
         this.SplineKnots(knotsJ, this.nj, this.tj);
         for (var i = 0; i < this.resi - 1; i++) {
-            var intervalJ = 0;
+            var intervalJ_1 = 0;
             for (var j = 0; j < this.resj - 1; j++) {
                 var x = 0, y = 0, z = 0;
                 for (var ki = 0; ki <= this.ni; ki++) {
                     for (var kj = 0; kj <= this.nj; kj++) {
                         var bi = this.SplineBlend(ki, this.ti, knotsI, intervalI);
-                        var bj = this.SplineBlend(kj, this.tj, knotsJ, intervalJ);
+                        var bj = this.SplineBlend(kj, this.tj, knotsJ, intervalJ_1);
                         x += this.control_points[ki][kj].x * bi * bj;
                         y += this.control_points[ki][kj].y * bi * bj;
                         z += this.control_points[ki][kj].z * bi * bj;
@@ -93,36 +93,36 @@ var Surface = /** @class */ (function () {
                 // this.outp[i][j].y = y;
                 // this.outp[i][j].z = z;
                 this.outp[i][j] = new Dot(x, y, z);
-                intervalJ += incrementJ;
+                intervalJ_1 += incrementJ;
             }
             intervalI += incrementI;
         }
-        // intervalI = 0;
-        // intervalI = 0;
-        // for (let i = 0; i < this.resi-1; i++) {
-        //     this.outp[i][this.resj - 1] = new Dot(10, 10, 10);
-        //     for (let ki = 0; ki < this.ni; ki++) {
-        //         let bi = this.SplineBlend(ki, this.ti, knotsI, intervalI);
-        //         this.outp[i][this.resj - 1].x += (this.control_points[ki][this.nj-1].x * bi);
-        //         this.outp[i][this.resj - 1].y += (this.control_points[ki][this.nj-1].y * bi);
-        //         this.outp[i][this.resj - 1].z += (this.control_points[ki][this.nj-1].z * bi);
-        //     }
-        //     intervalI += incrementI;
-        // }
-        // this.outp[this.resi-1][this.resj - 1] = this.control_points[this.ni][this.nj];
-        // let intervalJ = 0;
-        // for (let j = 0; j < this.resj-1; j++) {
-        //     this.outp[this.resi - 1][j] = new Dot(-10, 10, -10);
-        //     for (let kj = 0; kj < this.nj; kj++) {
-        //         let bj = this.SplineBlend(kj, this.tj, knotsJ, intervalJ);
-        //         this.outp[this.resi - 1][j].x += (this.control_points[this.ni][kj].x * bj);
-        //         this.outp[this.resi - 1][j].y += (this.control_points[this.ni][kj].y * bj);
-        //         this.outp[this.resi - 1][j].z += (this.control_points[this.ni][kj].z * bj);
-        //     }
-        //     intervalJ += incrementJ;
-        // }
-        // this.outp[this.resi - 1][this.resj-1] = this.control_points[this.ni][this.nj];
-        // console.log(this.control_points[this.ni][this.nj].print_obj("DOtinhzo"))
+        intervalI = 0;
+        intervalI = 0;
+        for (var i = 0; i < this.resi - 1; i++) {
+            this.outp[i][this.resj - 1] = new Dot(0, 0, 0);
+            for (var ki = 0; ki <= this.ni; ki++) {
+                var bi = this.SplineBlend(ki, this.ti, knotsI, intervalI);
+                this.outp[i][this.resj - 1].x += (this.control_points[ki][this.nj].x * bi);
+                this.outp[i][this.resj - 1].y += (this.control_points[ki][this.nj].y * bi);
+                this.outp[i][this.resj - 1].z += (this.control_points[ki][this.nj].z * bi);
+            }
+            intervalI += incrementI;
+        }
+        this.outp[this.resi - 1][this.resj - 1] = this.control_points[this.ni][this.nj];
+        var intervalJ = 0;
+        for (var j = 0; j < this.resj - 1; j++) {
+            this.outp[this.resi - 1][j] = new Dot(0, 0, 0);
+            for (var kj = 0; kj <= this.nj; kj++) {
+                var bj = this.SplineBlend(kj, this.tj, knotsJ, intervalJ);
+                this.outp[this.resi - 1][j].x += (this.control_points[this.ni][kj].x * bj);
+                this.outp[this.resi - 1][j].y += (this.control_points[this.ni][kj].y * bj);
+                this.outp[this.resi - 1][j].z += (this.control_points[this.ni][kj].z * bj);
+            }
+            intervalJ += incrementJ;
+        }
+        this.outp[this.resi - 1][this.resj - 1] = this.control_points[this.ni][this.nj];
+        console.log(this.control_points[this.ni][this.nj].print_obj("DOtinhzo"));
     };
     Surface.prototype.displaySurface = function () {
         console.log("LIST");
