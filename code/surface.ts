@@ -16,8 +16,8 @@ class Surface{
     faces: Array<Face>;
 
     constructor(ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number){
-        this.control_points = Array(ni+1).fill(null).map(() => Array(nj+1).fill(new Dot(0,0,0)))
-        this.outp = Array(resolutioni).fill(null).map(() => Array(resolutionj).fill(new Dot(0,0,0)))
+        this.control_points = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
+        this.outp = Array(resolutioni).fill(null).map(() => Array(resolutionj).fill(new Dot(30,30,30)))
         this.ni = ni;
         this.nj = nj;
         this.ti = ti;
@@ -40,41 +40,42 @@ class Surface{
         print_matriz(this.get_cp_as_mat(), "INFERNO")
     }
 
-    SplineKnots(u: number[], n: number, t: number): void {
-        for (let j = 0; j <= n + t; j++) {
-          if (j < t){
-            u[j] = 0;
-          }
-          else if(j <= n){
-            u[j] = j - t + 1;
-          }
-          else{
-            u[j] = n - t + 2;
-          }
-        }
-    }
     // SplineKnots(u: number[], n: number, t: number): void {
-    //   let j: number;
-  
-    //   // Primeiros 't' nós iguais a 0
-    //   for (j = 0; j < t; j++) {
-    //       u[j] = 0;
-    //   }
-  
-    //   // Nós intermediários uniformemente distribuídos
-    //   for (; j <= n; j++) {
-    //       u[j] = j - t + 1;
-    //   }
-  
-    //   // Últimos 't' nós iguais ao último valor válido
-    //   for (; j <= n + t; j++) {
-    //       u[j] = n - t + 1; // Alterado de "n - t + 2" para "n - t + 1" para evitar fechamento
-    //   }
+    //     for (let j = 0; j <= n + t; j++) {
+    //       if (j < t){
+    //         u[j] = 0;
+    //       }
+    //       else if(j <= n){
+    //         u[j] = j - t + 1;
+    //       }
+    //       else{
+    //         u[j] = n - t + 2;
+    //       }
+    //     }
     // }
+    SplineKnots(u: number[], n: number, t: number): void {
+      let j: number;
+  
+      // Primeiros 't' nós iguais a 0
+      for (j = 0; j < t; j++) {
+          u[j] = 0;
+      }
+  
+      // Nós intermediários uniformemente distribuídos
+      for (; j <= n; j++) {
+          u[j] = j - t + 1;
+      }
+  
+      // Últimos 't' nós iguais ao último valor válido
+      for (; j <= n + t; j++) {
+          u[j] = n - t + 1; // Alterado de "n - t + 2" para "n - t + 1" para evitar fechamento
+      }
+    }
   
 
     SplineBlend(k: number, t: number, u: number[], v: number): number {
-        if (t === 1) {
+        // console.log(`k=${k}, t=${t}, u[k]=${u[k]}, u[k+1]=${u[k+1]}, v=${v}`);
+        if (t == 1) {
           return u[k] <= v && v < u[k + 1] ? 1 : 0;
         }
         let value = 0;
@@ -103,8 +104,8 @@ class Surface{
           let intervalJ = 0;
           for (let j = 0; j < this.resj - 1; j++) {
             let x = 0, y = 0, z = 0;
-            for (let ki = 0; ki <= this.ni; ki++) {
-              for (let kj = 0; kj <= this.nj; kj++) {
+            for (let ki = 0; ki < this.ni; ki++) {
+              for (let kj = 0; kj < this.nj; kj++) {
                 const bi = this.SplineBlend(ki, this.ti, knotsI, intervalI);
                 const bj = this.SplineBlend(kj, this.tj, knotsJ, intervalJ);
                 x += this.control_points[ki][kj].x * bi * bj;
@@ -115,7 +116,11 @@ class Surface{
             // this.outp[i][j].x = x;
             // this.outp[i][j].y = y;
             // this.outp[i][j].z = z;
+            // if (y != 0 && x != 0 && z != 0){                
             this.outp[i][j] = new Dot(x, y, z);
+            
+            // }
+
             intervalJ += incrementJ;
           }
           intervalI += incrementI;
@@ -125,29 +130,29 @@ class Surface{
         intervalI = 0;
         for (let i = 0; i < this.resi-1; i++) {
             this.outp[i][this.resj - 1] = new Dot(0, 0, 0);
-            for (let ki = 0; ki <= this.ni; ki++) {
+            for (let ki = 0; ki < this.ni; ki++) {
                 let bi = this.SplineBlend(ki, this.ti, knotsI, intervalI);
-                this.outp[i][this.resj - 1].x += (this.control_points[ki][this.nj].x * bi);
-                this.outp[i][this.resj - 1].y += (this.control_points[ki][this.nj].y * bi);
-                this.outp[i][this.resj - 1].z += (this.control_points[ki][this.nj].z * bi);
+                this.outp[i][this.resj - 1].x += (this.control_points[ki][this.nj-1].x * bi);
+                this.outp[i][this.resj - 1].y += (this.control_points[ki][this.nj-1].y * bi);
+                this.outp[i][this.resj - 1].z += (this.control_points[ki][this.nj-1].z * bi);
             }
             intervalI += incrementI
         }
-        this.outp[this.resi-1][this.resj - 1] = this.control_points[this.ni][this.nj];
+        this.outp[this.resi-1][this.resj - 1] = new Dot(this.control_points[this.ni-1][this.nj-1].x, this.control_points[this.ni-1][this.nj-1].y, this.control_points[this.ni-1][this.nj-1].z);
 
         let intervalJ = 0;
         for (let j = 0; j < this.resj-1; j++) {
             this.outp[this.resi - 1][j] = new Dot(0, 0, 0);
-            for (let kj = 0; kj <= this.nj; kj++) {
+            for (let kj = 0; kj < this.nj; kj++) {
                 let bj = this.SplineBlend(kj, this.tj, knotsJ, intervalJ);
-                this.outp[this.resi - 1][j].x += (this.control_points[this.ni][kj].x * bj);
-                this.outp[this.resi - 1][j].y += (this.control_points[this.ni][kj].y * bj);
-                this.outp[this.resi - 1][j].z += (this.control_points[this.ni][kj].z * bj);
+                this.outp[this.resi - 1][j].x += (this.control_points[this.ni-1][kj].x * bj);
+                this.outp[this.resi - 1][j].y += (this.control_points[this.ni-1][kj].y * bj);
+                this.outp[this.resi - 1][j].z += (this.control_points[this.ni-1][kj].z * bj);
             }
             intervalJ += incrementJ;
         }
-        this.outp[this.resi - 1][this.resj-1] = this.control_points[this.ni][this.nj];
-        console.log(this.control_points[this.ni][this.nj].print_obj("DOtinhzo"))
+        this.outp[this.resi - 1][this.resj-1] = new Dot(this.control_points[this.ni-1][this.nj-1].x, this.control_points[this.ni-1][this.nj-1].y, this.control_points[this.ni-1][this.nj-1].z);
+        // console.log(this.control_points[this.ni-1][this.nj-1].print_obj("DOtinhzo"))
         
       }
 
@@ -209,10 +214,10 @@ class Surface{
 
 // Transforma os pontos em uma matriz normal para a conversao utilizando a matriz_SRU_SRT
     get_cp_as_mat(){
-        let mat_aux: number[][] = Array(4).fill(null).map(() => Array((this.ni) * (this.nj) + 2).fill(0));
+        let mat_aux: number[][] = Array(4).fill(null).map(() => Array((this.ni) * (this.nj)).fill(0));
 
-        for(let x = 0; x <= this.ni; x++){
-            for(let y = 0; y <= this.nj; y++){
+        for(let x = 0; x < this.ni; x++){
+            for(let y = 0; y < this.nj; y++){
                 mat_aux[0][x*this.ni+y] = this.control_points[x][y].x;
                 mat_aux[1][x*this.ni+y] = this.control_points[x][y].y;
                 mat_aux[2][x*this.ni+y] = this.control_points[x][y].z;
@@ -245,8 +250,8 @@ class Surface{
 
  // A estrutura utilizada para multiplicar a matriz (M_SRU_SRT), pede para que cada "Dot" seja uma coluna e o x, y, z e 1, sejam as linhas, a funcao abaixo faz com que dessa estrutura possamos converter novamente para uma matriz de dots "normal" (Dot[][])
     update_cp_with_mat(normal_mat: number[][]){
-        for(let i=0; i<=this.ni; i++){
-            for(let j=0; j<=this.nj; j++){
+        for(let i=0; i<this.ni; i++){
+            for(let j=0; j<this.nj; j++){
                 this.control_points[i][j].x = normal_mat[0][i*this.ni+j];
                 this.control_points[i][j].y = normal_mat[1][i*this.ni+j];
                 this.control_points[i][j].z = normal_mat[2][i*this.ni+j];
@@ -267,10 +272,10 @@ class Surface{
     create_faces(matriz_SRU_SRT: number[][]){ // Essa funcao foi projetada para ser chamada no momento de plotar, para que tenhamos as coordenadas de tela de cada vértice/face, pois se pegassemos diretamente os pontos sem a conversao SRU_SRT, teriamos as coordenadas de mundo, o que nao traria informações uteis
         let ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat()) // ps = points_screen
 
-        console.log("PS = " + ps[0].length)
-        console.log("Resj = " + this.resj)
-        console.log("Resi = " + this.resi)
-        console.log("OUTP = " + this.outp.length)
+        // console.log("PS = " + ps[0].length)
+        // console.log("Resj = " + this.resj)
+        // console.log("Resi = " + this.resi)
+        // console.log("OUTP = " + this.outp.length)
         this.faces = [new Face([new Dot(0,0,0), new Dot(0,0,0)])];
 
         for(let i=0; i<this.resi; i++){

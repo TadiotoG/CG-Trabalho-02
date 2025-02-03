@@ -111,8 +111,9 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         
         for (let i = 0; i < face.dots.length; i++){
             if ( i === face.dots.length-1){
-                this.draw_line(face.dots[i], face.dots[0], "yellow");
+                this.draw_line(face.dots[i], face.dots[0], "black");
             } else {
+                // let h = 3;
                 this.draw_line(face.dots[i], face.dots[i+1], "blue");
             }
         }
