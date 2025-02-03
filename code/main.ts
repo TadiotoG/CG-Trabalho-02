@@ -12,7 +12,7 @@ canvas.height = 800;
 ctx.imageSmoothingEnabled = false;
 document.body.appendChild(canvas);
 
-let vrp_camera = new Dot(0, 0.2, 1);
+let vrp_camera = new Dot(0, 0.7, 1);
 let focal_point_camera = new Dot(0, 0, 0);
 let distance_point = 240;
 
@@ -61,11 +61,15 @@ let spline_3 = new Spline(control_dots_3);
 
 let other = new Spline(other_dots);
 
-let surface_01 = new Surface([10,10]);
+let surface_01 = new Surface(4, 4, 3, 3, 30, 30);
+// print_matriz(surface_01.get_cp_as_mat(), "Teste 01")
 
 // uni.add_obj_spline(spline);
 
-surface_01.create_splines(uni.splines);
+surface_01.generateSurface();
+// print_matriz(surface_01.get_outp_as_mat(), "Teste 02")
+
+// surface_01.displaySurface();
 // uni.add_obj_spline(spline_2);
 // uni.add_obj_spline(spline_3);
 // uni.add_obj_spline(other);

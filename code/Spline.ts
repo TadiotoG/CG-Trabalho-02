@@ -35,6 +35,14 @@ class Vet extends Dot { // Adicionei esta classe para que assim que declarado o 
     }
 }
 
+class Face{
+    dots: Array<Dot>;
+
+    constructor(array_dots: Array<Dot>){
+        this.dots = array_dots;
+    }
+}
+
 class Spline{
     control_points: Array<Dot>;
     mat_control_points: number[][];
