@@ -57,7 +57,7 @@ var Surface = /** @class */ (function () {
     Surface.prototype.SplineBlend = function (k, t, u, v) {
         // console.log(`k=${k}, t=${t}, u[k]=${u[k]}, u[k+1]=${u[k+1]}, v=${v}`);
         if (t == 1) {
-            return u[k] <= v && v < u[k + 1] ? 1 : 0.1;
+            return u[k] <= v && v < u[k + 1] ? 1 : 0;
         }
         var value = 0;
         if (u[k + t - 1] !== u[k]) {
@@ -71,10 +71,10 @@ var Surface = /** @class */ (function () {
     Surface.prototype.generateSurface = function () {
         var counter = 0;
         var intervalI = 0;
-        var incrementI = (this.ni - this.ti + 2) / (this.resi - 1);
-        var incrementJ = (this.nj - this.tj + 2) / (this.resj - 1);
-        var knotsI = new Array(this.ni + this.ti + 1);
-        var knotsJ = new Array(this.nj + this.tj + 1);
+        var incrementI = (this.ni - this.ti + 1) / (this.resi - 1);
+        var incrementJ = (this.nj - this.tj + 1) / (this.resj - 1);
+        var knotsI = new Array(this.ni + this.ti);
+        var knotsJ = new Array(this.nj + this.tj);
         this.SplineKnots(knotsI, this.ni, this.ti);
         this.SplineKnots(knotsJ, this.nj, this.tj);
         for (var i = 0; i < this.resi - 1; i++) {
@@ -100,7 +100,7 @@ var Surface = /** @class */ (function () {
             }
             intervalI += incrementI;
         }
-        intervalI = 0;
+        incrementI = (this.ni - this.ti + 1) / (this.resi - 1);
         intervalI = 0;
         for (var i = 0; i < this.resi - 1; i++) {
             this.outp[i][this.resj - 1] = new Dot(0, 0, 0);
@@ -125,7 +125,6 @@ var Surface = /** @class */ (function () {
             intervalJ += incrementJ;
         }
         this.outp[this.resi - 1][this.resj - 1] = new Dot(this.control_points[this.ni - 1][this.nj - 1].x, this.control_points[this.ni - 1][this.nj - 1].y, this.control_points[this.ni - 1][this.nj - 1].z);
-        // console.log(this.control_points[this.ni-1][this.nj-1].print_obj("DOtinhzo"))
     };
     Surface.prototype.displaySurface = function () {
         console.log("LIST");
@@ -230,8 +229,8 @@ var Surface = /** @class */ (function () {
         // console.log("Resi = " + this.resi)
         // console.log("OUTP = " + this.outp.length)
         this.faces = [new Face([new Dot(0, 0, 0), new Dot(0, 0, 0)])];
-        for (var i = 0; i < this.resi; i++) {
-            for (var j = 0; j < this.resj; j++) {
+        for (var i = 0; i < this.resi - 1; i++) {
+            for (var j = 0; j < this.resj - 1; j++) {
                 // console.log("Onde eu estava = " + i + "  " + j)
                 var A = new Dot(ps[0][i * this.resj + j] / ps[3][i * this.resj + j], ps[1][i * this.resj + j] / ps[3][i * this.resj + j], ps[2][i * this.resj + j]);
                 var B = new Dot(ps[0][i * this.resj + (j + 1)] / ps[3][i * this.resj + (j + 1)], ps[1][i * this.resj + (j + 1)] / ps[3][i * this.resj + (j + 1)], ps[2][i * this.resj + (j + 1)]);

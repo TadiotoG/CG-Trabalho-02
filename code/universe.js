@@ -92,7 +92,7 @@ var Universe = /** @class */ (function () {
         // dots_on_screen = this.get_dots_from_mat(face.dots)
         for (var i = 0; i < face.dots.length; i++) {
             if (i === face.dots.length - 1) {
-                this.draw_line(face.dots[i], face.dots[0], "black");
+                this.draw_line(face.dots[i], face.dots[0], "blue");
             }
             else {
                 // let h = 3;

@@ -91,11 +91,11 @@ class Surface{
     generateSurface(): void {
         let counter = 0;
         let intervalI = 0;
-        const incrementI = (this.ni - this.ti + 2) / (this.resi - 1);
-        const incrementJ = (this.nj - this.tj + 2) / (this.resj - 1);
+        let incrementI = (this.ni - this.ti + 1) / (this.resi - 1);
+        let incrementJ = (this.nj - this.tj + 1) / (this.resj - 1);
 
-        let knotsI: number[] = new Array(this.ni + this.ti + 1);
-        let knotsJ: number[] = new Array(this.nj + this.tj + 1);
+        let knotsI: number[] = new Array(this.ni + this.ti);
+        let knotsJ: number[] = new Array(this.nj + this.tj);
         
         this.SplineKnots(knotsI, this.ni, this.ti);
         this.SplineKnots(knotsJ, this.nj, this.tj);
@@ -126,7 +126,8 @@ class Surface{
           intervalI += incrementI;
         }
 
-        intervalI = 0;
+        
+        incrementI = (this.ni - this.ti + 1) / (this.resi - 1);
         intervalI = 0;
         for (let i = 0; i < this.resi-1; i++) {
             this.outp[i][this.resj - 1] = new Dot(0, 0, 0);
@@ -152,7 +153,6 @@ class Surface{
             intervalJ += incrementJ;
         }
         this.outp[this.resi - 1][this.resj-1] = new Dot(this.control_points[this.ni-1][this.nj-1].x, this.control_points[this.ni-1][this.nj-1].y, this.control_points[this.ni-1][this.nj-1].z);
-        // console.log(this.control_points[this.ni-1][this.nj-1].print_obj("DOtinhzo"))
         
       }
 
@@ -278,8 +278,8 @@ class Surface{
         // console.log("OUTP = " + this.outp.length)
         this.faces = [new Face([new Dot(0,0,0), new Dot(0,0,0)])];
 
-        for(let i=0; i<this.resi; i++){
-            for(let j=0; j<this.resj; j++){
+        for(let i=0; i<this.resi-1; i++){
+            for(let j=0; j<this.resj-1; j++){
                 // console.log("Onde eu estava = " + i + "  " + j)
                 let A = new Dot(ps[0][i*this.resj+j]/ps[3][i*this.resj+j], ps[1][i*this.resj+j]/ps[3][i*this.resj+j], ps[2][i*this.resj+j])
 
