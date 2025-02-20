@@ -15,9 +15,9 @@ class Surface{
     outp: Dot[][];
     faces: Array<Face>;
 
-    constructor(ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number){
+    constructor(ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number, control_points: Dot[][] = [[new Dot(0,0,0)]]){
         this.control_points = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
-        this.outp = Array(resolutioni).fill(null).map(() => Array(resolutionj).fill(new Dot(30,30,30)))
+        this.outp = Array(resolutioni).fill(null).map(() => Array(resolutionj).fill(new Dot(0,0,0)))
         this.ni = ni;
         this.nj = nj;
         this.ti = ti;
@@ -36,8 +36,8 @@ class Surface{
         // this.control_points[0][1].print_obj("Dots");
         // this.control_points[1][0].print_obj("Dots");
         // this.control_points[1][1].print_obj("Dots");
-        console.log("Counter "+  this.control_points.length + "  " + this.control_points[0].length)
-        print_matriz(this.get_cp_as_mat(), "INFERNO")
+        // console.log("Counter "+  this.control_points.length + "  " + this.control_points[0].length)
+        // print_matriz(this.get_cp_as_mat(), "INFERNO")
     }
 
     // SplineKnots(u: number[], n: number, t: number): void {

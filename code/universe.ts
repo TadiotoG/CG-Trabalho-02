@@ -46,15 +46,15 @@
 //     }
 // }
 
-let canvas_width = 800;
+let canvas_width = 1000;
 let canvas_height = 800;
 
 class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-end deve ser feita
     ctx: CanvasRenderingContext2D;
     matriz_SRU_SRT: number[][];
     camera: Camera;
-    splines: Array<Spline> = [];
     surfaces: Array<Surface> = [];
+    rotate_y: Boolean = false;
 
     constructor(ctx_out: CanvasRenderingContext2D, cam: Camera){
         this.ctx = ctx_out;
@@ -65,20 +65,6 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     animate_world = () => {
         this.ctx.fillStyle = "white";
         this.ctx.fillRect(0, 0, canvas_width, canvas_height);
-        // for(let i = 0; i < this.splines.length; i++){   
-        //     this.draw_spline_curve(this.splines[i]);
-        //     let new_matriz_obj: number[][];
-        //     new_matriz_obj = mult_matriz(get_matriz_rot_y(0.001), this.get_mat_from_list_of_dots(this.splines[i].control_points)); // Faz a animacao rotacionando o objeto no eixo y
-        //     let new_dots = this.get_dots_from_mat(new_matriz_obj); // Precisa fazer isso, pq a matriz dos pontos de controle são diferentes da matriz dos vertices dos objetos
-        //     this.splines[i].control_points = new_dots;
-        //     this.splines[i].update_mat_control_points();
-        // }
-        // for(let i = 0; i < this.surfaces.length; i++){   
-        //     this.draw_outp(this.surfaces[i]);
-        //     let new_matriz_obj: number[][];
-        //     new_matriz_obj = mult_matriz(get_matriz_rot_y(0.002), this.surfaces[i].get_outp_as_mat()); // Faz a animacao rotacionando o objeto no eixo y
-        //     this.surfaces[i].update_outp_with_mat(new_matriz_obj);
-        // }
 
         for(let i = 0; i < this.surfaces.length; i++){
             this.surfaces[i].create_faces(this.matriz_SRU_SRT);
@@ -180,12 +166,10 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
     }
 
-    add_obj_spline(obj: Spline){
-        this.splines.push(obj);
-    }
-
     add_surface(obj: Surface){
         this.surfaces.push(obj);
+        obj.create_faces(this.matriz_SRU_SRT);
+        this.draw_whole_surface(obj);
     }
 
     get_mat_from_list_of_dots(arr_dots: Array<Dot>): number[][]{
@@ -207,4 +191,6 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
         return list_d;
     }
+
+    
 }

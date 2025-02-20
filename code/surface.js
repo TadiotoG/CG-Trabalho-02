@@ -2,9 +2,10 @@
 // import { get } from "lodash";
 // import { random } from "lodash"
 var Surface = /** @class */ (function () {
-    function Surface(ni, nj, ti, tj, resolutioni, resolutionj) {
+    function Surface(ni, nj, ti, tj, resolutioni, resolutionj, control_points) {
+        if (control_points === void 0) { control_points = [[new Dot(0, 0, 0)]]; }
         this.control_points = Array(ni).fill(null).map(function () { return Array(nj).fill(new Dot(0, 0, 0)); });
-        this.outp = Array(resolutioni).fill(null).map(function () { return Array(resolutionj).fill(new Dot(30, 30, 30)); });
+        this.outp = Array(resolutioni).fill(null).map(function () { return Array(resolutionj).fill(new Dot(0, 0, 0)); });
         this.ni = ni;
         this.nj = nj;
         this.ti = ti;
@@ -23,8 +24,8 @@ var Surface = /** @class */ (function () {
         // this.control_points[0][1].print_obj("Dots");
         // this.control_points[1][0].print_obj("Dots");
         // this.control_points[1][1].print_obj("Dots");
-        console.log("Counter " + this.control_points.length + "  " + this.control_points[0].length);
-        print_matriz(this.get_cp_as_mat(), "INFERNO");
+        // console.log("Counter "+  this.control_points.length + "  " + this.control_points[0].length)
+        // print_matriz(this.get_cp_as_mat(), "INFERNO")
     }
     // SplineKnots(u: number[], n: number, t: number): void {
     //     for (let j = 0; j <= n + t; j++) {

@@ -7,71 +7,73 @@ canvas.style.border = "1px solid black"
 canvas.style.width = "1000px"
 canvas.style.height = "800px"
 var ctx = canvas.getContext("2d")
-canvas.width = 800;
+canvas.width = 1000;
 canvas.height = 800;
 ctx.imageSmoothingEnabled = false;
-document.body.appendChild(canvas);
 
-let vrp_camera = new Dot(0, 0.7, 1);
-let focal_point_camera = new Dot(0, 0, 0);
-let distance_point = 240;
+let main = document.getElementById("main");
+main.appendChild(canvas);
 
-let camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
-// constructor(view_reference_point: Dot, focal_p: Dot, dp: number, wid: number, heig: number, min_x: number, min_y: number, max_x: number, max_y: number){
-let uni = new Universe(ctx, camera);
+var cam_x: number;
+var cam_y: number;
+var cam_z: number;
 
-// let A = new Dot(-10, -20, 10);
-// let B = new Dot(10, -20, 10);
-// let C = new Dot(7, 20, 10);
-// let D = new Dot(-7, 20, 10);
-// let E = new Dot(10, -20, -10);
-// let F = new Dot(7, 20, -10);
-// let G = new Dot(-7, 20, -10);
-// let H = new Dot(-10, -20, -10);
+var dot_x: number;
+var dot_y: number;
+var dot_z: number;
 
-// let pyramid_dots: Array<Dot>;
-// pyramid_dots = [A, B, C, D, E, F, G, H];
+get_values_from_html();
 
-// let pyramid = new Obj_3D("blue", pyramid_dots);
+var vrp_camera = new Dot(cam_x, cam_y, cam_z);
+var focal_point_camera = new Dot(0, 0, 0);
+var distance_point = 240;
+var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
+var uni = new Universe(ctx, camera);
 
-// uni.add_obj(pyramid);
+create_world();
 
+function create_world(){
+    erase_canvas();
+    let surface_01 = new Surface(4, 4, 3, 3, 30, 30);
 
-let A = new Dot(-7.5, -0.75, 2.25);
-let B = new Dot(-3.5, -4.75, 6.25);
-let C = new Dot(3.5, 4.25, -9.75);
-let D = new Dot(7.5, 1.25, 1.25);
+    surface_01.generateSurface();
 
-let E = new Dot(16, 10, -5);
-let F = new Dot(16, 10, -20);
+    uni.add_surface(surface_01);
+}
 
-let control_dots: Array<Dot>;
-let other_dots: Array<Dot>;
-let control_dots_2: Array<Dot>; 
-let control_dots_3: Array<Dot>; 
-control_dots = [A, B, C, D];
-control_dots_2 = [B, C, D, E];
-control_dots_3 = [C, D, E, F];
+function change_world(){
+    erase_canvas();
+    get_values_from_html();
 
-other_dots = [B, D, A, C]
+    // console.log(`X = ${cam_x} Y = ${cam_y} Z = ${cam_z}`);
+    let list_of_surfaces = uni.surfaces;
+    vrp_camera = new Dot(cam_x, cam_y, cam_z);
+    focal_point_camera = new Dot(0, 0, 0);
+    distance_point = 240;
+    camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
+    uni = new Universe(ctx, camera);
 
-let spline = new Spline(control_dots);
-let spline_2 = new Spline(control_dots_2);
-let spline_3 = new Spline(control_dots_3);
+    for(let i=0; i<list_of_surfaces.length; i++){
+        uni.surfaces = list_of_surfaces;
+        uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
+        uni.draw_whole_surface(uni.surfaces[i]);
+    }
+}
 
-let other = new Spline(other_dots);
+function erase_canvas(){
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas_width, canvas_height);
+}
 
-let surface_01 = new Surface(4, 4, 3, 3, 30, 30);
-// print_matriz(surface_01.get_cp_as_mat(), "Teste 01")
+function get_values_from_html(){
+    let aux;
+    aux = document.getElementById("cam_y") // Pega o valor do input no html 
+    cam_y = aux.value;
 
-// uni.add_obj_spline(spline);
+    aux = document.getElementById("cam_x")
+    cam_x = aux.value;
 
-surface_01.generateSurface();
-// print_matriz(surface_01.get_outp_as_mat(), "Teste 02")
-
-// surface_01.displaySurface();
-// uni.add_obj_spline(spline_2);
-// uni.add_obj_spline(spline_3);
-// uni.add_obj_spline(other);
-uni.add_surface(surface_01);
-uni.animate_world();
+    aux = document.getElementById("cam_z")
+    cam_z = aux.value;
+}
+// uni.animate_world();

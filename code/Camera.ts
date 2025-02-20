@@ -30,13 +30,13 @@ class Camera {
 
     calc_matrizes(){
         this.vet_n = VetA_minus_VetB(this.vrp, this.focal_point);
-        this.vet_n.print_obj("Vet n ");
+        // this.vet_n.print_obj("Vet n ");
 
         this.vet_v = this.define_vector_v();
-        this.vet_v.print_obj("Vet v ");
+        // this.vet_v.print_obj("Vet v ");
 
         this.vet_u = prod_vet(this.vet_v, this.vet_n);
-        this.vet_u.print_obj("Vet u ");
+        // this.vet_u.print_obj("Vet u ");
 
         this.matriz_SRU_SRC = ([
             [this.vet_u.unitary.x, this.vet_u.unitary.y, this.vet_u.unitary.z, 0],
@@ -46,13 +46,13 @@ class Camera {
             [this.vet_n.unitary.x, this.vet_n.unitary.y, this.vet_n.unitary.z, 0],
             [0, 0, 0, 1]
         ])
-        print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
+        // print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
 
         // this.matriz_persp = this.define_matriz_persp();// Projecao perspectiva, nao vai ser mais utilizado...
         // print_matriz(this.matriz_persp, "Persp");
 
         this.matriz_jp = this.define_matriz_jp();
-        print_matriz(this.matriz_jp, "Jp")
+        // print_matriz(this.matriz_jp, "Jp")
     }
 
     private define_vector_v(): Vet{
@@ -131,6 +131,7 @@ class Camera {
         // mat_aux = mult_matriz(mat_aux, this.matriz_SRU_SRC);
 
         mat_aux = mult_matriz(this.matriz_jp, this.matriz_SRU_SRC);
+        // print_matriz(mat_aux, "Matriz_SRU_SRT")
         return mat_aux;
     }
 }
