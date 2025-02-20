@@ -14,12 +14,13 @@ main.appendChild(canvas);
 var cam_x;
 var cam_y;
 var cam_z;
-var dot_x;
-var dot_y;
-var dot_z;
+var focal_x;
+var focal_y;
+var focal_z;
+var distance_point;
 get_values_from_html();
 var vrp_camera = new Dot(cam_x, cam_y, cam_z);
-var focal_point_camera = new Dot(0, 0, 0);
+var focal_point_camera = new Dot(focal_x, focal_y, focal_z);
 var distance_point = 240;
 var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
 var uni = new Universe(ctx, camera);
@@ -29,6 +30,7 @@ function create_world() {
     var surface_01 = new Surface(4, 4, 3, 3, 30, 30);
     surface_01.generateSurface();
     uni.add_surface(surface_01);
+    uni.draw_cp(surface_01);
 }
 function change_world() {
     erase_canvas();
@@ -36,7 +38,7 @@ function change_world() {
     // console.log(`X = ${cam_x} Y = ${cam_y} Z = ${cam_z}`);
     var list_of_surfaces = uni.surfaces;
     vrp_camera = new Dot(cam_x, cam_y, cam_z);
-    focal_point_camera = new Dot(0, 0, 0);
+    focal_point_camera = new Dot(focal_x, focal_y, focal_z);
     distance_point = 240;
     camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
     uni = new Universe(ctx, camera);
@@ -44,6 +46,7 @@ function change_world() {
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
         uni.draw_whole_surface(uni.surfaces[i]);
+        uni.draw_cp(uni.surfaces[i]);
     }
 }
 function erase_canvas() {
@@ -58,5 +61,13 @@ function get_values_from_html() {
     cam_x = aux.value;
     aux = document.getElementById("cam_z");
     cam_z = aux.value;
+    aux = document.getElementById("focal_x");
+    focal_x = aux.value;
+    aux = document.getElementById("focal_y");
+    focal_y = aux.value;
+    aux = document.getElementById("focal_z");
+    focal_z = aux.value;
+    aux = document.getElementById("distance_point");
+    distance_point = aux.value;
 }
 // uni.animate_world();

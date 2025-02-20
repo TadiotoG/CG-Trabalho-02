@@ -41,7 +41,7 @@
         flex-direction: column;
     }
 
-    #vrp {
+    #vrp, #fp {
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -50,13 +50,13 @@
         margin: 10px;
     }
 
-    #inputs_vrp {
+    #inputs_fp, #inputs_vrp{
         display: flex;
         flex-direction: row;
         justify-content: center;
     }
 
-    #inputs_vrp > * {
+    #inputs_vrp > *, #inputs_fp > * {
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -86,6 +86,26 @@
                         <input style= "width: 50px" type="number" oninput=change_world() name="z_cam" id="cam_z" value="1" step="0.1">
                     </div>
                 </div>
+            </div>
+            <div id="fp">
+                <h2 class="title">FP</h2>
+                <div id="inputs_fp">
+                    <div>
+                        <label for="focal_x">X</label>
+                        <input style= "width: 50px" type="number" oninput=change_world() name="focal_x" id="focal_x" value="0" step="0.1">
+                    </div>
+                    <div>
+                        <label for="focal_y">Y</label>
+                        <input style= "width: 50px" type="number" oninput=change_world() name="focal_y" id="focal_y" value="0" step="0.1">
+                    </div>
+                    <div>
+                        <label for="focal_z">Z</label>
+                        <input style= "width: 50px" type="number" oninput=change_world() name="focal_z" id="focal_z" value="0" step="0.1">
+                    </div>
+                    <div>
+                        <label for="distance_point">DP</label>
+                        <input style= "width: 50px" type="number" oninput=change_world() name="distance_point" id="distance_point" value="240" step="1">
+                    </div>
             </div>
         </div>
     </div>
