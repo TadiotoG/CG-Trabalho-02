@@ -2,7 +2,7 @@
 // import { get } from "lodash";
 // import { random } from "lodash"
 var Surface = /** @class */ (function () {
-    function Surface(ni, nj, ti, tj, resolutioni, resolutionj, control_points) {
+    function Surface(star_x, star_y, star_z, ni, nj, ti, tj, resolutioni, resolutionj, control_points) {
         if (control_points === void 0) { control_points = [[new Dot(0, 0, 0)]]; }
         this.control_points = Array(ni).fill(null).map(function () { return Array(nj).fill(new Dot(0, 0, 0)); });
         this.outp = Array(resolutioni).fill(null).map(function () { return Array(resolutionj).fill(new Dot(0, 0, 0)); });
@@ -13,10 +13,11 @@ var Surface = /** @class */ (function () {
         this.resi = resolutioni;
         this.resj = resolutionj;
         var counter = 0;
+        console.log("x = ".concat(star_x, "  y = ").concat(star_y, "   z = ").concat(star_z));
         for (var i = 0; i < ni; i++) {
             for (var j = 0; j < nj; j++) {
                 counter++;
-                this.control_points[i][j] = new Dot(i * 13 + 5, Math.random() * 10, j * 13 + 5);
+                this.control_points[i][j] = new Dot(i * 13 + star_x, Math.random() * 10 + star_y, j * 13 + star_z);
                 // console.log(i + "," + j + " DOT = "+ "(" + this.control_points[i][j].x + ", " + this.control_points[i][j].y + ", " + this.control_points[i][j].z + ")")
             }
         }

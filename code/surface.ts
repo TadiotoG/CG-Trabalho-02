@@ -15,7 +15,7 @@ class Surface{
     outp: Dot[][];
     faces: Array<Face>;
 
-    constructor(ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number, control_points: Dot[][] = [[new Dot(0,0,0)]]){
+    constructor(star_x: number, star_y: number, star_z: number, ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number, control_points: Dot[][] = [[new Dot(0,0,0)]]){
         this.control_points = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
         this.outp = Array(resolutioni).fill(null).map(() => Array(resolutionj).fill(new Dot(0,0,0)))
         this.ni = ni;
@@ -25,10 +25,11 @@ class Surface{
         this.resi = resolutioni;
         this.resj = resolutionj;
         let counter = 0;
+        console.log(`x = ${star_x}  y = ${star_y}   z = ${star_z}`);
         for(let i=0; i<ni; i++){
             for(let j=0; j<nj; j++){
                 counter++;
-                this.control_points[i][j] = new Dot(i*13+5, Math.random()*10, j*13+5);
+                this.control_points[i][j] = new Dot(i*13+star_x, Math.random()*10+star_y, j*13+star_z);
                 // console.log(i + "," + j + " DOT = "+ "(" + this.control_points[i][j].x + ", " + this.control_points[i][j].y + ", " + this.control_points[i][j].z + ")")
             }
         }
