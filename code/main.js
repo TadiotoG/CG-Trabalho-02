@@ -4,7 +4,20 @@ function call_create_surface() {
     aux = document.getElementById("new_surface");
     aux.style = "display: flex;";
 }
-function call_wind_change_dot() {
+function open_wind_change_dot() {
+    var aux;
+    aux = document.getElementById("change_dot");
+    aux.style = "display: flex;";
+}
+function call_change_dot() {
+    selecting_dot = true;
+    remove_surf = false;
+}
+function call_remove_surf() {
+    remove_surf = true;
+    selecting_dot = false;
+}
+function open_window_change_dot() {
     var aux;
     aux = document.getElementById("change_dot");
     aux.style = "display: flex;";
@@ -82,6 +95,25 @@ function get_values_new_surface() {
     aux = document.getElementById("res_j");
     res_j = Number(aux.value);
 }
+function remove_surface_by_click(universe, A) {
+    var x_closer = -1; // Salva qual ponto é na coordenada x,y
+    var y_closer = -1;
+    var which_surf = -1; // Salva em qual superficie esta o ponto mais perto
+    var closer_dist = 10000; // Salva a menor distancia
+    for (var i = 0; i < universe.surfaces.length; i++) {
+        universe.surfaces[i].define_dots_screen(universe.matriz_SRU_SRT);
+        var pos = universe.surfaces[i].find_closer_cp_to_dot(A);
+        if (pos[2] < closer_dist) {
+            which_surf = i;
+            x_closer = pos[0];
+            y_closer = pos[1];
+            closer_dist = pos[2];
+        }
+    }
+    universe.surfaces.splice(which_surf, 1); // Remove a superficie na pos which_surf
+    remove_surf = false;
+    change_world();
+}
 function choose_dot_by_click(universe, A) {
     var x_closer = -1; // Salva qual ponto é na coordenada x,y
     var y_closer = -1;
@@ -96,7 +128,6 @@ function choose_dot_by_click(universe, A) {
             y_closer = pos[1];
             closer_dist = pos[2];
         }
-        console.log("Which surf: " + which_surf + "  X closer: " + x_closer + "  Y closer: " + y_closer);
     }
     aux_surf = which_surf;
     aux_dot_x = x_closer;
@@ -108,7 +139,7 @@ function choose_dot_by_click(universe, A) {
     aux.value = Math.round(universe.surfaces[which_surf].control_points[x_closer][y_closer].y);
     aux = document.getElementById("change_dot_z");
     aux.value = Math.round(universe.surfaces[which_surf].control_points[x_closer][y_closer].z);
-    call_wind_change_dot(); // Abre a janela de alteracao das coordenadas de ponto de controle
+    open_wind_change_dot(); // Abre a janela de alteracao das coordenadas de ponto de controle
 }
 function change_dot() {
     var aux;
@@ -122,11 +153,7 @@ function change_dot() {
     window_change_dot_disappears();
     uni.surfaces[aux_surf].generateSurface();
     change_world();
-}
-function open_window_change_dot() {
-    var aux;
-    aux = document.getElementById("change_dot");
-    aux.style = "display: flex;";
+    selecting_dot = false;
 }
 var canvas = document.createElement("canvas");
 canvas.id = "canvas-giratorio";
@@ -145,12 +172,18 @@ el.addEventListener("click", function (e) {
     var rect = e.target.getBoundingClientRect();
     var x = Math.floor(e.clientX - rect.left);
     var y = Math.floor(e.clientY - rect.top);
-    // if(selecting_dot == true){
-    // }
-    choose_dot_by_click(uni, new Dot(x, y, 0));
+    if (selecting_dot) {
+        choose_dot_by_click(uni, new Dot(x, y, 0));
+    }
+    else if (remove_surf) {
+        remove_surface_by_click(uni, new Dot(x, y, 0));
+    }
+    ;
 });
 var main = document.getElementById("main");
 main.appendChild(canvas);
+var selecting_dot = false; // Quando essa variavel for true, eh possivel selecionar o ponto de contr com o mouse e altera-lo
+var remove_surf = false; // Quando essa variavel for true, assim que uma superficie for selecionada ela sera deletada
 var aux_surf; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
 var aux_dot_x; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
 var aux_dot_y; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle

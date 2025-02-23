@@ -55,6 +55,10 @@
         margin: 10px;
     }
 
+    #last_row > * {
+        margin: 10px;
+    }
+
     .column {
         display: flex;
         flex-direction: column;
@@ -146,7 +150,10 @@
 
             <div id="last_row" class="row"> 
                 <input type="button" id="call_create_s" value="Criar nova superficie" onclick=call_create_surface()>
+                <input type="button" id="call_create_s" value="Alterar Ponto de controle" onclick=call_change_dot()>
+                <input type="button" id="call_create_s" value="Excluir superficie" onclick=call_remove_surf()>
             </div>
+            
         </div>
 
         <div id="new_surface">
