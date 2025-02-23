@@ -4,9 +4,19 @@ function call_create_surface() {
     aux = document.getElementById("new_surface");
     aux.style = "display: flex;";
 }
+function call_wind_change_dot() {
+    var aux;
+    aux = document.getElementById("change_dot");
+    aux.style = "display: flex;";
+}
 function window_create_s_disappears() {
     var aux;
     aux = document.getElementById("new_surface");
+    aux.style = "display: none;";
+}
+function window_change_dot_disappears() {
+    var aux;
+    aux = document.getElementById("change_dot");
     aux.style = "display: none;";
 }
 function create_surface() {
@@ -72,18 +82,78 @@ function get_values_new_surface() {
     aux = document.getElementById("res_j");
     res_j = Number(aux.value);
 }
+function choose_dot_by_click(universe, A) {
+    var x_closer = -1; // Salva qual ponto é na coordenada x,y
+    var y_closer = -1;
+    var which_surf = -1; // Salva em qual superficie esta o ponto mais perto
+    var closer_dist = 10000; // Salva a menor distancia
+    for (var i = 0; i < universe.surfaces.length; i++) {
+        universe.surfaces[i].define_dots_screen(universe.matriz_SRU_SRT);
+        var pos = universe.surfaces[i].find_closer_cp_to_dot(A);
+        if (pos[2] < closer_dist) {
+            which_surf = i;
+            x_closer = pos[0];
+            y_closer = pos[1];
+            closer_dist = pos[2];
+        }
+        console.log("Which surf: " + which_surf + "  X closer: " + x_closer + "  Y closer: " + y_closer);
+    }
+    aux_surf = which_surf;
+    aux_dot_x = x_closer;
+    aux_dot_y = y_closer;
+    var aux;
+    aux = document.getElementById("change_dot_x");
+    aux.value = Math.round(universe.surfaces[which_surf].control_points[x_closer][y_closer].x);
+    aux = document.getElementById("change_dot_y");
+    aux.value = Math.round(universe.surfaces[which_surf].control_points[x_closer][y_closer].y);
+    aux = document.getElementById("change_dot_z");
+    aux.value = Math.round(universe.surfaces[which_surf].control_points[x_closer][y_closer].z);
+    call_wind_change_dot(); // Abre a janela de alteracao das coordenadas de ponto de controle
+}
+function change_dot() {
+    var aux;
+    aux = document.getElementById("change_dot_x");
+    var my_x = aux.value;
+    aux = document.getElementById("change_dot_y");
+    var my_y = aux.value;
+    aux = document.getElementById("change_dot_z");
+    var my_z = aux.value;
+    uni.surfaces[aux_surf].control_points[aux_dot_x][aux_dot_y] = new Dot(my_x, my_y, my_z);
+    window_change_dot_disappears();
+    uni.surfaces[aux_surf].generateSurface();
+    change_world();
+}
+function open_window_change_dot() {
+    var aux;
+    aux = document.getElementById("change_dot");
+    aux.style = "display: flex;";
+}
 var canvas = document.createElement("canvas");
 canvas.id = "canvas-giratorio";
 canvas.style.backgroundColor = "white";
 canvas.style.border = "1px solid black";
 canvas.style.width = "1000px";
 canvas.style.height = "800px";
-var ctx = canvas.getContext("2d");
 canvas.width = 1000;
 canvas.height = 800;
+document.body.appendChild(canvas);
+var ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
+var el;
+el = document.querySelector("canvas");
+el.addEventListener("click", function (e) {
+    var rect = e.target.getBoundingClientRect();
+    var x = Math.floor(e.clientX - rect.left);
+    var y = Math.floor(e.clientY - rect.top);
+    // if(selecting_dot == true){
+    // }
+    choose_dot_by_click(uni, new Dot(x, y, 0));
+});
 var main = document.getElementById("main");
 main.appendChild(canvas);
+var aux_surf; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
+var aux_dot_x; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
+var aux_dot_y; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
 var cam_x;
 var cam_y;
 var cam_z;

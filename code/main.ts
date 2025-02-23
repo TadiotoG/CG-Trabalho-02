@@ -6,9 +6,21 @@ function call_create_surface(){
     aux.style = "display: flex;";
 }
 
+function call_wind_change_dot(){
+    let aux;
+    aux = document.getElementById("change_dot");
+    aux.style = "display: flex;";
+}
+
 function window_create_s_disappears(){
     let aux;
     aux = document.getElementById("new_surface");
+    aux.style = "display: none;";
+}
+
+function window_change_dot_disappears(){
+    let aux;
+    aux = document.getElementById("change_dot");
     aux.style = "display: none;";
 }
 
@@ -96,19 +108,99 @@ function get_values_new_surface(){
     res_j = Number(aux.value);
 }
 
+function choose_dot_by_click(universe: Universe, A: Dot){
+    let x_closer = -1; // Salva qual ponto é na coordenada x,y
+    let y_closer = -1;
+    let which_surf = -1; // Salva em qual superficie esta o ponto mais perto
+    let closer_dist = 10000; // Salva a menor distancia
+    for(let i = 0; i < universe.surfaces.length; i++){
+        
+        universe.surfaces[i].define_dots_screen(universe.matriz_SRU_SRT);
+        let pos = universe.surfaces[i].find_closer_cp_to_dot(A);
+
+        if(pos[2] < closer_dist){
+            which_surf = i;
+            x_closer = pos[0];
+            y_closer = pos[1];
+            closer_dist = pos[2];
+        }
+        console.log("Which surf: " + which_surf + "  X closer: " + x_closer + "  Y closer: " + y_closer)
+    }
+    aux_surf = which_surf;
+    aux_dot_x = x_closer;
+    aux_dot_y = y_closer;
+
+    let aux;
+    aux = document.getElementById("change_dot_x");
+    aux.value = Math.round(universe.surfaces[which_surf].control_points[x_closer][y_closer].x);
+
+    aux = document.getElementById("change_dot_y");
+    aux.value = Math.round(universe.surfaces[which_surf].control_points[x_closer][y_closer].y);
+
+    aux = document.getElementById("change_dot_z");
+    aux.value = Math.round(universe.surfaces[which_surf].control_points[x_closer][y_closer].z);
+
+    call_wind_change_dot(); // Abre a janela de alteracao das coordenadas de ponto de controle
+}
+
+function change_dot(){
+    let aux;
+    aux = document.getElementById("change_dot_x");
+    let my_x = aux.value;
+
+    aux = document.getElementById("change_dot_y");
+    let my_y = aux.value;
+
+    aux = document.getElementById("change_dot_z");
+    let my_z = aux.value;
+
+    uni.surfaces[aux_surf].control_points[aux_dot_x][aux_dot_y] = new Dot(my_x, my_y, my_z)
+
+    window_change_dot_disappears();
+    uni.surfaces[aux_surf].generateSurface();
+    change_world();
+}
+
+function open_window_change_dot(){
+    let aux;
+    aux = document.getElementById("change_dot");
+    aux.style = "display: flex;"
+}
+
 const canvas = document.createElement("canvas")
 canvas.id = "canvas-giratorio"
 canvas.style.backgroundColor = "white"
 canvas.style.border = "1px solid black"
 canvas.style.width = "1000px"
 canvas.style.height = "800px"
-var ctx = canvas.getContext("2d")
 canvas.width = 1000;
 canvas.height = 800;
+
+document.body.appendChild(canvas);
+
+var ctx = canvas.getContext("2d")
 ctx.imageSmoothingEnabled = false;
+let el;
+el = document.querySelector("canvas") as HTMLCanvasElement;
+
+el.addEventListener("click", (e) => {
+    const rect = e.target.getBoundingClientRect();
+    
+    const x = Math.floor(e.clientX - rect.left);
+    const y = Math.floor(e.clientY - rect.top);
+
+    // if(selecting_dot == true){
+    // }
+    choose_dot_by_click(uni, new Dot(x, y, 0));
+
+});
 
 let main = document.getElementById("main");
 main.appendChild(canvas);
+
+var aux_surf: number; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
+var aux_dot_x: number; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
+var aux_dot_y: number; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
 
 var cam_x: number;
 var cam_y: number;
