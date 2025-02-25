@@ -1,4 +1,4 @@
-/// <reference path= "./spline.ts" />
+/// <reference path= "./Spline.ts" />
 
 // import { get } from "lodash";
 
