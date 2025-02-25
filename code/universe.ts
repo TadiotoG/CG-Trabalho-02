@@ -1,5 +1,5 @@
 /// <reference path= "./surface.ts" />
-/// <reference path= "./camera.ts" />
+/// <reference path= "./Camera.ts" />
 
 // class Obj_3D{
 //     dots: Array<Dot>;
