@@ -1,5 +1,5 @@
 /// <reference path= "./surface.ts" />
-/// <reference path= "./Camera.ts" />
+/// <reference path= "./camera.ts" />
 var canvas_width = 1000;
 var canvas_height = 800;
 var Universe = /** @class */ (function () {
@@ -31,7 +31,10 @@ var Universe = /** @class */ (function () {
     }
     ;
     Universe.prototype.draw_whole_surface = function (surface) {
-        for (var i = 0; i < surface.faces.length; i++) {
+        for (var i = 0; i < 1; i++) {
+            console.log("Antes Dots ->", surface.faces[i].dots);
+            surface.faces[i] = Recorte(surface.faces[i], 0, 0, 1000, 800);
+            console.log("Depois Dots ->", surface.faces[i].dots);
             this.draw_face(surface.faces[i]);
         }
     };

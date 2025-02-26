@@ -220,7 +220,7 @@ class Surface{
 
     create_faces(matriz_SRU_SRT: number[][]){ // Essa funcao foi projetada para ser chamada no momento de plotar, para que tenhamos as coordenadas de tela de cada vértice/face, pois se pegassemos diretamente os pontos sem a conversao SRU_SRT, teriamos as coordenadas de mundo, o que nao traria informações uteis
         let ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat()) // ps = points_screen
-        this.faces = [new Face([new Dot(0,0,0), new Dot(0,0,0)])];
+        this.faces = [];
 
         for(let i=0; i<this.resi-1; i++){
             for(let j=0; j<this.resj-1; j++){ // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca

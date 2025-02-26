@@ -1,4 +1,4 @@
-/// <reference path= "./Spline.ts" />
+/// <reference path= "./spline.ts" />
 // import { get } from "lodash";
 // import { random } from "lodash"
 var Surface = /** @class */ (function () {
@@ -183,7 +183,7 @@ var Surface = /** @class */ (function () {
     };
     Surface.prototype.create_faces = function (matriz_SRU_SRT) {
         var ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat()); // ps = points_screen
-        this.faces = [new Face([new Dot(0, 0, 0), new Dot(0, 0, 0)])];
+        this.faces = [];
         for (var i = 0; i < this.resi - 1; i++) {
             for (var j = 0; j < this.resj - 1; j++) { // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca
                 var A = new Dot(ps[0][i * this.resj + j] / ps[3][i * this.resj + j], ps[1][i * this.resj + j] / ps[3][i * this.resj + j], ps[2][i * this.resj + j]);

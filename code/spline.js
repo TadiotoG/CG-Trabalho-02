@@ -257,3 +257,213 @@ function distance_between_dots_screen(A, B) {
     var aux_y = B.y - A.y;
     return Math.sqrt(Math.pow(aux_x, 2) + Math.pow(aux_y, 2));
 }
+var Aresta = /** @class */ (function () {
+    function Aresta(p1, p2) {
+        this.p1 = p1;
+        this.p2 = p2;
+    }
+    return Aresta;
+}());
+function Recorte(face, umin, umax, vmin, vmax) {
+    var pontos = face.dots;
+    console.log("Pontos ->", pontos);
+    var arestas = [];
+    for (var i = 0; i < pontos.length; i++) {
+        if (i + 1 < pontos.length) {
+            arestas.push(new Aresta(pontos[i], pontos[i + 1]));
+        }
+        else {
+            arestas.push(new Aresta(pontos[i], pontos[0]));
+        }
+    }
+    console.log("Arestas -> ", arestas);
+    var recorteEsquerda = pontos.some(function (ponto) { return ponto.x < umin; });
+    //verificar recorte esquerda
+    if (recorteEsquerda) {
+        var novasArestas = [];
+        var novosPontos_1 = [];
+        arestas.forEach(function (arestas) {
+            var p1 = arestas.p1;
+            var p2 = arestas.p2;
+            var u;
+            if (p1.x < umin && p2.x >= umin) { //adentra recorte
+                u = (umin - p1.x) / (p2.x - p1.x);
+                var x = umin;
+                var y = p1.y + u * (p2.y - p1.y);
+                var z = p1.z + u * (p2.z - p1.z);
+                var Paux = new Dot(x, y, z);
+                if (Paux.x == p2.x && Paux.y == p2.y) {
+                    novosPontos_1.push(p2);
+                }
+                else {
+                    novosPontos_1.push(Paux);
+                    novosPontos_1.push(p2);
+                }
+            }
+            if (p1.x >= umin && p2.x >= umin) { //os dois pontos estão dentro do recorte
+                novosPontos_1.push(p2);
+            }
+            if (p1.x >= umin && p2.x < umin) { //sai do recorte
+                u = (umin - p1.x) / (p2.x - p1.x);
+                var x = umin;
+                var y = p1.y + u * (p2.y - p1.y);
+                var z = p1.z + u * (p2.z - p1.z);
+                var Paux = new Dot(x, y, z);
+                novosPontos_1.push(Paux);
+            }
+        });
+        for (var i = 0; i < novosPontos_1.length; i++) {
+            if (i + 1 < novosPontos_1.length) {
+                novasArestas.push(new Aresta(novosPontos_1[i], novosPontos_1[i + 1]));
+            }
+            else {
+                novasArestas.push(new Aresta(novosPontos_1[i], novosPontos_1[0]));
+            }
+        }
+        arestas = novasArestas;
+        pontos = novosPontos_1;
+    }
+    var recorteDireita = pontos.some(function (ponto) { return ponto.x > umax; });
+    //verificar recorte direita
+    if (recorteDireita) {
+        var novasArestas = [];
+        var novosPontos_2 = [];
+        arestas.forEach(function (aresta) {
+            var p1 = aresta.p1;
+            var p2 = aresta.p2;
+            var u;
+            if (p1.x > umax && p2.x < umax) { //adentra recorte
+                u = (umax - p1.x) / (p2.x - p1.x);
+                var x = umax;
+                var y = p1.y + u * (p2.y - p1.y);
+                var z = p1.z + u * (p2.z - p1.z);
+                var Paux = new Dot(x, y, z);
+                if (Paux.x == p2.x && Paux.y == p2.y) {
+                    novosPontos_2.push(p2);
+                }
+                else {
+                    novosPontos_2.push(Paux);
+                    novosPontos_2.push(p2);
+                }
+            }
+            if (p1.x <= umax && p2.x <= umax) { //os dois pontos estão dentro do recorte
+                novosPontos_2.push(p2);
+            }
+            if (p1.x < umax && p2.x > umax) { //sai do recorte
+                u = (umax - p1.x) / (p2.x - p1.x);
+                var x = umax;
+                var y = p1.y + u * (p2.y - p1.y);
+                var z = p1.z + u * (p2.z - p1.z);
+                var Paux = new Dot(x, y, z);
+                novosPontos_2.push(Paux);
+            }
+        });
+        for (var i = 0; i < novosPontos_2.length; i++) {
+            if (i + 1 < novosPontos_2.length) {
+                novasArestas.push(new Aresta(novosPontos_2[i], novosPontos_2[i + 1]));
+            }
+            else {
+                novasArestas.push(new Aresta(novosPontos_2[i], novosPontos_2[0]));
+            }
+        }
+        arestas = novasArestas;
+        pontos = novosPontos_2;
+    }
+    var recorteInferior = pontos.some(function (ponto) { return ponto.y > vmax; });
+    //verificar recorte inferior
+    if (recorteInferior) {
+        var novosPontos_3 = [];
+        var novasArestas = [];
+        arestas.forEach(function (aresta) {
+            var p1 = aresta.p1;
+            var p2 = aresta.p2;
+            var u;
+            if (p1.y > vmax && p2.y <= vmax) { //adentra recorte
+                u = (vmax - p1.y) / (p2.y - p1.y);
+                var y = vmax;
+                var x = p1.x + u * (p2.x - p1.x);
+                var z = p1.z + u * (p2.z - p1.z);
+                var Paux = new Dot(x, y, z);
+                if (Paux.x == p2.x && Paux.y == p2.y) {
+                    novosPontos_3.push(p2);
+                }
+                else {
+                    novosPontos_3.push(Paux);
+                    novosPontos_3.push(p2);
+                }
+            }
+            if (p1.y <= vmax && p2.y <= vmax) { //os dois pontos estão dentro do recorte
+                novosPontos_3.push(p2);
+            }
+            if (p1.y <= vmax && p2.y > vmax) { //sai do recorte
+                u = (vmax - p1.y) / (p2.y - p1.y);
+                var y = vmax;
+                var x = p1.x + u * (p2.x - p1.x);
+                var z = p1.z + u * (p2.z - p1.z);
+                var Paux = new Dot(x, y, z);
+                novosPontos_3.push(Paux);
+            }
+        });
+        for (var i = 0; i < novosPontos_3.length; i++) {
+            if (i + 1 < novosPontos_3.length) {
+                novasArestas.push(new Aresta(novosPontos_3[i], novosPontos_3[i + 1]));
+            }
+            else {
+                novasArestas.push(new Aresta(novosPontos_3[i], novosPontos_3[0]));
+            }
+        }
+        arestas = novasArestas;
+        pontos = novosPontos_3;
+    }
+    var recorteSuperior = pontos.some(function (ponto) { return ponto.y < vmin; });
+    //verificar recorte superior
+    if (recorteSuperior) {
+        var novosPontos_4 = [];
+        var novasArestas = [];
+        arestas.forEach(function (aresta) {
+            var p1 = aresta.p1;
+            var p2 = aresta.p2;
+            var u;
+            if (p1.y < vmin && p2.y >= vmin) { //adentra recorte
+                u = (vmin - p1.y) / (p2.y - p1.y);
+                var y = vmin;
+                var x = p1.x + u * (p2.x - p1.x);
+                var z = p1.z + u * (p2.z - p1.z);
+                var Paux = new Dot(x, y, z);
+                if (Paux.x == p2.x && Paux.y == p2.y) {
+                    novosPontos_4.push(p2);
+                }
+                else {
+                    novosPontos_4.push(Paux);
+                    novosPontos_4.push(p2);
+                }
+            }
+            if (p1.y >= vmin && p2.y >= vmin) { //os dois pontos estão dentro do recorte
+                novosPontos_4.push(p2);
+            }
+            if (p1.y >= vmin && p2.y < vmin) { //sai do recorte
+                u = (vmin - p1.y) / (p2.y - p1.y);
+                var y = vmin;
+                var x = p1.x + u * (p2.x - p1.x);
+                var z = p1.z + u * (p2.z - p1.z);
+                var Paux = new Dot(x, y, z);
+                novosPontos_4.push(Paux);
+            }
+        });
+        for (var i = 0; i < novosPontos_4.length; i++) {
+            if (i + 1 < novosPontos_4.length) {
+                novasArestas.push(new Aresta(novosPontos_4[i], novosPontos_4[i + 1]));
+            }
+            else {
+                novasArestas.push(new Aresta(novosPontos_4[i], novosPontos_4[0]));
+            }
+        }
+        arestas = novasArestas;
+        pontos = novosPontos_4;
+    }
+    console.log(pontos);
+    return new Face(pontos);
+}
+// let face = new Face([new Dot(151.914, 340.497, -39.024), new Dot(369.403, 223.801, -52.594), new Dot(149.5564, -51.1074, -47.9237)]);
+// face = Recorte(face, 0, 319, 0, 239);
+// console.log(face.dots);
