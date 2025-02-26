@@ -36,29 +36,39 @@ class Aresta {
 
 class Face {
     pontos: Ponto[];
-    arestas: Aresta[];
+   
 
-    constructor(pontos: Ponto[], arestas: Aresta[]) {
+    constructor(pontos: Ponto[]) {
         this.pontos = pontos;
-        this.arestas = arestas;
+
     }
 }
 
 function Recorte (face: Face, viewPort: ViewPort) {
     let pontos = face.pontos;
-    let arestas = face.arestas;
+    let arestas: Aresta[] = [];
+
+    
+
+    for (let i = 0; i < pontos.length; i++) {
+        if (i + 1 < pontos.length) {
+            arestas.push(new Aresta(pontos[i], pontos[i + 1]));
+        } else {
+            arestas.push(new Aresta(pontos[i], pontos[0]));
+        }}
+
 
     let recorteEsquerda = pontos.some(ponto => ponto.x < viewPort.umin);
 
-    // console.log(arestas);
 
     //verificar recorte esquerda
     if(recorteEsquerda){
         let novasArestas: Aresta[] = [];
         let novosPontos: Ponto[] = [];
-        arestas.forEach(aresta => {
-            let p1 = aresta.p1;
-            let p2 = aresta.p2;
+
+        arestas.forEach(arestas => {
+            let p1 = arestas.p1;
+            let p2 = arestas.p2;
             let u;
         
             if (p1.x < viewPort.umin && p2.x >= viewPort.umin) { //adentra recorte
@@ -97,14 +107,13 @@ function Recorte (face: Face, viewPort: ViewPort) {
             } else {
                 novasArestas.push(new Aresta(novosPontos[i], novosPontos[0]));
             }}
-        // console.log("pontos da esquerda");
-        // console.log(novosPontos);
-        // console.log("aresta da esquerda");
-        // console.log(novasArestas);
+
 
         arestas = novasArestas;
         pontos = novosPontos;
     }
+
+
 
     let recorteDireita = pontos.some(ponto => ponto.x > viewPort.umax);
 
@@ -112,6 +121,7 @@ function Recorte (face: Face, viewPort: ViewPort) {
     if(recorteDireita){
         let novasArestas: Aresta[] = [];
         let novosPontos: Ponto[] = [];
+
         arestas.forEach(aresta => {
             let p1 = aresta.p1;
             let p2 = aresta.p2;
@@ -155,15 +165,11 @@ function Recorte (face: Face, viewPort: ViewPort) {
             } else {
                 novasArestas.push(new Aresta(novosPontos[i], novosPontos[0]));
             }}
-        // console.log("pontos da direita");
-        // console.log(novosPontos);
-        // console.log("aresta da direita");
-        // console.log(novasArestas);
+
         arestas = novasArestas;
         pontos = novosPontos;
     }
 
-    console.log(pontos, arestas);
     let recorteInferior = pontos.some(ponto => ponto.y > viewPort.vmax);
     //verificar recorte inferior
     if(recorteInferior){
@@ -184,19 +190,19 @@ function Recorte (face: Face, viewPort: ViewPort) {
                 let Paux = new Ponto(x, y, z);
                 if(Paux.x == p2.x && Paux.y == p2.y){
                     novosPontos.push(p2);
-                    console.log("adentra porém é igual");
+
                     
                 }else{
                     novosPontos.push(Paux);
                     novosPontos.push(p2);
-                    console.log("adentra");
+
                 }
                 
             }
 
             if(p1.y <= viewPort.vmax && p2.y <= viewPort.vmax) {//os dois pontos estão dentro do recorte
                 novosPontos.push(p2);
-                console.log("2 dentro"); 
+
             }
 
             if(p1.y <= viewPort.vmax && p2.y > viewPort.vmax) {//sai do recorte
@@ -207,7 +213,7 @@ function Recorte (face: Face, viewPort: ViewPort) {
 
                 let Paux = new Ponto(x, y, z);
                 novosPontos.push(Paux);
-                console.log("sai");
+
 
 
             }
@@ -218,10 +224,7 @@ function Recorte (face: Face, viewPort: ViewPort) {
             } else {
                 novasArestas.push(new Aresta(novosPontos[i], novosPontos[0]));
             }}
-        console.log("pontos da baixo");
-        console.log(novosPontos);    
-        console.log("aresta da baixo");
-        console.log(novasArestas);
+
         arestas = novasArestas;
         pontos = novosPontos;
     }
@@ -230,7 +233,7 @@ function Recorte (face: Face, viewPort: ViewPort) {
     if(recorteSuperior){
         let novosPontos: Ponto[] = [];
         let novasArestas: Aresta[] = [];
-        let aux = 0;
+
         arestas.forEach(aresta => {
             let p1 = aresta.p1;
             let p2 = aresta.p2;
@@ -245,23 +248,17 @@ function Recorte (face: Face, viewPort: ViewPort) {
                 let Paux = new Ponto(x, y, z);
                 if(Paux.x == p2.x && Paux.y == p2.y){
                     novosPontos.push(p2);
-                    console.log("adentra porém é igual" + aux);
                     
                 }else{
                     novosPontos.push(Paux);
                     novosPontos.push(p2);
-                    console.log("adentra" + aux);
                 }
-                console.log(novosPontos);
-                console.log("adentra");
-                aux++;
+
             }
 
             if(p1.y >= viewPort.vmin && p2.y >= viewPort.vmin) {//os dois pontos estão dentro do recorte
                 novosPontos.push(p2);
-                console.log(novosPontos);
-                console.log("dentro" + aux);
-                aux++;   
+ 
             }
 
             if(p1.y >= viewPort.vmin && p2.y < viewPort.vmin) {//sai do recorte
@@ -272,9 +269,7 @@ function Recorte (face: Face, viewPort: ViewPort) {
 
                 let Paux = new Ponto(x, y, z);
                 novosPontos.push(Paux);
-                console.log(novosPontos);
-                console.log("sai" + aux);
-                aux++;
+
 
             }
         });
@@ -285,13 +280,12 @@ function Recorte (face: Face, viewPort: ViewPort) {
             } else {
                 novasArestas.push(new Aresta(novosPontos[i], novosPontos[0]));
             }}
-        console.log("pontos da cima");
-        console.log(novosPontos);
-        console.log("aresta da cima");
-        console.log(novasArestas);
+
         arestas = novasArestas;
         pontos = novosPontos;
     }
+
+    return pontos;
 
 }
 
@@ -300,14 +294,12 @@ let pontoA = new Ponto(-59.425, 231.028, -52.703);
 let pontoB = new Ponto(151.914, 340.497, -39.024);
 let pontoE = new Ponto(149.5564, -51.1074, -47.9237);
 
-// Criação das arestas com os pontos
-let arestaAB = new Aresta(pontoA, pontoB);
-let arestaBE = new Aresta(pontoB, pontoE);
-let arestaEA = new Aresta(pontoE, pontoA);
 
 // Criação da face com os pontos e arestas
-let face = new Face([pontoA, pontoB, pontoE], [arestaAB, arestaBE, arestaEA]);
+let face = new Face([pontoA, pontoB, pontoE]);
 
 // Exemplo de uso da função Recorte
 let viewPort = new ViewPort(0, 319, 0, 239);
-Recorte(face, viewPort);
+let  pontos = Recorte(face, viewPort);
+
+console.log(pontos);
