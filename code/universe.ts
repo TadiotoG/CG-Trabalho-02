@@ -1,5 +1,5 @@
 /// <reference path= "./surface.ts" />
-/// <reference path= "./Camera.ts" />
+/// <reference path= "./camera.ts" />
 
 let canvas_width = 1000;
 let canvas_height = 800;
