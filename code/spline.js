@@ -14,10 +14,12 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 var Dot = /** @class */ (function () {
-    function Dot(new_x, new_y, new_z) {
+    function Dot(new_x, new_y, new_z, col) {
+        if (col === void 0) { col = "red"; }
         this.x = new_x;
         this.y = new_y;
         this.z = new_z;
+        this.color = col;
     }
     Dot.prototype.print_obj = function (dot_name) {
         console.log(dot_name + "-> (" + this.x + "," + this.y + "," + this.z + ")");
@@ -187,4 +189,9 @@ function get_ArrDots_as_mat(arr_dots) {
         mat_aux[3][i] = 1;
     }
     return mat_aux;
+}
+function distance_between_dots_screen(A, B) {
+    var aux_x = B.x - A.x;
+    var aux_y = B.y - A.y;
+    return Math.sqrt(Math.pow(aux_x, 2) + Math.pow(aux_y, 2));
 }

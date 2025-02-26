@@ -1,59 +1,210 @@
 /// <reference path= "./universe.ts" />
+function call_create_surface() {
+    var aux;
+    aux = document.getElementById("new_surface");
+    aux.style = "display: flex;";
+}
+function open_wind_change_dot() {
+    var aux;
+    aux = document.getElementById("change_dot");
+    aux.style = "display: flex;";
+}
+function call_change_dot() {
+    selecting_dot = true;
+    remove_surf = false;
+}
+function call_remove_surf() {
+    remove_surf = true;
+    selecting_dot = false;
+}
+function open_window_change_dot() {
+    var aux;
+    aux = document.getElementById("change_dot");
+    aux.style = "display: flex;";
+}
+function window_create_s_disappears() {
+    var aux;
+    aux = document.getElementById("new_surface");
+    aux.style = "display: none;";
+}
+function window_change_dot_disappears() {
+    var aux;
+    aux = document.getElementById("change_dot");
+    aux.style = "display: none;";
+}
+function create_surface() {
+    get_values_new_surface();
+    var surface_01 = new Surface(star_x, star_y, star_z, amount_cp_i, amount_cp_j, 3, 3, res_i, res_j);
+    surface_01.generateSurface();
+    uni.add_surface(surface_01);
+    uni.draw_cp(surface_01);
+    window_create_s_disappears();
+}
+function change_world() {
+    erase_canvas();
+    get_values_to_cam();
+    // console.log(`X = ${cam_x} Y = ${cam_y} Z = ${cam_z}`);
+    var list_of_surfaces = uni.surfaces;
+    vrp_camera = new Dot(cam_x, cam_y, cam_z);
+    focal_point_camera = new Dot(focal_x, focal_y, focal_z);
+    distance_point = 240;
+    camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
+    uni = new Universe(ctx, camera);
+    for (var i = 0; i < list_of_surfaces.length; i++) {
+        uni.surfaces = list_of_surfaces;
+        uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
+        uni.draw_whole_surface(uni.surfaces[i]);
+        uni.draw_cp(uni.surfaces[i]);
+    }
+}
+function erase_canvas() {
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas_width, canvas_height);
+}
+function get_values_to_cam() {
+    var aux;
+    aux = document.getElementById("cam_y"); // Pega o valor do input no html 
+    cam_y = aux.value;
+    aux = document.getElementById("cam_x");
+    cam_x = aux.value;
+    aux = document.getElementById("cam_z");
+    cam_z = aux.value;
+    aux = document.getElementById("focal_x");
+    focal_x = aux.value;
+    aux = document.getElementById("focal_y");
+    focal_y = aux.value;
+    aux = document.getElementById("focal_z");
+    focal_z = aux.value;
+    aux = document.getElementById("distance_point");
+    distance_point = aux.value;
+}
+function get_values_new_surface() {
+    var aux;
+    aux = document.getElementById("surface_begin_x"); // Pega o valor do input no html 
+    star_x = Number(aux.value);
+    aux = document.getElementById("surface_begin_y");
+    star_y = Number(aux.value);
+    aux = document.getElementById("surface_begin_z");
+    star_z = Number(aux.value);
+    aux = document.getElementById("cp_i");
+    amount_cp_i = Number(aux.value);
+    aux = document.getElementById("cp_j");
+    amount_cp_j = Number(aux.value);
+    aux = document.getElementById("res_i");
+    res_i = Number(aux.value);
+    aux = document.getElementById("res_j");
+    res_j = Number(aux.value);
+}
+function remove_surface_by_click(universe, A) {
+    var x_closer = -1; // Salva qual ponto é na coordenada x,y
+    var y_closer = -1;
+    var which_surf = -1; // Salva em qual superficie esta o ponto mais perto
+    var closer_dist = 10000; // Salva a menor distancia
+    for (var i = 0; i < universe.surfaces.length; i++) {
+        universe.surfaces[i].define_dots_screen(universe.matriz_SRU_SRT);
+        var pos = universe.surfaces[i].find_closer_cp_to_dot(A);
+        if (pos[2] < closer_dist) {
+            which_surf = i;
+            x_closer = pos[0];
+            y_closer = pos[1];
+            closer_dist = pos[2];
+        }
+    }
+    universe.surfaces.splice(which_surf, 1); // Remove a superficie na pos which_surf
+    remove_surf = false;
+    change_world();
+}
+function choose_dot_by_click(universe, A) {
+    var x_closer = -1; // Salva qual ponto é na coordenada x,y
+    var y_closer = -1;
+    var which_surf = -1; // Salva em qual superficie esta o ponto mais perto
+    var closer_dist = 10000; // Salva a menor distancia
+    for (var i = 0; i < universe.surfaces.length; i++) {
+        universe.surfaces[i].define_dots_screen(universe.matriz_SRU_SRT);
+        var pos = universe.surfaces[i].find_closer_cp_to_dot(A);
+        if (pos[2] < closer_dist) {
+            which_surf = i;
+            x_closer = pos[0];
+            y_closer = pos[1];
+            closer_dist = pos[2];
+        }
+    }
+    aux_surf = which_surf;
+    aux_dot_x = x_closer;
+    aux_dot_y = y_closer;
+    var aux;
+    aux = document.getElementById("change_dot_x");
+    aux.value = Math.round(universe.surfaces[which_surf].control_points[x_closer][y_closer].x);
+    aux = document.getElementById("change_dot_y");
+    aux.value = Math.round(universe.surfaces[which_surf].control_points[x_closer][y_closer].y);
+    aux = document.getElementById("change_dot_z");
+    aux.value = Math.round(universe.surfaces[which_surf].control_points[x_closer][y_closer].z);
+    open_wind_change_dot(); // Abre a janela de alteracao das coordenadas de ponto de controle
+}
+function change_dot() {
+    var aux;
+    aux = document.getElementById("change_dot_x");
+    var my_x = aux.value;
+    aux = document.getElementById("change_dot_y");
+    var my_y = aux.value;
+    aux = document.getElementById("change_dot_z");
+    var my_z = aux.value;
+    uni.surfaces[aux_surf].control_points[aux_dot_x][aux_dot_y] = new Dot(my_x, my_y, my_z);
+    window_change_dot_disappears();
+    uni.surfaces[aux_surf].generateSurface();
+    change_world();
+    selecting_dot = false;
+}
 var canvas = document.createElement("canvas");
 canvas.id = "canvas-giratorio";
 canvas.style.backgroundColor = "white";
 canvas.style.border = "1px solid black";
 canvas.style.width = "1000px";
 canvas.style.height = "800px";
-var ctx = canvas.getContext("2d");
-canvas.width = 800;
+canvas.width = 1000;
 canvas.height = 800;
-ctx.imageSmoothingEnabled = false;
 document.body.appendChild(canvas);
-var vrp_camera = new Dot(0, 0.7, 1);
-var focal_point_camera = new Dot(0, 0, 0);
+var ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+var el;
+el = document.querySelector("canvas");
+el.addEventListener("click", function (e) {
+    var rect = e.target.getBoundingClientRect();
+    var x = Math.floor(e.clientX - rect.left);
+    var y = Math.floor(e.clientY - rect.top);
+    if (selecting_dot) {
+        choose_dot_by_click(uni, new Dot(x, y, 0));
+    }
+    else if (remove_surf) {
+        remove_surface_by_click(uni, new Dot(x, y, 0));
+    }
+    ;
+});
+var main = document.getElementById("main");
+main.appendChild(canvas);
+var selecting_dot = false; // Quando essa variavel for true, eh possivel selecionar o ponto de contr com o mouse e altera-lo
+var remove_surf = false; // Quando essa variavel for true, assim que uma superficie for selecionada ela sera deletada
+var aux_surf; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
+var aux_dot_x; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
+var aux_dot_y; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
+var cam_x;
+var cam_y;
+var cam_z;
+var focal_x;
+var focal_y;
+var focal_z;
+var distance_point;
+get_values_to_cam();
+var vrp_camera = new Dot(cam_x, cam_y, cam_z);
+var focal_point_camera = new Dot(focal_x, focal_y, focal_z);
 var distance_point = 240;
 var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
-// constructor(view_reference_point: Dot, focal_p: Dot, dp: number, wid: number, heig: number, min_x: number, min_y: number, max_x: number, max_y: number){
 var uni = new Universe(ctx, camera);
-// let A = new Dot(-10, -20, 10);
-// let B = new Dot(10, -20, 10);
-// let C = new Dot(7, 20, 10);
-// let D = new Dot(-7, 20, 10);
-// let E = new Dot(10, -20, -10);
-// let F = new Dot(7, 20, -10);
-// let G = new Dot(-7, 20, -10);
-// let H = new Dot(-10, -20, -10);
-// let pyramid_dots: Array<Dot>;
-// pyramid_dots = [A, B, C, D, E, F, G, H];
-// let pyramid = new Obj_3D("blue", pyramid_dots);
-// uni.add_obj(pyramid);
-var A = new Dot(-7.5, -0.75, 2.25);
-var B = new Dot(-3.5, -4.75, 6.25);
-var C = new Dot(3.5, 4.25, -9.75);
-var D = new Dot(7.5, 1.25, 1.25);
-var E = new Dot(16, 10, -5);
-var F = new Dot(16, 10, -20);
-var control_dots;
-var other_dots;
-var control_dots_2;
-var control_dots_3;
-control_dots = [A, B, C, D];
-control_dots_2 = [B, C, D, E];
-control_dots_3 = [C, D, E, F];
-other_dots = [B, D, A, C];
-var spline = new Spline(control_dots);
-var spline_2 = new Spline(control_dots_2);
-var spline_3 = new Spline(control_dots_3);
-var other = new Spline(other_dots);
-var surface_01 = new Surface(4, 4, 3, 3, 30, 30);
-// print_matriz(surface_01.get_cp_as_mat(), "Teste 01")
-// uni.add_obj_spline(spline);
-surface_01.generateSurface();
-// print_matriz(surface_01.get_outp_as_mat(), "Teste 02")
-// surface_01.displaySurface();
-// uni.add_obj_spline(spline_2);
-// uni.add_obj_spline(spline_3);
-// uni.add_obj_spline(other);
-uni.add_surface(surface_01);
-uni.animate_world();
+var star_x;
+var star_y;
+var star_z;
+var amount_cp_i;
+var amount_cp_j;
+var res_i;
+var res_j;
+create_surface();

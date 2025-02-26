@@ -6,6 +6,7 @@
 
 class Surface{
     control_points: Dot[][];
+    control_points_screen: Dot[][]; // Pontos de controle em coordenadas de tela
     ni: number;
     nj: number;
     ti: number;
@@ -15,9 +16,10 @@ class Surface{
     outp: Dot[][];
     faces: Array<Face>;
 
-    constructor(ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number){
+    constructor(star_x: number, star_y: number, star_z: number, ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number, control_points: Dot[][] = [[new Dot(0,0,0)]]){
         this.control_points = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
-        this.outp = Array(resolutioni).fill(null).map(() => Array(resolutionj).fill(new Dot(30,30,30)))
+        this.control_points_screen = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
+        this.outp = Array(resolutioni).fill(null).map(() => Array(resolutionj).fill(new Dot(0,0,0)))
         this.ni = ni;
         this.nj = nj;
         this.ti = ti;
@@ -25,34 +27,16 @@ class Surface{
         this.resi = resolutioni;
         this.resj = resolutionj;
         let counter = 0;
+        console.log(`x = ${star_x}  y = ${star_y}   z = ${star_z}`);
         for(let i=0; i<ni; i++){
             for(let j=0; j<nj; j++){
                 counter++;
-                this.control_points[i][j] = new Dot(i*13+5, Math.random()*10, j*13+5);
-                // console.log(i + "," + j + " DOT = "+ "(" + this.control_points[i][j].x + ", " + this.control_points[i][j].y + ", " + this.control_points[i][j].z + ")")
+                this.control_points[i][j] = new Dot(i*13+star_x, Math.random()*10+star_y, j*13+star_z);
+                
             }
         }
-        // this.control_points[0][0].print_obj("Dots");
-        // this.control_points[0][1].print_obj("Dots");
-        // this.control_points[1][0].print_obj("Dots");
-        // this.control_points[1][1].print_obj("Dots");
-        console.log("Counter "+  this.control_points.length + "  " + this.control_points[0].length)
-        print_matriz(this.get_cp_as_mat(), "INFERNO")
     }
 
-    // SplineKnots(u: number[], n: number, t: number): void {
-    //     for (let j = 0; j <= n + t; j++) {
-    //       if (j < t){
-    //         u[j] = 0;
-    //       }
-    //       else if(j <= n){
-    //         u[j] = j - t + 1;
-    //       }
-    //       else{
-    //         u[j] = n - t + 2;
-    //       }
-    //     }
-    // }
     SplineKnots(u: number[], n: number, t: number): void {
       let j: number;
   
@@ -71,7 +55,6 @@ class Surface{
           u[j] = n - t + 1; // Alterado de "n - t + 2" para "n - t + 1" para evitar fechamento
       }
     }
-  
 
     SplineBlend(k: number, t: number, u: number[], v: number): number {
         // console.log(`k=${k}, t=${t}, u[k]=${u[k]}, u[k+1]=${u[k+1]}, v=${v}`);
@@ -112,21 +95,12 @@ class Surface{
                 y += this.control_points[ki][kj].y * bi * bj;
                 z += this.control_points[ki][kj].z * bi * bj;
               }
-            }
-            // this.outp[i][j].x = x;
-            // this.outp[i][j].y = y;
-            // this.outp[i][j].z = z;
-            // if (y != 0 && x != 0 && z != 0){                
+            }             
             this.outp[i][j] = new Dot(x, y, z);
-            
-            // }
-
             intervalJ += incrementJ;
           }
           intervalI += incrementI;
         }
-
-        
         incrementI = (this.ni - this.ti + 1) / (this.resi - 1);
         intervalI = 0;
         for (let i = 0; i < this.resi-1; i++) {
@@ -172,38 +146,6 @@ class Surface{
         console.log("}");
       }
 
-    // create_splines(arr_spline: Array<Spline>){
-    //     let i:number, j: number;
-    //     i = 0;
-    //     j = 0;
-    //     while(i < this.resolution[0]-1){
-    //         j = 0;
-    //         while(j < this.nj-3){
-    //             let arr_dots: Array<Dot>;
-                
-    //             arr_dots = [this.control_points[i][j], this.control_points[i][j+1], this.control_points[i][j+2], this.control_points[i][j+3]];
-    //             arr_spline.push(new Spline(arr_dots))
-
-    //             j++;
-    //         }
-    //         i++;
-    //     }
-    //     i = 0;
-    //     j = 0;
-    //     while(j < this.nj-1){
-    //         i = 0;
-    //         while(i < this.resolution[0]-3){
-    //             let arr_dots: Array<Dot>;
-                
-    //             arr_dots = [this.control_points[i][j], this.control_points[i+1][j], this.control_points[i+2][j], this.control_points[i+3][j]];
-    //             arr_spline.push(new Spline(arr_dots))
-            
-    //             i++;
-    //         }
-    //         j++;
-    //     }
-    // }
-
     print_all_cp(){
         for(let i=0; i<this.ni; i++){
             for(let j=0; j<this.nj; j++){
@@ -239,11 +181,8 @@ class Surface{
                 mat_aux[1][x*this.resi+y] = this.outp[x][y].y;
                 mat_aux[2][x*this.resi+y] = this.outp[x][y].z;
                 mat_aux[3][x*this.resi+y] = 1;
-                // alert(x+y)
             }
         }
-        // print_matriz(mat_aux, "MINHA MATRIZINHA")
-        // alert("ESTOPI")
         return mat_aux; 
     }
     
@@ -271,16 +210,10 @@ class Surface{
 
     create_faces(matriz_SRU_SRT: number[][]){ // Essa funcao foi projetada para ser chamada no momento de plotar, para que tenhamos as coordenadas de tela de cada vértice/face, pois se pegassemos diretamente os pontos sem a conversao SRU_SRT, teriamos as coordenadas de mundo, o que nao traria informações uteis
         let ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat()) // ps = points_screen
-
-        // console.log("PS = " + ps[0].length)
-        // console.log("Resj = " + this.resj)
-        // console.log("Resi = " + this.resi)
-        // console.log("OUTP = " + this.outp.length)
         this.faces = [new Face([new Dot(0,0,0), new Dot(0,0,0)])];
 
         for(let i=0; i<this.resi-1; i++){
-            for(let j=0; j<this.resj-1; j++){
-                // console.log("Onde eu estava = " + i + "  " + j)
+            for(let j=0; j<this.resj-1; j++){ // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca
                 let A = new Dot(ps[0][i*this.resj+j]/ps[3][i*this.resj+j], ps[1][i*this.resj+j]/ps[3][i*this.resj+j], ps[2][i*this.resj+j])
 
                 let B = new Dot(ps[0][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[1][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[2][i*this.resj+(j+1)])
@@ -293,5 +226,34 @@ class Surface{
                 this.faces.push(new Face(arr_dots));
             }
         }
+    }
+
+    define_dots_screen(matriz_SRU_SRT: number[][]){
+        let cp = mult_matriz(matriz_SRU_SRT, this.get_cp_as_mat());
+
+        for(let i=0; i<this.ni; i++){
+            for(let j=0; j<this.nj; j++){ // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca
+                let A = new Dot(cp[0][i*this.nj+j]/cp[3][i*this.nj+j], cp[1][i*this.nj+j]/cp[3][i*this.nj+j], cp[2][i*this.nj+j])
+                this.control_points_screen[i][j] = A;
+            }
+        }
+    }
+
+    find_closer_cp_to_dot(click: Dot){
+        let closer_i = -1;
+        let closer_j = -1;
+        let closer_dist = 1000;
+
+        for(let i=0; i<this.ni; i++){
+            for(let j=0; j<this.nj; j++){
+                let new_dist = distance_between_dots_screen(this.control_points_screen[i][j], click);
+                if(new_dist < closer_dist){
+                    closer_dist = new_dist;
+                    closer_i = i;
+                    closer_j = j;
+                }
+            }
+        };
+        return [closer_i, closer_j, closer_dist]
     }
 }
