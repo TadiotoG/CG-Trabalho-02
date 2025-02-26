@@ -39,10 +39,84 @@ class Vet extends Dot { // Adicionei esta classe para que assim que declarado o 
 
 class Face{
     dots: Array<Dot>;
+    color: string = "rgb(0, 0, 0)";
+    arestas: Array<[Dot, Dot]> = []; 
+    inters: number[][] = [];
+    arestac: number = 0;
 
     constructor(array_dots: Array<Dot>){
         this.dots = array_dots;
+        this.cria_arestas();     
     }
+    cria_arestas(): void {
+        this.arestas = []; 
+        this.dots.forEach((dot, i) => {
+            const nextDot = this.dots[(i + 1) % this.dots.length]; 
+            this.arestas.push([dot, nextDot]);
+        });
+    }
+
+    addAresta(dot1: Dot, dot2: Dot): void {
+        this.arestas.push([dot1, dot2]);
+    }
+
+    swap_arestas(i: number): void {
+        if (i >= 0 && i < this.arestas.length) {
+            const [dot1, dot2] = this.arestas[i];
+            this.arestas[i] = [dot2, dot1]; 
+        }
+    }
+
+    draw(line: number[], y: number, ctx: CanvasRenderingContext2D) {
+        ctx.fillStyle = "#FF0000";
+
+        for (let i = 0; i < line.length; i += 2) {
+            const x1 = Math.ceil(line[i]);
+            const x2 = Math.floor(line[i + 1]);
+            
+            for (let x = x1; x <= x2; x++) { 
+                ctx.fillRect(x, y, 2, 2);  
+            }
+        }
+    }
+
+    fillpoly(ctx: CanvasRenderingContext2D, VRP: Dot, centroide: Dot): void {
+
+     //   this.cria_arestas();
+    
+        const ymin = Math.round(Math.min(...this.dots.map(p => p.y)));
+        const ymax = Math.round(Math.max(...this.dots.map(p => p.y)));
+    
+        this.inters = Array.from({ length: ymax - ymin +1}, () => []);
+    
+        this.arestas.forEach((aresta, i) => {
+            if (aresta[0].y === aresta[1].y) return; 
+            if (aresta[0].y > aresta[1].y) {
+                [this.arestas[i][0], this.arestas[i][1]] = [aresta[1], aresta[0]];
+            }
+            
+            const x1 = aresta[0].x, y1 = aresta[0].y;
+            const x2 = aresta[1].x, y2 = aresta[1].y;
+            
+            const coeficiente = (x2 - x1) / (y2 - y1);
+            
+            let x = x1;
+            let index = Math.floor(y1 - ymin);
+            
+            for (let y = y1; y <= y2; y++) {
+                if (!this.inters[index]) this.inters[index] = []; 
+                this.inters[index++].push(Math.round(x));
+
+                x += coeficiente;
+            }
+        });
+    
+        this.inters.forEach((line, i) => {
+            line.sort((a, b) => a - b);
+            this.draw(line, ymin + i, ctx);
+        });
+    }
+    
 }
 
 class Spline{

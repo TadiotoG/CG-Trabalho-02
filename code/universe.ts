@@ -1,5 +1,5 @@
 /// <reference path= "./surface.ts" />
-/// <reference path= "./camera.ts" />
+/// <reference path= "./Camera.ts" />
 
 let canvas_width = 1000;
 let canvas_height = 800;
@@ -137,4 +137,52 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
         return list_d;
     };    
+
+
+    render(vrp: Dot) {
+        // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
+      
+          this.surfaces.forEach(surface => {
+              console.log(surface.faces.length);
+               surface.faces.sort((faceA, faceB) => {
+                  const centroideA = get_centroide(faceA);
+                  const centroideB = get_centroide(faceB);
+      
+                  const distanciaA: number = calc_distance(centroideA, vrp);
+                  const distanciaB: number = calc_distance(centroideB, vrp);
+      
+                  return distanciaB - distanciaA;
+              });
+      });
+      
+              for (const surface of this.surfaces) {
+                 surface.callfp(this.ctx, vrp);
+              }
+          }
+}
+
+function calc_distance(centroide: Dot, VRP: Dot): number {
+    return Math.sqrt(
+        (VRP.x - centroide.x) ** 2 +
+        (VRP.y - centroide.y) ** 2 +
+        (VRP.z - centroide.z) ** 2
+    );
+}
+
+function get_centroide(face: Face): Dot {
+    if (!face.dots || face.dots.length === 0) {
+        console.error("Erro: Face não contém pontos válidos", face);
+        return new Dot(0, 0, 0); 
+    }
+
+    let sum_x = 0, sum_y = 0, sum_z = 0;
+    let num_pontos = face.dots.length;
+
+    for (let i = 0; i < num_pontos; i++) {
+        sum_x += face.dots[i].x;
+        sum_y += face.dots[i].y;
+        sum_z += face.dots[i].z;
+    }
+
+    return new Dot(sum_x / num_pontos, sum_y / num_pontos, sum_z / num_pontos);
 }

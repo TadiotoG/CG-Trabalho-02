@@ -1,5 +1,6 @@
 /// <reference path= "./surface.ts" />
-/// <reference path= "./camera.ts" />
+/// <reference path= "./Camera.ts" />
+
 var canvas_width = 1000;
 var canvas_height = 800;
 var Universe = /** @class */ (function () {
@@ -123,3 +124,4 @@ var Universe = /** @class */ (function () {
     ;
     return Universe;
 }());
+

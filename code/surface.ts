@@ -1,4 +1,4 @@
-/// <reference path= "./spline.ts" />
+/// <reference path= "./Spline.ts" />
 
 // import { get } from "lodash";
 
@@ -33,6 +33,16 @@ class Surface{
                 counter++;
                 this.control_points[i][j] = new Dot(i*13+star_x, Math.random()*10+star_y, j*13+star_z);
                 
+            }
+        }
+    }
+
+    callfp(ctx: CanvasRenderingContext2D, vrp: Dot) {
+        for (const face of this.faces) {
+            if (face.fillpoly) {
+                face.fillpoly(ctx, vrp, vrp);
+            } else {
+                console.error("Erro: Método fillpoly não encontrado na face", face);
             }
         }
     }
