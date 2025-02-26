@@ -68,7 +68,7 @@ class Face{
     }
 
     draw(line: number[], y: number, ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = "#FF0000";
+        ctx.fillStyle = this.color;
 
         for (let i = 0; i < line.length; i += 2) {
             const x1 = Math.ceil(line[i]);

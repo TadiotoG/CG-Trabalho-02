@@ -47,8 +47,70 @@ var Vet = /** @class */ (function (_super) {
 }(Dot));
 var Face = /** @class */ (function () {
     function Face(array_dots) {
+        this.color = "rgb(0, 0, 0)";
+        this.arestas = [];
+        this.inters = [];
+        this.arestac = 0;
         this.dots = array_dots;
+        this.cria_arestas();
     }
+    Face.prototype.cria_arestas = function () {
+        var _this = this;
+        this.arestas = [];
+        this.dots.forEach(function (dot, i) {
+            var nextDot = _this.dots[(i + 1) % _this.dots.length];
+            _this.arestas.push([dot, nextDot]);
+        });
+    };
+    Face.prototype.addAresta = function (dot1, dot2) {
+        this.arestas.push([dot1, dot2]);
+    };
+    Face.prototype.swap_arestas = function (i) {
+        if (i >= 0 && i < this.arestas.length) {
+            var _a = this.arestas[i], dot1 = _a[0], dot2 = _a[1];
+            this.arestas[i] = [dot2, dot1];
+        }
+    };
+    Face.prototype.draw = function (line, y, ctx) {
+        ctx.fillStyle = this.color;
+        for (var i = 0; i < line.length; i += 2) {
+            var x1 = Math.ceil(line[i]);
+            var x2 = Math.floor(line[i + 1]);
+            for (var x = x1; x <= x2; x++) {
+                ctx.fillRect(x, y, 2, 2);
+            }
+        }
+    };
+    Face.prototype.fillpoly = function (ctx, VRP, centroide) {
+        //   this.cria_arestas();
+        var _this = this;
+        var ymin = Math.round(Math.min.apply(Math, this.dots.map(function (p) { return p.y; })));
+        var ymax = Math.round(Math.max.apply(Math, this.dots.map(function (p) { return p.y; })));
+        this.inters = Array.from({ length: ymax - ymin + 1 }, function () { return []; });
+        this.arestas.forEach(function (aresta, i) {
+            var _a;
+            if (aresta[0].y === aresta[1].y)
+                return;
+            if (aresta[0].y > aresta[1].y) {
+                _a = [aresta[1], aresta[0]], _this.arestas[i][0] = _a[0], _this.arestas[i][1] = _a[1];
+            }
+            var x1 = aresta[0].x, y1 = aresta[0].y;
+            var x2 = aresta[1].x, y2 = aresta[1].y;
+            var coeficiente = (x2 - x1) / (y2 - y1);
+            var x = x1;
+            var index = Math.floor(y1 - ymin);
+            for (var y = y1; y <= y2; y++) {
+                if (!_this.inters[index])
+                    _this.inters[index] = [];
+                _this.inters[index++].push(Math.round(x));
+                x += coeficiente;
+            }
+        });
+        this.inters.forEach(function (line, i) {
+            line.sort(function (a, b) { return a - b; });
+            _this.draw(line, ymin + i, ctx);
+        });
+    };
     return Face;
 }());
 var Spline = /** @class */ (function () {

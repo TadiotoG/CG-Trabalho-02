@@ -56,6 +56,7 @@ function change_world() {
         uni.draw_whole_surface(uni.surfaces[i]);
         uni.draw_cp(uni.surfaces[i]);
     }
+    // uni.render(vrp_camera);
 }
 function erase_canvas() {
     ctx.fillStyle = "white";
@@ -208,3 +209,4 @@ var amount_cp_j;
 var res_i;
 var res_j;
 create_surface();
+// uni.render(vrp_camera);

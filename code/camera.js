@@ -1,4 +1,4 @@
-/// <reference path= "spline.ts" />
+/// <reference path= "Spline.ts" />
 var Camera = /** @class */ (function () {
     function Camera(view_reference_point, focal_p, dp, min_x, min_y, max_x, max_y) {
         this.width = 100;

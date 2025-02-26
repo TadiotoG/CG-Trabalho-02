@@ -1,4 +1,4 @@
-/// <reference path= "./spline.ts" />
+/// <reference path= "./Spline.ts" />
 // import { get } from "lodash";
 // import { random } from "lodash"
 var Surface = /** @class */ (function () {
@@ -22,6 +22,17 @@ var Surface = /** @class */ (function () {
             }
         }
     }
+    Surface.prototype.callfp = function (ctx, vrp) {
+        for (var _i = 0, _a = this.faces; _i < _a.length; _i++) {
+            var face = _a[_i];
+            if (face.fillpoly) {
+                face.fillpoly(ctx, vrp, vrp);
+            }
+            else {
+                console.error("Erro: Método fillpoly não encontrado na face", face);
+            }
+        }
+    };
     Surface.prototype.SplineKnots = function (u, n, t) {
         var j;
         // Primeiros 't' nós iguais a 0

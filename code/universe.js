@@ -1,6 +1,5 @@
 /// <reference path= "./surface.ts" />
 /// <reference path= "./Camera.ts" />
-
 var canvas_width = 1000;
 var canvas_height = 800;
 var Universe = /** @class */ (function () {
@@ -122,6 +121,41 @@ var Universe = /** @class */ (function () {
         return list_d;
     };
     ;
+    Universe.prototype.render = function (vrp) {
+        // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
+        this.surfaces.forEach(function (surface) {
+            console.log(surface.faces.length);
+            surface.faces.sort(function (faceA, faceB) {
+                var centroideA = get_centroide(faceA);
+                var centroideB = get_centroide(faceB);
+                var distanciaA = calc_distance(centroideA, vrp);
+                var distanciaB = calc_distance(centroideB, vrp);
+                return distanciaB - distanciaA;
+            });
+        });
+        for (var _i = 0, _a = this.surfaces; _i < _a.length; _i++) {
+            var surface = _a[_i];
+            surface.callfp(this.ctx, vrp);
+        }
+    };
     return Universe;
 }());
-
+function calc_distance(centroide, VRP) {
+    return Math.sqrt(Math.pow((VRP.x - centroide.x), 2) +
+        Math.pow((VRP.y - centroide.y), 2) +
+        Math.pow((VRP.z - centroide.z), 2));
+}
+function get_centroide(face) {
+    if (!face.dots || face.dots.length === 0) {
+        console.error("Erro: Face não contém pontos válidos", face);
+        return new Dot(0, 0, 0);
+    }
+    var sum_x = 0, sum_y = 0, sum_z = 0;
+    var num_pontos = face.dots.length;
+    for (var i = 0; i < num_pontos; i++) {
+        sum_x += face.dots[i].x;
+        sum_y += face.dots[i].y;
+        sum_z += face.dots[i].z;
+    }
+    return new Dot(sum_x / num_pontos, sum_y / num_pontos, sum_z / num_pontos);
+}

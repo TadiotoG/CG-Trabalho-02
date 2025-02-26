@@ -69,6 +69,7 @@ function change_world(){
         uni.draw_whole_surface(uni.surfaces[i]);
         uni.draw_cp(uni.surfaces[i]);
     }
+    // uni.render(vrp_camera);
 }
 
 function erase_canvas(){
@@ -265,3 +266,4 @@ var amount_cp_j: number;
 var res_i: number;
 var res_j: number;
 create_surface();
+// uni.render(vrp_camera);
