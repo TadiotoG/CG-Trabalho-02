@@ -39,10 +39,8 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     };
 
     draw_whole_surface(surface: Surface){
-        for(let i=0; i < 1; i++){
-            console.log("Antes Dots ->", surface.faces[i].dots);
-            surface.faces[i] = Recorte(surface.faces[i], 0, 0, 1000, 800);
-            console.log("Depois Dots ->", surface.faces[i].dots);
+        for(let i=0; i < surface.faces.length; i++){
+            surface.faces[i] = Recorte(surface.faces[i], 0, 1000, 0, 800);
             this.draw_face(surface.faces[i]);
         }
     };

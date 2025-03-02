@@ -313,7 +313,6 @@ class Aresta {
 
 function Recorte (face: Face, umin, umax, vmin, vmax) { 
     let pontos = face.dots;
-    console.log("Pontos ->", pontos)
     let arestas: Aresta[] = [];
 
     for (let i = 0; i < pontos.length; i++) {
@@ -323,7 +322,6 @@ function Recorte (face: Face, umin, umax, vmin, vmax) {
             arestas.push(new Aresta(pontos[i], pontos[0]));
         }}
 
-    console.log("Arestas -> ", arestas)
     let recorteEsquerda = pontos.some(ponto => ponto.x < umin);
 
     //verificar recorte esquerda
@@ -546,7 +544,6 @@ function Recorte (face: Face, umin, umax, vmin, vmax) {
         arestas = novasArestas;
         pontos = novosPontos;
     }
-    console.log(pontos);
     return new Face(pontos);
 
 }

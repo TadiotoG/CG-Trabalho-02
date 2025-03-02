@@ -266,7 +266,6 @@ var Aresta = /** @class */ (function () {
 }());
 function Recorte(face, umin, umax, vmin, vmax) {
     var pontos = face.dots;
-    console.log("Pontos ->", pontos);
     var arestas = [];
     for (var i = 0; i < pontos.length; i++) {
         if (i + 1 < pontos.length) {
@@ -276,7 +275,6 @@ function Recorte(face, umin, umax, vmin, vmax) {
             arestas.push(new Aresta(pontos[i], pontos[0]));
         }
     }
-    console.log("Arestas -> ", arestas);
     var recorteEsquerda = pontos.some(function (ponto) { return ponto.x < umin; });
     //verificar recorte esquerda
     if (recorteEsquerda) {
@@ -461,7 +459,6 @@ function Recorte(face, umin, umax, vmin, vmax) {
         arestas = novasArestas;
         pontos = novosPontos_4;
     }
-    console.log(pontos);
     return new Face(pontos);
 }
 // let face = new Face([new Dot(151.914, 340.497, -39.024), new Dot(369.403, 223.801, -52.594), new Dot(149.5564, -51.1074, -47.9237)]);
