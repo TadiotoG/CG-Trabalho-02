@@ -266,7 +266,7 @@ class Surface{
             }
         };
         if(closer_dist > 30){
-            closer_dist = -1;
+            closer_dist = 100000;
             closer_i = -1;
             closer_j = -1;
         }
