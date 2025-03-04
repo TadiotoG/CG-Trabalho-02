@@ -10,18 +10,40 @@ function call_translada_surface(){
     translada_surface = true;
     selecting_dot = false;
     remove_surf = false;
+    escala_surface = false;
+    rotaciona_surface = false;
+}
+
+function call_escala_surface(){
+    escala_surface = true;
+    translada_surface = false;
+    selecting_dot = false;
+    remove_surf = false;
+    rotaciona_surface = false;
+}
+
+function call_rotaciona_surface(){
+    rotaciona_surface = true;
+    translada_surface = false;
+    selecting_dot = false;
+    escala_surface = false;
+    remove_surf = false;
 }
 
 function call_change_dot(){
     selecting_dot = true;
     translada_surface = false;
     remove_surf = false;
+    escala_surface = false;
+    rotaciona_surface = false;
 }
 
 function call_remove_surf(){
     remove_surf = true;
     translada_surface = false;
     selecting_dot = false;
+    escala_surface = false;
+    rotaciona_surface = false;
 }
 
 function open_wind_change_dot(){
@@ -36,6 +58,18 @@ function open_wind_trans_surface(){
     aux.style = "display: flex;";
 }
 
+function open_wind_escala_surface(){
+    let aux;
+    aux = document.getElementById("escala_surf");
+    aux.style = "display: flex;";
+}
+
+function open_wind_rotaciona_surface(){
+    let aux;
+    aux = document.getElementById("rotaciona_surf");
+    aux.style = "display: flex;";
+}
+
 function open_window_change_dot(){
     let aux;
     aux = document.getElementById("change_dot");
@@ -45,6 +79,18 @@ function open_window_change_dot(){
 function window_translada_s_disappears(){
     let aux;
     aux = document.getElementById("trans_surf");
+    aux.style = "display: none;";
+}
+
+function window_rotaciona_s_disappears(){
+    let aux;
+    aux = document.getElementById("rotaciona_surf");
+    aux.style = "display: none;";
+}
+
+function window_escala_s_disappears(){
+    let aux;
+    aux = document.getElementById("escala_surf");
     aux.style = "display: none;";
 }
 
@@ -127,6 +173,7 @@ function alter_cp_by_click(universe: Universe, A: Dot){
     aux.value = Math.round(universe.surfaces[aux_surf].control_points[aux_dot_x][aux_dot_y].z);
 
     open_wind_change_dot(); // Abre a janela de alteracao das coordenadas de ponto de controle
+    selecting_dot = false;
 }
 
 function remove_surface_by_click(universe: Universe, A: Dot){
@@ -147,13 +194,26 @@ function translada_surface_by_click(universe: Universe, A: Dot){
     translada_surface = false;
 }
 
-function scale_surface_by_click(universe: Universe, A: Dot){
-    let vet_aux: number[];
-    vet_aux = get_dot_and_surface_by_click(universe, A);
+function escala_surface_by_click(universe: Universe, A: Dot){
+    let vet_aux = get_dot_and_surface_by_click(universe, A);
 
     aux_surf = vet_aux[0];
+    aux_dot_x = vet_aux[1];
+    aux_dot_y = vet_aux[2];
+    
+    open_wind_escala_surface();
+    escala_surface = false;
+}
 
-    open_wind_change_dot(); // Abre a janela de alteracao das coordenadas de ponto de controle
+function rotaciona_surface_by_click(universe: Universe, A: Dot){
+    let vet_aux = get_dot_and_surface_by_click(universe, A);
+
+    aux_surf = vet_aux[0];
+    aux_dot_x = vet_aux[1];
+    aux_dot_y = vet_aux[2];
+    
+    open_wind_rotaciona_surface();
+    rotaciona_surface = false;
 }
 
 function change_dot(){
@@ -172,7 +232,6 @@ function change_dot(){
     window_change_dot_disappears();
     uni.surfaces[aux_surf].generateSurface();
     change_world();
-    selecting_dot = false;
 }
 
 function create_surface(){
@@ -187,21 +246,65 @@ function create_surface(){
 }
 
 function translada_surf(){
-    let aux;
-    aux = document.getElementById("trans_surf_x");
-    let my_x = Number(aux.value);
+    let aux_x;
+    aux_x = document.getElementById("trans_surf_x");
+    let my_x = Number(aux_x.value);
 
-    aux = document.getElementById("trans_surf_y");
-    let my_y = Number(aux.value);
+    let aux_y;
+    aux_y = document.getElementById("trans_surf_y");
+    let my_y = Number(aux_y.value);
 
-    aux = document.getElementById("trans_surf_z");
-    let my_z = Number(aux.value);
+    let aux_z;
+    aux_z = document.getElementById("trans_surf_z");
+    let my_z = Number(aux_z.value);
 
     uni.multiply_and_update_cp(aux_surf, get_matriz_translada(my_x, my_y, my_z));
 
     window_translada_s_disappears();
     uni.surfaces[aux_surf].generateSurface();
     change_world();
+    aux_x.value = 0;
+    aux_y.value = 0;
+    aux_z.value = 0;
+}
+
+function escala_surf(){
+    let aux;
+    aux = document.getElementById("escala");
+    let my_x = Number(aux.value);
+
+    uni.multiply_and_update_cp(aux_surf, get_matriz_escala(my_x));
+
+    window_escala_s_disappears();
+    uni.surfaces[aux_surf].generateSurface();
+    change_world();
+    aux.value = 1;
+}
+
+function rotaciona_surf(){
+    let aux_x;
+    aux_x = document.getElementById("rotaciona_surf_x");
+    let my_x = Number(aux_x.value);
+
+    let aux_y;
+    aux_y = document.getElementById("rotaciona_surf_y");
+    let my_y = Number(aux_y.value);
+
+    let aux_z;
+    aux_z = document.getElementById("rotaciona_surf_z");
+    let my_z = Number(aux_z.value);
+
+    let mat_comp = mult_matriz(get_matriz_rot_x(my_x), get_matriz_rot_y(my_y))
+    mat_comp = mult_matriz(get_matriz_rot_z(my_z), mat_comp)
+
+    uni.multiply_and_update_cp(aux_surf, mat_comp);
+
+    window_rotaciona_s_disappears();
+    uni.surfaces[aux_surf].generateSurface();
+    change_world();
+    aux_x.value = 0;
+    aux_y.value = 0;
+    aux_z.value = 0;
 }
 
 function get_dot_and_surface_by_click(universe: Universe, A: Dot){
@@ -278,14 +381,19 @@ el.addEventListener("click", (e) => {
         remove_surface_by_click(uni, new Dot(x, y, 0));
     } else if (translada_surface) {
         translada_surface_by_click(uni, new Dot(x, y, 0))
+    } else if (escala_surface) {
+        escala_surface_by_click(uni, new Dot(x, y, 0))
+    } else if (rotaciona_surface) {
+        rotaciona_surface_by_click(uni, new Dot(x, y, 0))
     };
-
 });
 
 let main = document.getElementById("main");
 main.appendChild(canvas);
 
 var translada_surface: boolean = false;
+var escala_surface: boolean = false;
+var rotaciona_surface: boolean = false;
 
 var selecting_dot: boolean = false; // Quando essa variavel for true, eh possivel selecionar o ponto de contr com o mouse e altera-lo
 var remove_surf: boolean = false; // Quando essa variavel for true, assim que uma superficie for selecionada ela sera deletada

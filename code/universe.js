@@ -81,7 +81,9 @@ var Universe = /** @class */ (function () {
     //     }
     // }
     Universe.prototype.draw_cp = function (obj) {
+        // console.log("Antes obj.cp -> ", obj.control_points);
         obj.define_dots_screen(this.matriz_SRU_SRT);
+        // console.log("Dots screen -> ", obj.control_points_screen)
         for (var i = 0; i < obj.control_points_screen.length; i++) {
             for (var j = 0; j < obj.control_points_screen[0].length; j++) {
                 this.draw_dot(obj.control_points_screen[i][j]); // Divide pelo fator homogenio

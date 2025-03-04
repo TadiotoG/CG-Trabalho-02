@@ -138,10 +138,11 @@ var Surface = /** @class */ (function () {
         var mat_aux = Array(4).fill(null).map(function () { return Array((_this.ni) * (_this.nj)).fill(0); });
         for (var x = 0; x < this.ni; x++) {
             for (var y = 0; y < this.nj; y++) {
-                mat_aux[0][x * this.ni + y] = this.control_points[x][y].x;
-                mat_aux[1][x * this.ni + y] = this.control_points[x][y].y;
-                mat_aux[2][x * this.ni + y] = this.control_points[x][y].z;
-                mat_aux[3][x * this.ni + y] = 1;
+                // console.log(`[${x}][${y}] = ${this.control_points[x][y].x}`)
+                mat_aux[0][x * this.nj + y] = this.control_points[x][y].x;
+                mat_aux[1][x * this.nj + y] = this.control_points[x][y].y;
+                mat_aux[2][x * this.nj + y] = this.control_points[x][y].z;
+                mat_aux[3][x * this.nj + y] = 1;
                 // alert(x+y)
             }
         }
@@ -154,10 +155,10 @@ var Surface = /** @class */ (function () {
         var mat_aux = Array(4).fill(null).map(function () { return Array(_this.resi * _this.resj).fill(0); });
         for (var x = 0; x < this.resi; x++) {
             for (var y = 0; y < this.resj; y++) {
-                mat_aux[0][x * this.resi + y] = this.outp[x][y].x;
-                mat_aux[1][x * this.resi + y] = this.outp[x][y].y;
-                mat_aux[2][x * this.resi + y] = this.outp[x][y].z;
-                mat_aux[3][x * this.resi + y] = 1;
+                mat_aux[0][x * this.resj + y] = this.outp[x][y].x;
+                mat_aux[1][x * this.resj + y] = this.outp[x][y].y;
+                mat_aux[2][x * this.resj + y] = this.outp[x][y].z;
+                mat_aux[3][x * this.resj + y] = 1;
             }
         }
         return mat_aux;
@@ -166,18 +167,18 @@ var Surface = /** @class */ (function () {
     Surface.prototype.update_cp_with_mat = function (normal_mat) {
         for (var i = 0; i < this.ni; i++) {
             for (var j = 0; j < this.nj; j++) {
-                this.control_points[i][j].x = normal_mat[0][i * this.ni + j];
-                this.control_points[i][j].y = normal_mat[1][i * this.ni + j];
-                this.control_points[i][j].z = normal_mat[2][i * this.ni + j];
+                this.control_points[i][j].x = normal_mat[0][i * this.nj + j];
+                this.control_points[i][j].y = normal_mat[1][i * this.nj + j];
+                this.control_points[i][j].z = normal_mat[2][i * this.nj + j];
             }
         }
     };
     Surface.prototype.update_outp_with_mat = function (normal_mat) {
         for (var i = 0; i < this.resi; i++) {
             for (var j = 0; j < this.resj; j++) {
-                this.outp[i][j].x = normal_mat[0][i * this.resi + j];
-                this.outp[i][j].y = normal_mat[1][i * this.resi + j];
-                this.outp[i][j].z = normal_mat[2][i * this.resi + j];
+                this.outp[i][j].x = normal_mat[0][i * this.resj + j];
+                this.outp[i][j].y = normal_mat[1][i * this.resj + j];
+                this.outp[i][j].z = normal_mat[2][i * this.resj + j];
             }
         }
     };
@@ -196,6 +197,7 @@ var Surface = /** @class */ (function () {
         }
     };
     Surface.prototype.define_dots_screen = function (matriz_SRU_SRT) {
+        // console.log("Get cp as mat -> ", this.get_cp_as_mat())
         var cp = mult_matriz(matriz_SRU_SRT, this.get_cp_as_mat());
         for (var i = 0; i < this.ni; i++) {
             for (var j = 0; j < this.nj; j++) { // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca

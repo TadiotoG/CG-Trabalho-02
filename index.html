@@ -56,7 +56,9 @@
     }
 
     #last_row > *, #almost_last_row > * {
-        margin-left: 10px;
+        margin-left: 30px;
+        width: 170px;
+        height: 30px;
     }
 
     .column {
@@ -150,8 +152,8 @@
 
             <div id="almost_last_row" class="row"> 
                 <input type="button" id="call_create_s" value="Transladar superficie" onclick=call_translada_surface()>
-                <input type="button" id="call_create_s" value="Escala em superficie">
-                <input type="button" id="call_create_s" value="Rotacionar superficie">
+                <input type="button" id="call_create_s" value="Escala em superficie" onclick=call_escala_surface()>
+                <input type="button" id="call_create_s" value="Rotacionar superficie" onclick=call_rotaciona_surface()>
             </div>
             
             <div id="last_row" class="row"> 
@@ -245,6 +247,42 @@
             <div>
                 <input type="button" id="button_translada_s" onclick=translada_surf() value="Alterar">
                 <input type="button" id="cancel_translada_s" onclick=window_translada_s_disappears() value="Cancelar">
+            </div>
+        </div>
+
+        <div id="escala_surf" class="pop_up">
+            <h2 class="title">Escalar em quanto a superficie?</h2>
+            <div class="row">
+                <div class="column">
+                    <label for="escala">X</label>
+                    <input style= "width: 50px" type="number" name="escala" id="escala" value="1" step="0.1">
+                </div>
+            </div>
+            <div>
+                <input type="button" id="button_escala_s" onclick=escala_surf() value="Alterar">
+                <input type="button" id="cancel_escala_s" onclick=window_escala_s_disappears() value="Cancelar">
+            </div>
+        </div>
+
+        <div id="rotaciona_surf" class="pop_up">
+            <h2 class="title">Rotacionar em quanto a superficie?</h2>
+            <div class="row">
+                <div class="column">
+                    <label for="rotaciona_surf_x">X</label>
+                    <input style= "width: 50px" type="number" name="rotaciona_surf_x" id="rotaciona_surf_x" value="0" step="0.1">
+                </div>
+                <div class="column">
+                    <label for="rotaciona_surf_y">Y</label>
+                    <input style= "width: 50px" type="number" name="rotaciona_surf_y" id="rotaciona_surf_y" value="0" step="0.1">
+                </div>
+                <div class="column">
+                    <label for="rotaciona_surf_z">Z</label>
+                    <input style= "width: 50px" type="number" name="rotaciona_surf_z" id="rotaciona_surf_z" value="0" step="0.1">
+                </div>
+            </div>
+            <div>
+                <input type="button" id="button_rotaciona_s" onclick=rotaciona_surf() value="Alterar">
+                <input type="button" id="cancel_rotaciona_s" onclick=window_rotaciona_s_disappears() value="Cancelar">
             </div>
         </div>
         

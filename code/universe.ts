@@ -97,7 +97,9 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     // }
 
     draw_cp(obj: Surface){
+        // console.log("Antes obj.cp -> ", obj.control_points);
         obj.define_dots_screen(this.matriz_SRU_SRT);
+        // console.log("Dots screen -> ", obj.control_points_screen)
 
         for(let i = 0; i < obj.control_points_screen.length; i++){
             for(let j = 0; j < obj.control_points_screen[0].length; j++){
