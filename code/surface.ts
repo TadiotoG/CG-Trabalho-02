@@ -265,6 +265,11 @@ class Surface{
                 }
             }
         };
+        if(closer_dist > 30){
+            closer_dist = -1;
+            closer_i = -1;
+            closer_j = -1;
+        }
         return [closer_i, closer_j, closer_dist]
     }
 }

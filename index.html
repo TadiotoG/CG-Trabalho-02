@@ -102,6 +102,24 @@
         margin: 10px;
     }
 
+    #mensagem_clique {
+    position: fixed; /* Fixa a div na tela, mesmo ao rolar */
+    top: 10px; /* Distância do topo */
+    left: 50%; /* Centraliza horizontalmente */
+    transform: translateX(-50%); /* Ajusta a centralização */
+    background-color: rgba(0, 0, 0, 0.8); /* Fundo escuro translúcido */
+    color: white; /* Texto branco */
+    padding: 10px 20px; /* Espaçamento interno */
+    border-radius: 8px; /* Borda arredondada */
+    font-size: 16px; /* Tamanho do texto */
+    z-index: 1000; /* Garante que fique sobre outros elementos */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    opacity: 0; /* Começa invisível */
+    transition: opacity 0.4s ease-in-out; /* Suaviza a transição */
+
+}
+
+
 </style>
 
 <body>
@@ -285,7 +303,9 @@
                 <input type="button" id="cancel_rotaciona_s" onclick=window_rotaciona_s_disappears() value="Cancelar">
             </div>
         </div>
-        
+    </div>
+    <div id="mensagem_clique">
+        <h2>Clique próximo aos pontos de controle para que seja selecionado corretamente!</h2>
     </div>
 
     <!-- <script>var exports = {};</script> -->

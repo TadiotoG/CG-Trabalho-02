@@ -12,6 +12,7 @@ function call_translada_surface(){
     remove_surf = false;
     escala_surface = false;
     rotaciona_surface = false;
+    msg_click_appears();
 }
 
 function call_escala_surface(){
@@ -20,6 +21,7 @@ function call_escala_surface(){
     selecting_dot = false;
     remove_surf = false;
     rotaciona_surface = false;
+    msg_click_appears();
 }
 
 function call_rotaciona_surface(){
@@ -28,6 +30,7 @@ function call_rotaciona_surface(){
     selecting_dot = false;
     escala_surface = false;
     remove_surf = false;
+    msg_click_appears();
 }
 
 function call_change_dot(){
@@ -36,6 +39,7 @@ function call_change_dot(){
     remove_surf = false;
     escala_surface = false;
     rotaciona_surface = false;
+    msg_click_appears();
 }
 
 function call_remove_surf(){
@@ -44,6 +48,7 @@ function call_remove_surf(){
     selecting_dot = false;
     escala_surface = false;
     rotaciona_surface = false;
+    msg_click_appears();
 }
 
 function open_wind_change_dot(){
@@ -154,65 +159,93 @@ function get_values_new_surface(){
     res_j = Number(aux.value);
 }
 
+function msg_click_appears(){
+    let mensagem;
+    mensagem = document.getElementById("mensagem_clique") // Pega o valor do input no html 
+    mensagem.style = "transition: opacity 0.4s ease-in-out;";
+    mensagem.style.opacity = "1"; // Torna visível
+
+    setTimeout(() => {
+        mensagem.style = "transition: opacity 4s ease-in-out;";
+        mensagem.style.opacity = "0"; // Desvanece após 5 segundos
+    }, 400);
+
+}
+
 function alter_cp_by_click(universe: Universe, A: Dot){
     let vet_aux: number[];
     vet_aux = get_dot_and_surface_by_click(universe, A);
+    if(vet_aux[1] == -1){
+        alert("Não foi encontrado nenhum ponto de controle próximo ao local clicado!");
+    } else {
+        aux_surf = vet_aux[0];
+        aux_dot_x = vet_aux[1];
+        aux_dot_y = vet_aux[2];
 
-    aux_surf = vet_aux[0];
-    aux_dot_x = vet_aux[1];
-    aux_dot_y = vet_aux[2];
+        let aux;
+        aux = document.getElementById("change_dot_x");
+        aux.value = Math.round(universe.surfaces[aux_surf].control_points[aux_dot_x][aux_dot_y].x);
 
-    let aux;
-    aux = document.getElementById("change_dot_x");
-    aux.value = Math.round(universe.surfaces[aux_surf].control_points[aux_dot_x][aux_dot_y].x);
+        aux = document.getElementById("change_dot_y");
+        aux.value = Math.round(universe.surfaces[aux_surf].control_points[aux_dot_x][aux_dot_y].y);
 
-    aux = document.getElementById("change_dot_y");
-    aux.value = Math.round(universe.surfaces[aux_surf].control_points[aux_dot_x][aux_dot_y].y);
+        aux = document.getElementById("change_dot_z");
+        aux.value = Math.round(universe.surfaces[aux_surf].control_points[aux_dot_x][aux_dot_y].z);
 
-    aux = document.getElementById("change_dot_z");
-    aux.value = Math.round(universe.surfaces[aux_surf].control_points[aux_dot_x][aux_dot_y].z);
-
-    open_wind_change_dot(); // Abre a janela de alteracao das coordenadas de ponto de controle
+        open_wind_change_dot(); // Abre a janela de alteracao das coordenadas de ponto de controle
+    }
     selecting_dot = false;
 }
 
 function remove_surface_by_click(universe: Universe, A: Dot){
     let vet_aux = get_dot_and_surface_by_click(universe, A);
-    universe.surfaces.splice(vet_aux[0], 1); // Remove a superficie na pos vet_aux[0]
+    if(vet_aux[1] == -1){
+        alert("Não foi encontrado nenhuma superfície próximo ao local clicado!");
+    } else {
+        universe.surfaces.splice(vet_aux[0], 1); // Remove a superficie na pos vet_aux[0]
+        change_world();
+    }
     remove_surf = false;
-    change_world();
 }
 
 function translada_surface_by_click(universe: Universe, A: Dot){
     let vet_aux = get_dot_and_surface_by_click(universe, A);
-
-    aux_surf = vet_aux[0];
-    aux_dot_x = vet_aux[1];
-    aux_dot_y = vet_aux[2];
-    
-    open_wind_trans_surface();
+    if(vet_aux[1] == -1){
+        alert("Não foi encontrado nenhuma superfície próximo ao local clicado!");
+    } else {
+        aux_surf = vet_aux[0];
+        aux_dot_x = vet_aux[1];
+        aux_dot_y = vet_aux[2];
+        
+        open_wind_trans_surface();
+    }    
     translada_surface = false;
 }
 
 function escala_surface_by_click(universe: Universe, A: Dot){
     let vet_aux = get_dot_and_surface_by_click(universe, A);
-
-    aux_surf = vet_aux[0];
-    aux_dot_x = vet_aux[1];
-    aux_dot_y = vet_aux[2];
-    
-    open_wind_escala_surface();
+    if(vet_aux[1] == -1){ // Se o usuario clicar nao clicar próximo o suficiente
+        alert("Não foi encontrado nenhuma superfície próximo ao local clicado!");
+    } else {
+        aux_surf = vet_aux[0];
+        aux_dot_x = vet_aux[1];
+        aux_dot_y = vet_aux[2];
+        
+        open_wind_escala_surface();
+    }
     escala_surface = false;
 }
 
 function rotaciona_surface_by_click(universe: Universe, A: Dot){
     let vet_aux = get_dot_and_surface_by_click(universe, A);
-
-    aux_surf = vet_aux[0];
-    aux_dot_x = vet_aux[1];
-    aux_dot_y = vet_aux[2];
-    
-    open_wind_rotaciona_surface();
+    if(vet_aux[1] == -1){
+        alert("Não foi encontrado nenhuma superfície próximo ao local clicado!");
+    } else {
+        aux_surf = vet_aux[0];
+        aux_dot_x = vet_aux[1];
+        aux_dot_y = vet_aux[2];
+        open_wind_rotaciona_surface();
+    }
     rotaciona_surface = false;
 }
 
@@ -324,6 +357,8 @@ function get_dot_and_surface_by_click(universe: Universe, A: Dot){
             closer_dist = pos[2];
         }
     }
+    console.log("Closer dist -> ", closer_dist)
+    console.log("Array -> ", [which_surf, x_closer, y_closer])
     return [which_surf, x_closer, y_closer]
 }
 
