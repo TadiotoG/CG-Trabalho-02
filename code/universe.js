@@ -32,7 +32,7 @@ var Universe = /** @class */ (function () {
     ;
     Universe.prototype.draw_whole_surface = function (surface) {
         for (var i = 0; i < surface.faces.length; i++) {
-            surface.faces[i] = Recorte(surface.faces[i], 0, 1000, 0, 800);
+            surface.faces[i] = Recorte(surface.faces[i], 0, 950, 0, 800);
             this.draw_face(surface.faces[i]);
         }
     };
@@ -122,6 +122,10 @@ var Universe = /** @class */ (function () {
         return list_d;
     };
     ;
+    Universe.prototype.multiply_and_update_cp = function (index, mat) {
+        var new_matriz_obj = mult_matriz(mat, this.surfaces[index].get_cp_as_mat());
+        this.surfaces[index].update_cp_with_mat(new_matriz_obj);
+    };
     Universe.prototype.render = function (vrp) {
         // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
         this.surfaces.forEach(function (surface) {

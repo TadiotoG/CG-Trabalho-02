@@ -40,7 +40,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
 
     draw_whole_surface(surface: Surface){
         for(let i=0; i < surface.faces.length; i++){
-            surface.faces[i] = Recorte(surface.faces[i], 0, 1000, 0, 800);
+            surface.faces[i] = Recorte(surface.faces[i], 0, 950, 0, 800);
             this.draw_face(surface.faces[i]);
         }
     };
@@ -137,8 +137,12 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
             list_d.push(new Dot(mat[0][i], mat[1][i], mat[2][i]));
         }
         return list_d;
-    };    
+    };
 
+    multiply_and_update_cp(index: number, mat: number[][]){
+        let new_matriz_obj = mult_matriz(mat, this.surfaces[index].get_cp_as_mat()); 
+        this.surfaces[index].update_cp_with_mat(new_matriz_obj);
+    }
 
     render(vrp: Dot) {
         // this.ctx.clearRect(0, 0, canvas_width, canvas_height);

@@ -208,11 +208,29 @@ class Spline{
 
 // Abaixo foram implementadas funções uteis para manipulação de matrizes ou vetores
 
+function get_matriz_escala(x: number): number[][]{
+    let mat_aux: number[][];
+    mat_aux = ([[x, 0, 0, 0],
+                [0, x, 0, 0],
+                [0, 0, x, 0],
+                [0, 0, 0, 1]])
+    return mat_aux;
+}
+
 function get_matriz_translada(x: number, y: number, z: number): number[][]{
     let mat_aux: number[][];
     mat_aux = ([[1, 0, 0, x],
                 [0, 1, 0, y],
-                [0, 0, 0, z],
+                [0, 0, 1, z],
+                [0, 0, 0, 1]])
+    return mat_aux;
+}
+
+function get_matriz_rot_x(angle: number): number[][] {
+    let mat_aux: number[][];
+    mat_aux = ([[1, 0, 0, 0],
+                [0, Math.cos(angle), -Math.sin(angle), 0],
+                [0, Math.sin(angle), Math.cos(angle), 0],
                 [0, 0, 0, 1]])
     return mat_aux;
 }
@@ -222,6 +240,15 @@ function get_matriz_rot_y(angle: number): number[][] {
     mat_aux = ([[Math.cos(angle), 0, Math.sin(angle), 0],
                 [0, 1, 0, 0],
                 [-Math.sin(angle), 0, Math.cos(angle), 0],
+                [0, 0, 0, 1]])
+    return mat_aux;
+}
+
+function get_matriz_rot_z(angle: number): number[][] {
+    let mat_aux: number[][];
+    mat_aux = ([[Math.cos(angle), -Math.sin(angle), 0, 0],
+                [Math.sin(angle), Math.cos(angle), 0, 0],
+                [0, 0, 1, 0],
                 [0, 0, 0, 1]])
     return mat_aux;
 }

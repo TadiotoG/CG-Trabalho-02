@@ -34,7 +34,7 @@
         border-style: solid;
     }
     
-    #new_surface, #change_dot {
+    .pop_up {
         position: absolute;
         min-width: 500px;
         min-height: 400px;
@@ -55,8 +55,8 @@
         margin: 10px;
     }
 
-    #last_row > * {
-        margin: 10px;
+    #last_row > *, #almost_last_row > * {
+        margin-left: 10px;
     }
 
     .column {
@@ -96,7 +96,7 @@
         margin: 10px;
     }
 
-    #new_surface, #change_dot > * {
+    .pop_up > * {
         margin: 10px;
     }
 
@@ -148,15 +148,21 @@
                 </div>
             </div>
 
+            <div id="almost_last_row" class="row"> 
+                <input type="button" id="call_create_s" value="Transladar superficie" onclick=call_translada_surface()>
+                <input type="button" id="call_create_s" value="Escala em superficie">
+                <input type="button" id="call_create_s" value="Rotacionar superficie">
+            </div>
+            
             <div id="last_row" class="row"> 
                 <input type="button" id="call_create_s" value="Criar nova superficie" onclick=call_create_surface()>
-                <input type="button" id="call_create_s" value="Alterar Ponto de controle" onclick=call_change_dot()>
-                <input type="button" id="call_create_s" value="Excluir superficie" onclick=call_remove_surf()>
+                <input type="button" id="alter_cp" value="Alterar Ponto de controle" onclick=call_change_dot()>
+                <input type="button" id="delete_s" value="Excluir superficie" onclick=call_remove_surf()>
             </div>
             
         </div>
 
-        <div id="new_surface">
+        <div id="new_surface" class="pop_up">
             <h2 class="title">Nova Superfície</h2>
             <div class="row">
                 <div class="column">
@@ -198,25 +204,47 @@
             </div>
         </div>
 
-        <div id="change_dot">
+        <div id="change_dot" class="pop_up">
             <h2 class="title">Alterar Ponto de controle</h2>
             <div class="row">
                 <div class="column">
                     <label for="change_dot_x">X</label>
-                    <input style= "width: 50px" type="number" oninput=change_world() name="change_dot_x" id="change_dot_x" value="0" step="1">
+                    <input style= "width: 50px" type="number" name="change_dot_x" id="change_dot_x" value="0" step="1">
                 </div>
                 <div class="column">
                     <label for="change_dot_y">Y</label>
-                    <input style= "width: 50px" type="number" oninput=change_world() name="change_dot_y" id="change_dot_y" value="0" step="1">
+                    <input style= "width: 50px" type="number" name="change_dot_y" id="change_dot_y" value="0" step="1">
                 </div>
                 <div class="column">
                     <label for="change_dot_z">Z</label>
-                    <input style= "width: 50px" type="number" oninput=change_world() name="change_dot_z" id="change_dot_z" value="0" step="1">
+                    <input style= "width: 50px" type="number" name="change_dot_z" id="change_dot_z" value="0" step="1">
                 </div>
             </div>
             <div>
                 <input type="button" id="button_change_dot" onclick=change_dot() value="Alterar">
                 <input type="button" id="cancel_change_dot" onclick=window_change_dot_disappears() value="Cancelar">
+            </div>
+        </div>
+
+        <div id="trans_surf" class="pop_up">
+            <h2 class="title">Transladar em quanto a superficie?</h2>
+            <div class="row">
+                <div class="column">
+                    <label for="trans_surf_x">X</label>
+                    <input style= "width: 50px" type="number" name="trans_surf_x" id="trans_surf_x" value="0" step="1">
+                </div>
+                <div class="column">
+                    <label for="trans_surf_y">Y</label>
+                    <input style= "width: 50px" type="number" name="trans_surf_y" id="trans_surf_y" value="0" step="1">
+                </div>
+                <div class="column">
+                    <label for="trans_surf_z">Z</label>
+                    <input style= "width: 50px" type="number" name="trans_surf_z" id="trans_surf_z" value="0" step="1">
+                </div>
+            </div>
+            <div>
+                <input type="button" id="button_translada_s" onclick=translada_surf() value="Alterar">
+                <input type="button" id="cancel_translada_s" onclick=window_translada_s_disappears() value="Cancelar">
             </div>
         </div>
         
