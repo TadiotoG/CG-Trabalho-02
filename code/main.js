@@ -1,5 +1,6 @@
 /// <reference path= "./universe.ts" />
 // Todas as funcoes call, sao os gatilhos disponiveis no front, que chamam funcoes do back
+var my_lamp = new Lamp(150, 70, 20, 35);
 function call_create_surface() {
     var aux;
     aux = document.getElementById("new_surface");
@@ -307,13 +308,14 @@ function change_world() {
     focal_point_camera = new Dot(focal_x, focal_y, focal_z);
     distance_point = 240;
     camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
-    uni = new Universe(ctx, camera);
+    uni = new Universe(ctx, camera, my_lamp, 120);
     for (var i = 0; i < list_of_surfaces.length; i++) {
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
-        // uni.draw_whole_surface(uni.surfaces[i]);
+        uni.draw_whole_surface(uni.surfaces[i]);
         uni.draw_cp(uni.surfaces[i]);
     }
+    uni.update_all_face_colors_constant();
     uni.render(vrp_camera);
 }
 function erase_canvas() {
@@ -376,7 +378,7 @@ var vrp_camera = new Dot(cam_x, cam_y, cam_z);
 var focal_point_camera = new Dot(focal_x, focal_y, focal_z);
 var distance_point = 240;
 var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
-var uni = new Universe(ctx, camera);
+var uni = new Universe(ctx, camera, my_lamp, 120);
 var star_x;
 var star_y;
 var star_z;
@@ -385,4 +387,5 @@ var amount_cp_j;
 var res_i;
 var res_j;
 create_surface();
+uni.update_all_face_colors_constant();
 uni.render(vrp_camera);

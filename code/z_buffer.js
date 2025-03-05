@@ -17,7 +17,7 @@ var Z_Buffer = /** @class */ (function () {
         this.height_screen = height;
         this.buffer = Array(this.width_screen).fill(null).map(function () { return Array(_this.height_screen).fill(new Z_Pixel("white", 100000)); });
     }
-    Z_Buffer.prototype.verify_face = function (face) {
+    Z_Buffer.prototype.update_face_const = function (face) {
         var ymin = Math.round(Math.min.apply(Math, face.dots.map(function (p) { return p.y; })));
         var ymax = Math.round(Math.max.apply(Math, face.dots.map(function (p) { return p.y; })));
         face.inters = Array.from({ length: ymax - ymin + 1 }, function () { return []; });
@@ -51,9 +51,6 @@ var Z_Buffer = /** @class */ (function () {
             this.save_line(face, i, ymin + i);
         }
         ;
-        // face.inters.forEach((line, i) => {
-        //     this.save_line(face, line, ymin + i, ctx);
-        // });
     };
     Z_Buffer.prototype.save_line = function (face, line_index, y) {
         for (var i = 0; i < face.inters[line_index].length; i += 2) {
@@ -97,8 +94,8 @@ function testZBuffer() {
     ]);
     face2.color = "red";
     // Aplicando o algoritmo de Z-Buffer
-    zBuffer.verify_face(face1);
-    zBuffer.verify_face(face2);
+    zBuffer.update_face_const(face1);
+    zBuffer.update_face_const(face2);
     // Renderizando a cena a partir do Z-Buffer
     for (var x = 0; x < canvas.width; x++) {
         for (var y = 0; y < canvas.height; y++) {

@@ -1,9 +1,10 @@
 /// <reference path= "./surface.ts" />
 /// <reference path= "./camera.ts" />
+/// <reference path= "./z_buffer.ts" />
 var canvas_width = 1000;
 var canvas_height = 800;
 var Universe = /** @class */ (function () {
-    function Universe(ctx_out, cam) {
+    function Universe(ctx_out, cam, lamp, ambient_light) {
         var _this = this;
         this.surfaces = [];
         this.rotate_y = false;
@@ -28,8 +29,36 @@ var Universe = /** @class */ (function () {
         this.ctx = ctx_out;
         this.camera = cam;
         this.matriz_SRU_SRT = this.camera.get_mat_SRU_SRT();
+        this.lamp = lamp;
+        this.la = ambient_light;
     }
     ;
+    Universe.prototype.update_all_face_colors_constant = function () {
+        for (var i = 0; i < this.surfaces.length; i++) {
+            var amb_light = this.surfaces[i].ka * this.la;
+            for (var j = 0; j < this.surfaces[i].faces.length; j++) {
+                var aux_x = this.lamp.pos.x - this.surfaces[i].faces[j].centroide.x;
+                var aux_y = this.lamp.pos.y - this.surfaces[i].faces[j].centroide.y;
+                var aux_z = this.lamp.pos.z - this.surfaces[i].faces[j].centroide.z;
+                var vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
+                var UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, this.surfaces[i].faces[j].vet_normal);
+                var ilum_difusa = this.lamp.il * this.surfaces[i].kd * UN_times_UL;
+                aux_x = 2 * UN_times_UL * this.surfaces[i].faces[j].vet_normal.x - vet_LampMinusCent.unitary.x;
+                aux_y = 2 * UN_times_UL * this.surfaces[i].faces[j].vet_normal.y - vet_LampMinusCent.unitary.y;
+                aux_z = 2 * UN_times_UL * this.surfaces[i].faces[j].vet_normal.z - vet_LampMinusCent.unitary.z;
+                var idk_r = new Vet(aux_x, aux_y, aux_z);
+                aux_x = this.camera.vrp.x - this.surfaces[i].faces[j].centroide.x;
+                aux_y = this.camera.vrp.y - this.surfaces[i].faces[j].centroide.y;
+                aux_z = this.camera.vrp.z - this.surfaces[i].faces[j].centroide.z;
+                var direcao_observ = new Vet(aux_x, aux_y, aux_z);
+                var r_escalar_dir_obs = prod_escalar(idk_r, direcao_observ);
+                var is = this.lamp.il * this.surfaces[i].ks * Math.pow(r_escalar_dir_obs, this.surfaces[i].n);
+                this.surfaces[i].faces[j].color = String((amb_light + ilum_difusa));
+                console.log("Cor = ", String((amb_light + ilum_difusa + is)));
+                console.log("".concat(amb_light, " + ").concat(ilum_difusa, " + ").concat(is));
+            }
+        }
+    };
     Universe.prototype.draw_whole_surface = function (surface) {
         for (var i = 0; i < surface.faces.length; i++) {
             surface.faces[i] = Recorte(surface.faces[i], 0, 1000, 0, 800);

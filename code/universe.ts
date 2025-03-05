@@ -12,11 +12,15 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     surfaces: Array<Surface> = [];
     rotate_y: Boolean = false;
     z_buffer: Z_Buffer;
+    lamp: Lamp;
+    la: number; // Luz ambiente
 
-    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera){
+    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: number){
         this.ctx = ctx_out;
         this.camera = cam;
         this.matriz_SRU_SRT = this.camera.get_mat_SRU_SRT();
+        this.lamp = lamp;
+        this.la = ambient_light;
     };
 
     animate_world = () => {
@@ -39,6 +43,43 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
         requestAnimationFrame(this.animate_world);
     };
+
+    update_all_face_colors_constant(){
+        for(let i=0; i<this.surfaces.length; i++){
+            let amb_light = this.surfaces[i].ka * this.la;
+            for(let j=0; j<this.surfaces[i].faces.length; j++){
+                let aux_x = this.lamp.pos.x - this.surfaces[i].faces[j].centroide.x;
+                let aux_y = this.lamp.pos.y - this.surfaces[i].faces[j].centroide.y;
+                let aux_z = this.lamp.pos.z - this.surfaces[i].faces[j].centroide.z;
+
+                let vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
+
+                let UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, this.surfaces[i].faces[j].vet_normal)
+
+                let ilum_difusa = this.lamp.il * this.surfaces[i].kd * UN_times_UL;
+
+                aux_x = 2*UN_times_UL*this.surfaces[i].faces[j].vet_normal.x-vet_LampMinusCent.unitary.x;
+                aux_y = 2*UN_times_UL*this.surfaces[i].faces[j].vet_normal.y-vet_LampMinusCent.unitary.y;
+                aux_z = 2*UN_times_UL*this.surfaces[i].faces[j].vet_normal.z-vet_LampMinusCent.unitary.z;
+
+                let idk_r = new Vet(aux_x, aux_y, aux_z);
+
+                aux_x = this.camera.vrp.x-this.surfaces[i].faces[j].centroide.x;
+                aux_y = this.camera.vrp.y-this.surfaces[i].faces[j].centroide.y;
+                aux_z = this.camera.vrp.z-this.surfaces[i].faces[j].centroide.z;
+
+                let direcao_observ = new Vet(aux_x, aux_y, aux_z);
+
+                let r_escalar_dir_obs = prod_escalar(idk_r, direcao_observ);
+
+                let is = this.lamp.il*this.surfaces[i].ks*r_escalar_dir_obs**this.surfaces[i].n;
+
+                this.surfaces[i].faces[j].color = String((amb_light + ilum_difusa));
+                console.log("Cor = ", String((amb_light + ilum_difusa + is)));
+                console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
+            }
+        }
+    }
 
     draw_whole_surface(surface: Surface){
         for(let i=0; i < surface.faces.length; i++){

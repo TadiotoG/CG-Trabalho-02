@@ -15,8 +15,12 @@ class Surface{
     resj: number;
     outp: Dot[][];
     faces: Array<Face>;
+    ka: number; // Material, utilizado no sombreamento
+    kd: number; // Material, utilizado no sombreamento
+    ks: number; // Material, utilizado no sombreamento
+    n: number; // Material, utilizado no sombreamento
 
-    constructor(star_x: number, star_y: number, star_z: number, ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number, control_points: Dot[][] = [[new Dot(0,0,0)]]){
+    constructor(star_x: number, star_y: number, star_z: number, ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number, control_points: Dot[][] = [[new Dot(0,0,0)]], Ka: number=0.4, Kd: number=0.7, Ks: number=0.5, N: number=2.15){
         this.control_points = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
         this.control_points_screen = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
         this.outp = Array(resolutioni).fill(null).map(() => Array(resolutionj).fill(new Dot(0,0,0)))
@@ -27,7 +31,12 @@ class Surface{
         this.resi = resolutioni;
         this.resj = resolutionj;
         let counter = 0;
-        console.log(`x = ${star_x}  y = ${star_y}   z = ${star_z}`);
+        this.ka = Ka;
+        this.kd = Kd;
+        this.ks = Ks;
+        this.n = N;
+
+        // console.log(`x = ${star_x}  y = ${star_y}   z = ${star_z}`);
         for(let i=0; i<ni; i++){
             for(let j=0; j<nj; j++){
                 counter++;

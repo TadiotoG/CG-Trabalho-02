@@ -54,15 +54,47 @@ var Face = /** @class */ (function () {
         this.arestac = 0;
         this.dots = array_dots;
         this.cria_arestas();
+        this.centroide = this.get_centroide();
+        this.vet_normal = this.get_normal();
     }
     Face.prototype.cria_arestas = function () {
         var _this = this;
         this.arestas = [];
         this.dots.forEach(function (dot, i) {
-            console.log("Aresta = ", i + ", " + ((i + 1) % (_this.dots.length)));
             var nextDot = _this.dots[(i + 1) % (_this.dots.length)];
             _this.arestas.push([dot, nextDot]);
         });
+    };
+    Face.prototype.get_centroide = function () {
+        var sum_x = 0;
+        var sum_y = 0;
+        var sum_z = 0;
+        for (var i = 0; i < this.dots.length; i++) {
+            sum_x += this.dots[i].x;
+            sum_y += this.dots[i].y;
+            sum_z += this.dots[i].z;
+        }
+        return new Dot(sum_x / this.dots.length, sum_y / this.dots.length, sum_z / this.dots.length);
+    };
+    Face.prototype.get_normal = function () {
+        if (this.dots.length < 3) {
+            throw new Error("Uma face precisa de pelo menos três pontos para calcular o vetor normal.");
+        }
+        // Pegamos três pontos da face
+        var P0 = this.dots[0];
+        var P1 = this.dots[1];
+        var P2 = this.dots[2];
+        // Criamos os vetores
+        var v1 = new Vet(P1.x - P0.x, P1.y - P0.y, P1.z - P0.z);
+        var v2 = new Vet(P2.x - P0.x, P2.y - P0.y, P2.z - P0.z);
+        // Produto vetorial v1 x v2
+        var normal_x = v1.y * v2.z - v1.z * v2.y;
+        var normal_y = v1.z * v2.x - v1.x * v2.z;
+        var normal_z = v1.x * v2.y - v1.y * v2.x;
+        // Criamos o vetor normal
+        var normal = new Vet(normal_x, normal_y, normal_z);
+        // Normalizamos o vetor para que ele seja unitário
+        return normal;
     };
     Face.prototype.addAresta = function (dot1, dot2) {
         this.arestas.push([dot1, dot2]);
@@ -487,6 +519,10 @@ function Recorte(face, umin, umax, vmin, vmax) {
     }
     return new Face(pontos);
 }
-// let face = new Face([new Dot(151.914, 340.497, -39.024), new Dot(369.403, 223.801, -52.594), new Dot(149.5564, -51.1074, -47.9237)]);
-// face = Recorte(face, 0, 319, 0, 239);
-// console.log(face.dots);
+var Lamp = /** @class */ (function () {
+    function Lamp(intensidade_da_fonte, x, y, z) {
+        this.il = intensidade_da_fonte;
+        this.pos = new Dot(x, y, z);
+    }
+    return Lamp;
+}());
