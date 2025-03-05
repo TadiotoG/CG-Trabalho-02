@@ -32,7 +32,7 @@ var Universe = /** @class */ (function () {
     ;
     Universe.prototype.draw_whole_surface = function (surface) {
         for (var i = 0; i < surface.faces.length; i++) {
-            surface.faces[i] = Recorte(surface.faces[i], 0, 950, 0, 800);
+            surface.faces[i] = Recorte(surface.faces[i], 0, 1000, 0, 800);
             this.draw_face(surface.faces[i]);
         }
     };

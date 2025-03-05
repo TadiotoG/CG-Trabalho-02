@@ -50,6 +50,7 @@ var Face = /** @class */ (function () {
         this.color = "rgb(0, 0, 0)";
         this.arestas = [];
         this.inters = [];
+        this.inters_z = [];
         this.arestac = 0;
         this.dots = array_dots;
         this.cria_arestas();
@@ -58,7 +59,8 @@ var Face = /** @class */ (function () {
         var _this = this;
         this.arestas = [];
         this.dots.forEach(function (dot, i) {
-            var nextDot = _this.dots[(i + 1) % _this.dots.length];
+            console.log("Aresta = ", i + ", " + ((i + 1) % (_this.dots.length)));
+            var nextDot = _this.dots[(i + 1) % (_this.dots.length)];
             _this.arestas.push([dot, nextDot]);
         });
     };

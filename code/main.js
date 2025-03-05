@@ -311,10 +311,10 @@ function change_world() {
     for (var i = 0; i < list_of_surfaces.length; i++) {
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
-        uni.draw_whole_surface(uni.surfaces[i]);
+        // uni.draw_whole_surface(uni.surfaces[i]);
         uni.draw_cp(uni.surfaces[i]);
     }
-    // uni.render(vrp_camera);
+    uni.render(vrp_camera);
 }
 function erase_canvas() {
     ctx.fillStyle = "white";
@@ -385,4 +385,4 @@ var amount_cp_j;
 var res_i;
 var res_j;
 create_surface();
-// uni.render(vrp_camera);
+uni.render(vrp_camera);

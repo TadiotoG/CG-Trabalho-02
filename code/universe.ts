@@ -1,5 +1,6 @@
 /// <reference path= "./surface.ts" />
 /// <reference path= "./camera.ts" />
+/// <reference path= "./z_buffer.ts" />
 
 let canvas_width = 1000;
 let canvas_height = 800;
@@ -10,6 +11,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     camera: Camera;
     surfaces: Array<Surface> = [];
     rotate_y: Boolean = false;
+    z_buffer: Z_Buffer;
 
     constructor(ctx_out: CanvasRenderingContext2D, cam: Camera){
         this.ctx = ctx_out;
@@ -40,7 +42,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
 
     draw_whole_surface(surface: Surface){
         for(let i=0; i < surface.faces.length; i++){
-            surface.faces[i] = Recorte(surface.faces[i], 0, 950, 0, 800);
+            surface.faces[i] = Recorte(surface.faces[i], 0, 1000, 0, 800);
             this.draw_face(surface.faces[i]);
         }
     };

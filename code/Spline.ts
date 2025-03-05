@@ -42,18 +42,33 @@ class Face{
     color: string = "rgb(0, 0, 0)";
     arestas: Array<[Dot, Dot]> = []; 
     inters: number[][] = [];
+    inters_z: number[][] = [];
     arestac: number = 0;
+    centroide: Dot;
 
     constructor(array_dots: Array<Dot>){
         this.dots = array_dots;
-        this.cria_arestas();     
+        this.cria_arestas();
+        this.centroide = this.get_centroide();
     }
     cria_arestas(): void {
         this.arestas = []; 
         this.dots.forEach((dot, i) => {
-            const nextDot = this.dots[(i + 1) % this.dots.length]; 
+            const nextDot = this.dots[(i + 1) % (this.dots.length)]; 
             this.arestas.push([dot, nextDot]);
         });
+    }
+
+    get_centroide(){
+        let sum_x: number = 0;
+        let sum_y: number = 0;
+        let sum_z: number = 0;
+        for(let i=0; i<this.dots.length; i++){
+            sum_x += this.dots[i].x;
+            sum_y += this.dots[i].y;
+            sum_z += this.dots[i].z;
+        }
+        return new Dot(sum_x/this.dots.length, sum_y/this.dots.length, sum_z/this.dots.length)
     }
 
     addAresta(dot1: Dot, dot2: Dot): void {
@@ -116,7 +131,6 @@ class Face{
             this.draw(line, ymin + i, ctx);
         });
     }
-    
 }
 
 class Spline{
