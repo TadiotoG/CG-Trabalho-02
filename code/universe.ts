@@ -47,38 +47,52 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     update_all_face_colors_constant(){
         for(let i=0; i<this.surfaces.length; i++){
             let amb_light = this.surfaces[i].ka * this.la;
+            console.log(amb_light)
             for(let j=0; j<this.surfaces[i].faces.length; j++){
-                let aux_x = this.lamp.pos.x - this.surfaces[i].faces[j].centroide.x;
-                let aux_y = this.lamp.pos.y - this.surfaces[i].faces[j].centroide.y;
-                let aux_z = this.lamp.pos.z - this.surfaces[i].faces[j].centroide.z;
-
-                let vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
-
-                let UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, this.surfaces[i].faces[j].vet_normal)
-
-                let ilum_difusa = this.lamp.il * this.surfaces[i].kd * UN_times_UL;
-
-                aux_x = 2*UN_times_UL*this.surfaces[i].faces[j].vet_normal.x-vet_LampMinusCent.unitary.x;
-                aux_y = 2*UN_times_UL*this.surfaces[i].faces[j].vet_normal.y-vet_LampMinusCent.unitary.y;
-                aux_z = 2*UN_times_UL*this.surfaces[i].faces[j].vet_normal.z-vet_LampMinusCent.unitary.z;
-
-                let idk_r = new Vet(aux_x, aux_y, aux_z);
-
-                aux_x = this.camera.vrp.x-this.surfaces[i].faces[j].centroide.x;
-                aux_y = this.camera.vrp.y-this.surfaces[i].faces[j].centroide.y;
-                aux_z = this.camera.vrp.z-this.surfaces[i].faces[j].centroide.z;
-
-                let direcao_observ = new Vet(aux_x, aux_y, aux_z);
-
-                let r_escalar_dir_obs = prod_escalar(idk_r, direcao_observ);
-
-                let is = this.lamp.il*this.surfaces[i].ks*r_escalar_dir_obs**this.surfaces[i].n;
-
-                this.surfaces[i].faces[j].color = String((amb_light + ilum_difusa));
-                console.log("Cor = ", String((amb_light + ilum_difusa + is)));
-                console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
+                let new_color = this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light, this.surfaces[i].ks, this.surfaces[i].kd, this.surfaces[i].n);
+                this.surfaces[i].faces[j].color = new_color;
             }
         }
+    }
+
+    get_face_color_constant(face: Face, amb_light_par: number, ks: number, kd: number, n: number){
+        let amb_light = amb_light_par;
+        // console.log("Centroide face = ", face.centroide)
+        // console.log("Lamp x = ", this.lamp.pos.x)
+        let aux_x = this.lamp.pos.x - face.centroide.x;
+        let aux_y = this.lamp.pos.y - face.centroide.y;
+        let aux_z = this.lamp.pos.z - face.centroide.z;
+
+        let vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
+        // vet_LampMinusCent.print_obj("Lamp - Centroide")
+
+        let UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, face.vet_normal.unitary)
+        // console.log("UN times UL = ", UN_times_UL)
+        // console.log("vet_normal = ", face.vet_normal)
+
+        let ilum_difusa = this.lamp.il * kd * UN_times_UL;
+        // console.log("Ilumincao difusa: ", ilum_difusa)
+
+        aux_x = 2*UN_times_UL*face.vet_normal.unitary.x-vet_LampMinusCent.unitary.x;
+        aux_y = 2*UN_times_UL*face.vet_normal.unitary.y-vet_LampMinusCent.unitary.y;
+        aux_z = 2*UN_times_UL*face.vet_normal.unitary.z-vet_LampMinusCent.unitary.z;
+
+        let idk_r = new Vet(aux_x, aux_y, aux_z);
+        // idk_r.print_obj("Vet r")
+
+        aux_x = this.camera.vrp.x-face.centroide.x;
+        aux_y = this.camera.vrp.y-face.centroide.y;
+        aux_z = this.camera.vrp.z-face.centroide.z;
+
+        let direcao_observ = new Vet(aux_x, aux_y, aux_z);
+
+        let r_escalar_dir_obs = prod_escalar(idk_r, direcao_observ.unitary);
+
+        let is = this.lamp.il*ks*r_escalar_dir_obs**n;
+        // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
+        // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
+
+        return String((amb_light + ilum_difusa));
     }
 
     draw_whole_surface(surface: Surface){

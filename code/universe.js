@@ -36,28 +36,41 @@ var Universe = /** @class */ (function () {
     Universe.prototype.update_all_face_colors_constant = function () {
         for (var i = 0; i < this.surfaces.length; i++) {
             var amb_light = this.surfaces[i].ka * this.la;
+            console.log(amb_light);
             for (var j = 0; j < this.surfaces[i].faces.length; j++) {
-                var aux_x = this.lamp.pos.x - this.surfaces[i].faces[j].centroide.x;
-                var aux_y = this.lamp.pos.y - this.surfaces[i].faces[j].centroide.y;
-                var aux_z = this.lamp.pos.z - this.surfaces[i].faces[j].centroide.z;
-                var vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
-                var UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, this.surfaces[i].faces[j].vet_normal);
-                var ilum_difusa = this.lamp.il * this.surfaces[i].kd * UN_times_UL;
-                aux_x = 2 * UN_times_UL * this.surfaces[i].faces[j].vet_normal.x - vet_LampMinusCent.unitary.x;
-                aux_y = 2 * UN_times_UL * this.surfaces[i].faces[j].vet_normal.y - vet_LampMinusCent.unitary.y;
-                aux_z = 2 * UN_times_UL * this.surfaces[i].faces[j].vet_normal.z - vet_LampMinusCent.unitary.z;
-                var idk_r = new Vet(aux_x, aux_y, aux_z);
-                aux_x = this.camera.vrp.x - this.surfaces[i].faces[j].centroide.x;
-                aux_y = this.camera.vrp.y - this.surfaces[i].faces[j].centroide.y;
-                aux_z = this.camera.vrp.z - this.surfaces[i].faces[j].centroide.z;
-                var direcao_observ = new Vet(aux_x, aux_y, aux_z);
-                var r_escalar_dir_obs = prod_escalar(idk_r, direcao_observ);
-                var is = this.lamp.il * this.surfaces[i].ks * Math.pow(r_escalar_dir_obs, this.surfaces[i].n);
-                this.surfaces[i].faces[j].color = String((amb_light + ilum_difusa));
-                console.log("Cor = ", String((amb_light + ilum_difusa + is)));
-                console.log("".concat(amb_light, " + ").concat(ilum_difusa, " + ").concat(is));
+                var new_color = this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light, this.surfaces[i].ks, this.surfaces[i].kd, this.surfaces[i].n);
+                this.surfaces[i].faces[j].color = new_color;
             }
         }
+    };
+    Universe.prototype.get_face_color_constant = function (face, amb_light_par, ks, kd, n) {
+        var amb_light = amb_light_par;
+        // console.log("Centroide face = ", face.centroide)
+        // console.log("Lamp x = ", this.lamp.pos.x)
+        var aux_x = this.lamp.pos.x - face.centroide.x;
+        var aux_y = this.lamp.pos.y - face.centroide.y;
+        var aux_z = this.lamp.pos.z - face.centroide.z;
+        var vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
+        // vet_LampMinusCent.print_obj("Lamp - Centroide")
+        var UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, face.vet_normal.unitary);
+        // console.log("UN times UL = ", UN_times_UL)
+        // console.log("vet_normal = ", face.vet_normal)
+        var ilum_difusa = this.lamp.il * kd * UN_times_UL;
+        // console.log("Ilumincao difusa: ", ilum_difusa)
+        aux_x = 2 * UN_times_UL * face.vet_normal.unitary.x - vet_LampMinusCent.unitary.x;
+        aux_y = 2 * UN_times_UL * face.vet_normal.unitary.y - vet_LampMinusCent.unitary.y;
+        aux_z = 2 * UN_times_UL * face.vet_normal.unitary.z - vet_LampMinusCent.unitary.z;
+        var idk_r = new Vet(aux_x, aux_y, aux_z);
+        // idk_r.print_obj("Vet r")
+        aux_x = this.camera.vrp.x - face.centroide.x;
+        aux_y = this.camera.vrp.y - face.centroide.y;
+        aux_z = this.camera.vrp.z - face.centroide.z;
+        var direcao_observ = new Vet(aux_x, aux_y, aux_z);
+        var r_escalar_dir_obs = prod_escalar(idk_r, direcao_observ.unitary);
+        var is = this.lamp.il * ks * Math.pow(r_escalar_dir_obs, n);
+        // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
+        // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
+        return String((amb_light + ilum_difusa));
     };
     Universe.prototype.draw_whole_surface = function (surface) {
         for (var i = 0; i < surface.faces.length; i++) {

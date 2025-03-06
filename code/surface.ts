@@ -15,6 +15,7 @@ class Surface{
     resj: number;
     outp: Dot[][];
     faces: Array<Face>;
+    faces_SRU: Array<Face>;
     ka: number; // Material, utilizado no sombreamento
     kd: number; // Material, utilizado no sombreamento
     ks: number; // Material, utilizado no sombreamento
@@ -43,6 +44,7 @@ class Surface{
                 this.control_points[i][j] = new Dot(i*13+star_x, Math.random()*10+star_y, j*13+star_z);
             }
         }
+        this.update_faces_SRU();
     }
 
     callfp(ctx: CanvasRenderingContext2D, vrp: Dot) {
@@ -225,6 +227,25 @@ class Surface{
                 this.outp[i][j].z = normal_mat[2][i*this.resj+j];
             }
         }
+    }
+
+    update_faces_SRU(){
+        this.faces_SRU = []
+        for(let i=0; i<this.resi-1; i++){
+            for(let j=0; j<this.resj-1; j++){
+                let A = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z)
+
+                let B = new Dot(this.outp[i+1][j].x, this.outp[i][j].y, this.outp[i][j].z)
+
+                let C = new Dot(this.outp[i+1][j+1].x, this.outp[i][j].y, this.outp[i][j].z)
+
+                let D = new Dot(this.outp[i][j+1].x, this.outp[i][j].y, this.outp[i][j].z)
+
+                let arr_dots = [A, B, C, D]
+                this.faces_SRU.push(new Face(arr_dots));
+            }
+        }
+
     }
 
     create_faces(matriz_SRU_SRT: number[][]){ // Essa funcao foi projetada para ser chamada no momento de plotar, para que tenhamos as coordenadas de tela de cada vértice/face, pois se pegassemos diretamente os pontos sem a conversao SRU_SRT, teriamos as coordenadas de mundo, o que nao traria informações uteis

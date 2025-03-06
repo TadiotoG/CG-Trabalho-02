@@ -29,6 +29,7 @@ var Surface = /** @class */ (function () {
                 this.control_points[i][j] = new Dot(i * 13 + star_x, Math.random() * 10 + star_y, j * 13 + star_z);
             }
         }
+        this.update_faces_SRU();
     }
     Surface.prototype.callfp = function (ctx, vrp) {
         for (var _i = 0, _a = this.faces; _i < _a.length; _i++) {
@@ -187,6 +188,19 @@ var Surface = /** @class */ (function () {
                 this.outp[i][j].x = normal_mat[0][i * this.resj + j];
                 this.outp[i][j].y = normal_mat[1][i * this.resj + j];
                 this.outp[i][j].z = normal_mat[2][i * this.resj + j];
+            }
+        }
+    };
+    Surface.prototype.update_faces_SRU = function () {
+        this.faces_SRU = [];
+        for (var i = 0; i < this.resi - 1; i++) {
+            for (var j = 0; j < this.resj - 1; j++) {
+                var A = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z);
+                var B = new Dot(this.outp[i + 1][j].x, this.outp[i][j].y, this.outp[i][j].z);
+                var C = new Dot(this.outp[i + 1][j + 1].x, this.outp[i][j].y, this.outp[i][j].z);
+                var D = new Dot(this.outp[i][j + 1].x, this.outp[i][j].y, this.outp[i][j].z);
+                var arr_dots = [A, B, C, D];
+                this.faces_SRU.push(new Face(arr_dots));
             }
         }
     };
