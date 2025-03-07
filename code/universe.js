@@ -1,5 +1,5 @@
 /// <reference path= "./surface.ts" />
-/// <reference path= "./Camera.ts" />
+/// <reference path= "./camera.ts" />
 var canvas_width = 1000;
 var canvas_height = 800;
 var Universe = /** @class */ (function () {
@@ -32,6 +32,7 @@ var Universe = /** @class */ (function () {
     ;
     Universe.prototype.draw_whole_surface = function (surface) {
         for (var i = 0; i < surface.faces.length; i++) {
+            surface.faces[i] = Recorte(surface.faces[i], 0, 950, 0, 800);
             this.draw_face(surface.faces[i]);
         }
     };
@@ -80,7 +81,9 @@ var Universe = /** @class */ (function () {
     //     }
     // }
     Universe.prototype.draw_cp = function (obj) {
+        // console.log("Antes obj.cp -> ", obj.control_points);
         obj.define_dots_screen(this.matriz_SRU_SRT);
+        // console.log("Dots screen -> ", obj.control_points_screen)
         for (var i = 0; i < obj.control_points_screen.length; i++) {
             for (var j = 0; j < obj.control_points_screen[0].length; j++) {
                 this.draw_dot(obj.control_points_screen[i][j]); // Divide pelo fator homogenio
@@ -121,6 +124,10 @@ var Universe = /** @class */ (function () {
         return list_d;
     };
     ;
+    Universe.prototype.multiply_and_update_cp = function (index, mat) {
+        var new_matriz_obj = mult_matriz(mat, this.surfaces[index].get_cp_as_mat());
+        this.surfaces[index].update_cp_with_mat(new_matriz_obj);
+    };
     Universe.prototype.render = function (vrp) {
         // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
         this.surfaces.forEach(function (surface) {

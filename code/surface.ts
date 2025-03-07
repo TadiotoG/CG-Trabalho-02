@@ -32,7 +32,6 @@ class Surface{
             for(let j=0; j<nj; j++){
                 counter++;
                 this.control_points[i][j] = new Dot(i*13+star_x, Math.random()*10+star_y, j*13+star_z);
-                
             }
         }
     }
@@ -170,10 +169,11 @@ class Surface{
 
         for(let x = 0; x < this.ni; x++){
             for(let y = 0; y < this.nj; y++){
-                mat_aux[0][x*this.ni+y] = this.control_points[x][y].x;
-                mat_aux[1][x*this.ni+y] = this.control_points[x][y].y;
-                mat_aux[2][x*this.ni+y] = this.control_points[x][y].z;
-                mat_aux[3][x*this.ni+y] = 1;
+                // console.log(`[${x}][${y}] = ${this.control_points[x][y].x}`)
+                mat_aux[0][x*this.nj+y] = this.control_points[x][y].x;
+                mat_aux[1][x*this.nj+y] = this.control_points[x][y].y;
+                mat_aux[2][x*this.nj+y] = this.control_points[x][y].z;
+                mat_aux[3][x*this.nj+y] = 1;
                 // alert(x+y)
             }
         }
@@ -187,10 +187,10 @@ class Surface{
 
         for(let x = 0; x < this.resi; x++){
             for(let y = 0; y < this.resj; y++){
-                mat_aux[0][x*this.resi+y] = this.outp[x][y].x;
-                mat_aux[1][x*this.resi+y] = this.outp[x][y].y;
-                mat_aux[2][x*this.resi+y] = this.outp[x][y].z;
-                mat_aux[3][x*this.resi+y] = 1;
+                mat_aux[0][x*this.resj+y] = this.outp[x][y].x;
+                mat_aux[1][x*this.resj+y] = this.outp[x][y].y;
+                mat_aux[2][x*this.resj+y] = this.outp[x][y].z;
+                mat_aux[3][x*this.resj+y] = 1;
             }
         }
         return mat_aux; 
@@ -201,9 +201,9 @@ class Surface{
     update_cp_with_mat(normal_mat: number[][]){
         for(let i=0; i<this.ni; i++){
             for(let j=0; j<this.nj; j++){
-                this.control_points[i][j].x = normal_mat[0][i*this.ni+j];
-                this.control_points[i][j].y = normal_mat[1][i*this.ni+j];
-                this.control_points[i][j].z = normal_mat[2][i*this.ni+j];
+                this.control_points[i][j].x = normal_mat[0][i*this.nj+j];
+                this.control_points[i][j].y = normal_mat[1][i*this.nj+j];
+                this.control_points[i][j].z = normal_mat[2][i*this.nj+j];
             }
         }
     }
@@ -211,16 +211,16 @@ class Surface{
     update_outp_with_mat(normal_mat: number[][]){
         for(let i=0; i<this.resi; i++){
             for(let j=0; j<this.resj; j++){
-                this.outp[i][j].x = normal_mat[0][i*this.resi+j];
-                this.outp[i][j].y = normal_mat[1][i*this.resi+j];
-                this.outp[i][j].z = normal_mat[2][i*this.resi+j];
+                this.outp[i][j].x = normal_mat[0][i*this.resj+j];
+                this.outp[i][j].y = normal_mat[1][i*this.resj+j];
+                this.outp[i][j].z = normal_mat[2][i*this.resj+j];
             }
         }
     }
 
     create_faces(matriz_SRU_SRT: number[][]){ // Essa funcao foi projetada para ser chamada no momento de plotar, para que tenhamos as coordenadas de tela de cada vértice/face, pois se pegassemos diretamente os pontos sem a conversao SRU_SRT, teriamos as coordenadas de mundo, o que nao traria informações uteis
         let ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat()) // ps = points_screen
-        this.faces = [new Face([new Dot(0,0,0), new Dot(0,0,0)])];
+        this.faces = [];
 
         for(let i=0; i<this.resi-1; i++){
             for(let j=0; j<this.resj-1; j++){ // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca
@@ -239,6 +239,7 @@ class Surface{
     }
 
     define_dots_screen(matriz_SRU_SRT: number[][]){
+        // console.log("Get cp as mat -> ", this.get_cp_as_mat())
         let cp = mult_matriz(matriz_SRU_SRT, this.get_cp_as_mat());
 
         for(let i=0; i<this.ni; i++){
@@ -264,6 +265,11 @@ class Surface{
                 }
             }
         };
+        if(closer_dist > 30){
+            closer_dist = 100000;
+            closer_i = -1;
+            closer_j = -1;
+        }
         return [closer_i, closer_j, closer_dist]
     }
 }
