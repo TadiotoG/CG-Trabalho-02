@@ -1,56 +1,5 @@
+/// <reference path= "./spline.ts" />
 import * as fs from 'fs';
-
-class Vertex {
-    x: number;
-    y: number;
-    z: number;
-
-    constructor(x: number, y: number, z: number) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-    }
-}
-
-class Edge {
-    start: Vertex;
-    end: Vertex;
-    dx: number;
-    dy: number;
-    dz: number;
-    tx: number;
-    tz: number;
-
-    constructor(start: Vertex, end: Vertex) {
-        this.start = start;
-        this.end = end;
-        this.dx = end.x - start.x;
-        this.dy = end.y - start.y;
-        this.dz = end.z - start.z;
-        this.tx = this.dx / this.dy;
-        this.tz = this.dz / this.dy;
-    }
-}
-
-class Polygon {
-    vertices: Vertex[];
-    color: string;
-
-    constructor(vertices: Vertex[], color: string) {
-        this.vertices = vertices;
-        this.color = color;
-    }
-
-    getEdges(): Edge[] {
-        const edges: Edge[] = [];
-        for (let i = 0; i < this.vertices.length; i++) {
-            const start = this.vertices[i];
-            const end = this.vertices[(i + 1) % this.vertices.length];
-            edges.push(new Edge(start, end));
-        }
-        return edges;
-    }
-}
 
 class ZBuffer {
     width: number;
@@ -81,26 +30,32 @@ class ZBuffer {
         }
     }
 
-    render(polygons: Polygon[]) {
+    render(faces: Face[]) {
         this.initializeBuffers();
-        for (const polygon of polygons) {
-            this.rasterizePolygon(polygon);
+        for (const face of faces) {
+            this.rasterizePolygon(face);
         }
     }
 
-    rasterizePolygon(polygon: Polygon) {
-        const edges = polygon.getEdges();
-        const activeEdges: Edge[] = [];
+    rasterizePolygon(face: Face) {
+        let pontos = face.dots;
+        let edges: Aresta[] = [];
+        const activeEdges: Aresta[] = [];
 
-        // Find ymin and ymax of the polygon
+        for (let i = 0; i < pontos.length; i++) {
+            if (i + 1 < pontos.length) {
+                edges.push(new Aresta(pontos[i], pontos[i + 1]));
+            } else {
+                edges.push(new Aresta(pontos[i], pontos[0]));
+            }}
+
+        // Find ymin and ymax of the face
         let ymin = Infinity;
         let ymax = -Infinity;
-        for (const vertex of polygon.vertices) {
+        for (const vertex of face.dots) {
             if (vertex.y < ymin) ymin = vertex.y;
             if (vertex.y > ymax) ymax = vertex.y;
         }
-
-        // Prepare to write to file
         const logFile = 'scanline_log.txt';
         const logStream = fs.createWriteStream(logFile, { flags: 'a' });
 
@@ -109,23 +64,23 @@ class ZBuffer {
             // Update active edges
             activeEdges.length = 0;
             for (const edge of edges) {
-                if ((edge.start.y <= y && edge.end.y > y) || (edge.end.y <= y && edge.start.y > y)) {
+                if ((edge.p1.y <= y && edge.p2.y > y) || (edge.p2.y <= y && edge.p1.y > y)) {
                     activeEdges.push(edge);
                 }
             }
 
             // Sort active edges by x
-            activeEdges.sort((a, b) => a.start.x + a.tx * (y - a.start.y) - (b.start.x + b.tx * (y - b.start.y)));
+            activeEdges.sort((a, b) => a.p1.x + a.tx * (y - a.p1.y) - (b.p1.x + b.tx * (y - b.p1.y)));
 
             // Fill pixels between pairs of intersections
             for (let i = 0; i < activeEdges.length; i += 2) {
                 const edge1 = activeEdges[i];
                 const edge2 = activeEdges[i + 1];
 
-                let x1 = edge1.start.x + edge1.tx * (y - edge1.start.y);
-                let z1 = edge1.start.z + edge1.tz * (y - edge1.start.y);
-                let x2 = edge2.start.x + edge2.tx * (y - edge2.start.y);
-                let z2 = edge2.start.z + edge2.tz * (y - edge2.start.y);
+                let x1 = edge1.p1.x + edge1.tx * (y - edge1.p1.y);
+                let z1 = edge1.p1.z + edge1.tz * (y - edge1.p1.y);
+                let x2 = edge2.p1.x + edge2.tx * (y - edge2.p1.y);
+                let z2 = edge2.p1.z + edge2.tz * (y - edge2.p1.y);
 
                 if (x1 > x2) {
                     [x1, x2] = [x2, x1];
@@ -141,30 +96,26 @@ class ZBuffer {
                 for (let x = Math.ceil(x1); x <= Math.floor(x2); x++) {
                     const t = (x - x1) / (x2 - x1);
                     const z = z1 + t * (z2 - z1);
-                    this.updateBuffer(x, y, z, polygon.color);
+                    this.updateBuffer(x, y, z, face.color);
                 }
             }
         }
-
-        // Close the log stream
         logStream.end();
     }
 }
 
 // Example usage
-function createTestPolygons(): Polygon[] {
+function createTestPolygons(): Face[] {
     // Crie alguns polígonos de teste
-    const polygons: Polygon[] = [
-        new Polygon([
-            new Vertex(85, 192, -32.570),
-            new Vertex(93, 251, -22.807),
-            new Vertex(125, 107, -21.815)
-        ], '#FF0000'), // Vermelho
+    const polygons: Face[] = [
+        new Face([
+            new Dot(85, 192, -32.570),
+            new Dot(93, 251, -22.807),
+            new Dot(125, 107, -21.815)
+        ])
     ];
     return polygons;
 }
-
-console.log(Polygon.prototype.getEdges);
 
 function main() {
     const width = 400;

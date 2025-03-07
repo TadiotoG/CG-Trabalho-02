@@ -325,6 +325,11 @@ var Aresta = /** @class */ (function () {
     function Aresta(p1, p2) {
         this.p1 = p1;
         this.p2 = p2;
+        this.Dx = p2.x - p1.x;
+        this.Dy = p2.y - p1.y;
+        this.Dz = p2.z - p1.z;
+        this.tx = this.Dx / this.Dy;
+        this.tz = this.Dz / this.Dy;
     }
     return Aresta;
 }());

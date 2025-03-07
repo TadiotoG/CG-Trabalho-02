@@ -378,12 +378,24 @@ function distance_between_dots_screen(A: Dot, B: Dot){
 class Aresta {
     p1: Dot;
     p2: Dot;
+    Dx: number;
+    Dy: number;
+    Dz: number;
+    tx: number;
+    tz: number;
 
     constructor(p1: Dot, p2: Dot) {
         this.p1 = p1;
         this.p2 = p2;
+        this.Dx = p2.x - p1.x;
+        this.Dy = p2.y - p1.y;
+        this.Dz = p2.z - p1.z;
+        this.tx = this.Dx/this.Dy;
+        this.tz = this.Dz/this.Dy; 
+        
     }
 }
+
 
 function Recorte (face: Face, umin, umax, vmin, vmax) { 
     let pontos = face.dots;
