@@ -5,9 +5,9 @@ var Surface = /** @class */ (function () {
     function Surface(star_x, star_y, star_z, ni, nj, ti, tj, resolutioni, resolutionj, control_points, Ka, Kd, Ks, N) {
         if (control_points === void 0) { control_points = [[new Dot(0, 0, 0)]]; }
         if (Ka === void 0) { Ka = 0.4; }
-        if (Kd === void 0) { Kd = 0.7; }
+        if (Kd === void 0) { Kd = 0.6; }
         if (Ks === void 0) { Ks = 0.5; }
-        if (N === void 0) { N = 2.15; }
+        if (N === void 0) { N = 20; }
         this.control_points = Array(ni).fill(null).map(function () { return Array(nj).fill(new Dot(0, 0, 0)); });
         this.control_points_screen = Array(ni).fill(null).map(function () { return Array(nj).fill(new Dot(0, 0, 0)); });
         this.outp = Array(resolutioni).fill(null).map(function () { return Array(resolutionj).fill(new Dot(0, 0, 0)); });
@@ -29,18 +29,16 @@ var Surface = /** @class */ (function () {
                 this.control_points[i][j] = new Dot(i * 13 + star_x, Math.random() * 10 + star_y, j * 13 + star_z);
             }
         }
+        this.generateSurface();
         this.update_faces_SRU();
+        console.log("Assim que é gerado ->", this.faces_SRU);
     }
     Surface.prototype.callfp = function (ctx, vrp) {
-        for (var _i = 0, _a = this.faces; _i < _a.length; _i++) {
-            var face = _a[_i];
-            if (face.fillpoly) {
-                face.fillpoly(ctx, vrp, vrp);
-            }
-            else {
-                console.error("Erro: Método fillpoly não encontrado na face", face);
-            }
-        }
+        var _this = this;
+        this.faces.forEach(function (face, i) {
+            var normal = prod_escalar(_this.faces_SRU[i].get_normal().unitary, new Vet(vrp.x, vrp.y, vrp.z).unitary);
+            face.fillpoly(ctx, vrp, vrp, normal);
+        });
     };
     Surface.prototype.SplineKnots = function (u, n, t) {
         var j;
@@ -196,9 +194,9 @@ var Surface = /** @class */ (function () {
         for (var i = 0; i < this.resi - 1; i++) {
             for (var j = 0; j < this.resj - 1; j++) {
                 var A = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z);
-                var B = new Dot(this.outp[i + 1][j].x, this.outp[i][j].y, this.outp[i][j].z);
-                var C = new Dot(this.outp[i + 1][j + 1].x, this.outp[i][j].y, this.outp[i][j].z);
-                var D = new Dot(this.outp[i][j + 1].x, this.outp[i][j].y, this.outp[i][j].z);
+                var B = new Dot(this.outp[i + 1][j].x, this.outp[i + 1][j].y, this.outp[i + 1][j].z);
+                var C = new Dot(this.outp[i + 1][j + 1].x, this.outp[i + 1][j + 1].y, this.outp[i + 1][j + 1].z);
+                var D = new Dot(this.outp[i][j + 1].x, this.outp[i][j + 1].y, this.outp[i][j + 1].z);
                 var arr_dots = [A, B, C, D];
                 this.faces_SRU.push(new Face(arr_dots));
             }

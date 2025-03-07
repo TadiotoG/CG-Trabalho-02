@@ -64,9 +64,11 @@ class Z_Buffer{
         for(let i=0; i<face.inters.length; i++){
             this.save_line(face, i, ymin + i);
         };
+        console.log("Face inters -> ", face.inters);
     }
 
     save_line(face: Face, line_index: number, y: number) {
+        console.log("Aresta -> ")
         for (let i = 0; i < face.inters[line_index].length; i += 2) {
             const x1 = Math.ceil(face.inters[line_index][i]);
             const x2 = Math.floor(face.inters[line_index][i + 1]);
@@ -75,6 +77,7 @@ class Z_Buffer{
             const z2 = Math.floor(face.inters_z[line_index][i + 1]);
 
             const inc_z = (z2 - z1) / (x2 - x1);
+            console.log("Inc z -> ", inc_z)
             
             for (let x = x1; x <= x2; x++) {
                 let my_z = z1 + inc_z
@@ -98,15 +101,14 @@ function testZBuffer() {
     
     // Criando dois quadrados, um mais próximo e outro mais distante
     const face1 = new Face([
-        new Dot(0, 0, 5),
-        new Dot(0, 100, 5),
-        new Dot(100, 100, 5),
-        new Dot(100, 0, 5),
+        new Dot(93, 251, -22.807),
+        new Dot(198, 241, -20.129),
+        new Dot(125, 107, -21.815)
     ]);
     face1.color = "blue";
     
     const face2 = new Face([
-        new Dot(0, 0, 9),
+        new Dot(0, 0, 10),
         new Dot(0, 100, 0),
         new Dot(100, 100, 0),
         new Dot(100, 0, 10),

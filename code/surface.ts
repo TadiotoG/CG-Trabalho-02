@@ -21,7 +21,7 @@ class Surface{
     ks: number; // Material, utilizado no sombreamento
     n: number; // Material, utilizado no sombreamento
 
-    constructor(star_x: number, star_y: number, star_z: number, ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number, control_points: Dot[][] = [[new Dot(0,0,0)]], Ka: number=0.4, Kd: number=0.7, Ks: number=0.5, N: number=2.15){
+    constructor(star_x: number, star_y: number, star_z: number, ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number, control_points: Dot[][] = [[new Dot(0,0,0)]], Ka: number=0.4, Kd: number=0.6, Ks: number=0.5, N: number=20){
         this.control_points = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
         this.control_points_screen = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
         this.outp = Array(resolutioni).fill(null).map(() => Array(resolutionj).fill(new Dot(0,0,0)))
@@ -44,17 +44,18 @@ class Surface{
                 this.control_points[i][j] = new Dot(i*13+star_x, Math.random()*10+star_y, j*13+star_z);
             }
         }
+        this.generateSurface();
         this.update_faces_SRU();
+        console.log("Assim que é gerado ->", this.faces_SRU);
     }
 
     callfp(ctx: CanvasRenderingContext2D, vrp: Dot) {
-        for (const face of this.faces) {
-            if (face.fillpoly) {
-                face.fillpoly(ctx, vrp, vrp);
-            } else {
-                console.error("Erro: Método fillpoly não encontrado na face", face);
-            }
-        }
+        this.faces.forEach((face, i) => {
+
+            let normal = prod_escalar(this.faces_SRU[i].get_normal().unitary, new Vet(vrp.x, vrp.y, vrp.z).unitary);
+
+            face.fillpoly(ctx, vrp, vrp, normal);
+        })
     }
 
     SplineKnots(u: number[], n: number, t: number): void {
@@ -235,11 +236,11 @@ class Surface{
             for(let j=0; j<this.resj-1; j++){
                 let A = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z)
 
-                let B = new Dot(this.outp[i+1][j].x, this.outp[i][j].y, this.outp[i][j].z)
+                let B = new Dot(this.outp[i+1][j].x, this.outp[i+1][j].y, this.outp[i+1][j].z)
 
-                let C = new Dot(this.outp[i+1][j+1].x, this.outp[i][j].y, this.outp[i][j].z)
+                let C = new Dot(this.outp[i+1][j+1].x, this.outp[i+1][j+1].y, this.outp[i+1][j+1].z)
 
-                let D = new Dot(this.outp[i][j+1].x, this.outp[i][j].y, this.outp[i][j].z)
+                let D = new Dot(this.outp[i][j+1].x, this.outp[i][j+1].y, this.outp[i][j+1].z)
 
                 let arr_dots = [A, B, C, D]
                 this.faces_SRU.push(new Face(arr_dots));

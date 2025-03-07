@@ -1,6 +1,5 @@
 /// <reference path= "./surface.ts" />
 /// <reference path= "./camera.ts" />
-/// <reference path= "./z_buffer.ts" />
 
 let canvas_width = 1000;
 let canvas_height = 800;
@@ -11,7 +10,6 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     camera: Camera;
     surfaces: Array<Surface> = [];
     rotate_y: Boolean = false;
-    z_buffer: Z_Buffer;
     lamp: Lamp;
     la: number; // Luz ambiente
 
@@ -46,6 +44,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
 
     update_all_face_colors_constant(){
         for(let i=0; i<this.surfaces.length; i++){
+            console.log("Surface -> ", this.surfaces[i])
             let amb_light = this.surfaces[i].ka * this.la;
             console.log(amb_light)
             for(let j=0; j<this.surfaces[i].faces.length; j++){
@@ -57,42 +56,53 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
 
     get_face_color_constant(face: Face, amb_light_par: number, ks: number, kd: number, n: number){
         let amb_light = amb_light_par;
-        // console.log("Centroide face = ", face.centroide)
-        // console.log("Lamp x = ", this.lamp.pos.x)
+        // console.log("================================================");
+        // console.log("Centroide face = ", face);
+        // console.log("Lamp x = ", this.lamp.pos.x);
         let aux_x = this.lamp.pos.x - face.centroide.x;
         let aux_y = this.lamp.pos.y - face.centroide.y;
         let aux_z = this.lamp.pos.z - face.centroide.z;
 
         let vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
-        // vet_LampMinusCent.print_obj("Lamp - Centroide")
+        // vet_LampMinusCent.print_obj("Lamp - Centroide");
 
         let UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, face.vet_normal.unitary)
-        // console.log("UN times UL = ", UN_times_UL)
-        // console.log("vet_normal = ", face.vet_normal)
+        // console.log("UN times UL = ", UN_times_UL);
+        // console.log("vet_normal = ", face.vet_normal.unitary);
 
-        let ilum_difusa = this.lamp.il * kd * UN_times_UL;
-        // console.log("Ilumincao difusa: ", ilum_difusa)
+        if(UN_times_UL){
+            let ilum_difusa = this.lamp.il * kd * UN_times_UL;
+            // console.log("Ilumincao difusa: ", ilum_difusa)
 
-        aux_x = 2*UN_times_UL*face.vet_normal.unitary.x-vet_LampMinusCent.unitary.x;
-        aux_y = 2*UN_times_UL*face.vet_normal.unitary.y-vet_LampMinusCent.unitary.y;
-        aux_z = 2*UN_times_UL*face.vet_normal.unitary.z-vet_LampMinusCent.unitary.z;
+            aux_x = 2*UN_times_UL*face.vet_normal.unitary.x-vet_LampMinusCent.unitary.x;
+            aux_y = 2*UN_times_UL*face.vet_normal.unitary.y-vet_LampMinusCent.unitary.y;
+            aux_z = 2*UN_times_UL*face.vet_normal.unitary.z-vet_LampMinusCent.unitary.z;
 
-        let idk_r = new Vet(aux_x, aux_y, aux_z);
-        // idk_r.print_obj("Vet r")
+            let idk_r = new Vet(aux_x, aux_y, aux_z);
+            // idk_r.print_obj("Vet r")
 
-        aux_x = this.camera.vrp.x-face.centroide.x;
-        aux_y = this.camera.vrp.y-face.centroide.y;
-        aux_z = this.camera.vrp.z-face.centroide.z;
+            aux_x = this.camera.vrp.x-face.centroide.x;
+            aux_y = this.camera.vrp.y-face.centroide.y;
+            aux_z = this.camera.vrp.z-face.centroide.z;
 
-        let direcao_observ = new Vet(aux_x, aux_y, aux_z);
+            let direcao_observ = new Vet(aux_x, aux_y, aux_z);
+            // direcao_observ.print_obj("Direcao observ");
 
-        let r_escalar_dir_obs = prod_escalar(idk_r, direcao_observ.unitary);
+            let r_escalar_dir_obs = prod_escalar(idk_r, direcao_observ.unitary);
+            // console.log("R escalar dir ", r_escalar_dir_obs);
 
-        let is = this.lamp.il*ks*r_escalar_dir_obs**n;
-        // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
-        // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
+            let is = this.lamp.il*ks*r_escalar_dir_obs**n;
+            // console.log("k ", ks, "    n -> ", n)
+            // console.log("is -> ", is)
+            // console.log(`${r_escalar_dir_obs} ** ${n} = ${r_escalar_dir_obs**n}`)
+            // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
+            // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
 
-        return String((amb_light + ilum_difusa));
+            let result = (amb_light + ilum_difusa + is);
+            return `rgb(${result*4}, ${result*4}, ${result*4})`;
+        } else {
+            return `rgb(${amb_light*4}, ${amb_light*4}, ${amb_light*4})`;
+        }
     }
 
     draw_whole_surface(surface: Surface){
@@ -206,23 +216,23 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     render(vrp: Dot) {
         // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
       
-          this.surfaces.forEach(surface => {
-              console.log(surface.faces.length);
-               surface.faces.sort((faceA, faceB) => {
-                  const centroideA = get_centroide(faceA);
-                  const centroideB = get_centroide(faceB);
+        this.surfaces.forEach(surface => {
+            // console.log(surface.faces.length);
+            surface.faces.sort((faceA, faceB) => {
+                const centroideA = get_centroide(faceA);
+                const centroideB = get_centroide(faceB);
+    
+                const distanciaA: number = calc_distance(centroideA, vrp);
+                const distanciaB: number = calc_distance(centroideB, vrp);
+    
+                return distanciaB - distanciaA;
+            });
+        });
       
-                  const distanciaA: number = calc_distance(centroideA, vrp);
-                  const distanciaB: number = calc_distance(centroideB, vrp);
-      
-                  return distanciaB - distanciaA;
-              });
-      });
-      
-              for (const surface of this.surfaces) {
-                 surface.callfp(this.ctx, vrp);
-              }
-          }
+        for (const surface of this.surfaces) {
+            surface.callfp(this.ctx, vrp);
+        }
+    }
 }
 
 function calc_distance(centroide: Dot, VRP: Dot): number {

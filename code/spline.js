@@ -105,8 +105,13 @@ var Face = /** @class */ (function () {
             this.arestas[i] = [dot2, dot1];
         }
     };
-    Face.prototype.draw = function (line, y, ctx) {
-        ctx.fillStyle = this.color;
+    Face.prototype.draw = function (line, y, ctx, normal) {
+        if (normal < 0) {
+            ctx.fillStyle = "red";
+        }
+        else {
+            ctx.fillStyle = this.color;
+        }
         for (var i = 0; i < line.length; i += 2) {
             var x1 = Math.ceil(line[i]);
             var x2 = Math.floor(line[i + 1]);
@@ -115,9 +120,10 @@ var Face = /** @class */ (function () {
             }
         }
     };
-    Face.prototype.fillpoly = function (ctx, VRP, centroide) {
-        //   this.cria_arestas();
+    Face.prototype.fillpoly = function (ctx, VRP, centroide, normal) {
+        // console.log("Cor da face -> ", this.color)
         var _this = this;
+        //   this.cria_arestas();
         var ymin = Math.round(Math.min.apply(Math, this.dots.map(function (p) { return p.y; })));
         var ymax = Math.round(Math.max.apply(Math, this.dots.map(function (p) { return p.y; })));
         this.inters = Array.from({ length: ymax - ymin + 1 }, function () { return []; });
@@ -142,7 +148,7 @@ var Face = /** @class */ (function () {
         });
         this.inters.forEach(function (line, i) {
             line.sort(function (a, b) { return a - b; });
-            _this.draw(line, ymin + i, ctx);
+            _this.draw(line, ymin + i, ctx, normal);
         });
     };
     return Face;

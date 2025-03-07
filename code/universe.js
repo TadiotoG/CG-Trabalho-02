@@ -35,6 +35,7 @@ var Universe = /** @class */ (function () {
     ;
     Universe.prototype.update_all_face_colors_constant = function () {
         for (var i = 0; i < this.surfaces.length; i++) {
+            console.log("Surface -> ", this.surfaces[i]);
             var amb_light = this.surfaces[i].ka * this.la;
             console.log(amb_light);
             for (var j = 0; j < this.surfaces[i].faces.length; j++) {
@@ -45,32 +46,44 @@ var Universe = /** @class */ (function () {
     };
     Universe.prototype.get_face_color_constant = function (face, amb_light_par, ks, kd, n) {
         var amb_light = amb_light_par;
-        // console.log("Centroide face = ", face.centroide)
-        // console.log("Lamp x = ", this.lamp.pos.x)
+        // console.log("================================================");
+        // console.log("Centroide face = ", face);
+        // console.log("Lamp x = ", this.lamp.pos.x);
         var aux_x = this.lamp.pos.x - face.centroide.x;
         var aux_y = this.lamp.pos.y - face.centroide.y;
         var aux_z = this.lamp.pos.z - face.centroide.z;
         var vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
-        // vet_LampMinusCent.print_obj("Lamp - Centroide")
+        // vet_LampMinusCent.print_obj("Lamp - Centroide");
         var UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, face.vet_normal.unitary);
-        // console.log("UN times UL = ", UN_times_UL)
-        // console.log("vet_normal = ", face.vet_normal)
-        var ilum_difusa = this.lamp.il * kd * UN_times_UL;
-        // console.log("Ilumincao difusa: ", ilum_difusa)
-        aux_x = 2 * UN_times_UL * face.vet_normal.unitary.x - vet_LampMinusCent.unitary.x;
-        aux_y = 2 * UN_times_UL * face.vet_normal.unitary.y - vet_LampMinusCent.unitary.y;
-        aux_z = 2 * UN_times_UL * face.vet_normal.unitary.z - vet_LampMinusCent.unitary.z;
-        var idk_r = new Vet(aux_x, aux_y, aux_z);
-        // idk_r.print_obj("Vet r")
-        aux_x = this.camera.vrp.x - face.centroide.x;
-        aux_y = this.camera.vrp.y - face.centroide.y;
-        aux_z = this.camera.vrp.z - face.centroide.z;
-        var direcao_observ = new Vet(aux_x, aux_y, aux_z);
-        var r_escalar_dir_obs = prod_escalar(idk_r, direcao_observ.unitary);
-        var is = this.lamp.il * ks * Math.pow(r_escalar_dir_obs, n);
-        // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
-        // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
-        return String((amb_light + ilum_difusa));
+        // console.log("UN times UL = ", UN_times_UL);
+        // console.log("vet_normal = ", face.vet_normal.unitary);
+        if (UN_times_UL) {
+            var ilum_difusa = this.lamp.il * kd * UN_times_UL;
+            // console.log("Ilumincao difusa: ", ilum_difusa)
+            aux_x = 2 * UN_times_UL * face.vet_normal.unitary.x - vet_LampMinusCent.unitary.x;
+            aux_y = 2 * UN_times_UL * face.vet_normal.unitary.y - vet_LampMinusCent.unitary.y;
+            aux_z = 2 * UN_times_UL * face.vet_normal.unitary.z - vet_LampMinusCent.unitary.z;
+            var idk_r = new Vet(aux_x, aux_y, aux_z);
+            // idk_r.print_obj("Vet r")
+            aux_x = this.camera.vrp.x - face.centroide.x;
+            aux_y = this.camera.vrp.y - face.centroide.y;
+            aux_z = this.camera.vrp.z - face.centroide.z;
+            var direcao_observ = new Vet(aux_x, aux_y, aux_z);
+            // direcao_observ.print_obj("Direcao observ");
+            var r_escalar_dir_obs = prod_escalar(idk_r, direcao_observ.unitary);
+            // console.log("R escalar dir ", r_escalar_dir_obs);
+            var is = this.lamp.il * ks * Math.pow(r_escalar_dir_obs, n);
+            // console.log("k ", ks, "    n -> ", n)
+            // console.log("is -> ", is)
+            // console.log(`${r_escalar_dir_obs} ** ${n} = ${r_escalar_dir_obs**n}`)
+            // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
+            // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
+            var result = (amb_light + ilum_difusa + is);
+            return "rgb(".concat(result * 4, ", ").concat(result * 4, ", ").concat(result * 4, ")");
+        }
+        else {
+            return "rgb(".concat(amb_light * 4, ", ").concat(amb_light * 4, ", ").concat(amb_light * 4, ")");
+        }
     };
     Universe.prototype.draw_whole_surface = function (surface) {
         for (var i = 0; i < surface.faces.length; i++) {
@@ -173,7 +186,7 @@ var Universe = /** @class */ (function () {
     Universe.prototype.render = function (vrp) {
         // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
         this.surfaces.forEach(function (surface) {
-            console.log(surface.faces.length);
+            // console.log(surface.faces.length);
             surface.faces.sort(function (faceA, faceB) {
                 var centroideA = get_centroide(faceA);
                 var centroideB = get_centroide(faceB);

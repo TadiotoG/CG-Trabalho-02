@@ -1,7 +1,7 @@
 /// <reference path= "./universe.ts" />
 // Todas as funcoes call, sao os gatilhos disponiveis no front, que chamam funcoes do back
 
-var my_lamp = new Lamp(150, 40, 40, 20);
+var my_lamp = new Lamp(100, 39, 3, 39);
 
 function call_create_surface(){
     let aux;
@@ -381,11 +381,15 @@ function change_world(){
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
         uni.surfaces[i].update_faces_SRU();
+    }
+
+    uni.update_all_face_colors_constant();
+    uni.render(vrp_camera);
+
+    for(let i=0; i<list_of_surfaces.length; i++){
         uni.draw_whole_surface(uni.surfaces[i]);
         uni.draw_cp(uni.surfaces[i]);
     }
-    uni.update_all_face_colors_constant();
-    uni.render(vrp_camera);
 }
 
 function erase_canvas(){
@@ -475,3 +479,5 @@ var teste_face = new Face([new Dot(21.2, 0.7, 42.3),
 
 uni.update_all_face_colors_constant()
 uni.render(vrp_camera);
+uni.draw_whole_surface(uni.surfaces[0]);
+uni.draw_cp(uni.surfaces[0]);

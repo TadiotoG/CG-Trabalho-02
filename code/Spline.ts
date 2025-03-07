@@ -79,21 +79,21 @@ class Face{
         }
     
         // Pegamos três pontos da face
-        const P0 = this.dots[0];
-        const P1 = this.dots[1];
-        const P2 = this.dots[2];
-    
+        let P0 = this.dots[0];
+        let P1 = this.dots[1];
+        let P2 = this.dots[2];
+
         // Criamos os vetores
-        const v1 = new Vet(P1.x - P0.x, P1.y - P0.y, P1.z - P0.z);
-        const v2 = new Vet(P2.x - P0.x, P2.y - P0.y, P2.z - P0.z);
+        let v1 = new Vet(P1.x - P0.x, P1.y - P0.y, P1.z - P0.z);
+        let v2 = new Vet(P2.x - P0.x, P2.y - P0.y, P2.z - P0.z);
     
         // Produto vetorial v1 x v2
-        const normal_x = v1.y * v2.z - v1.z * v2.y;
-        const normal_y = v1.z * v2.x - v1.x * v2.z;
-        const normal_z = v1.x * v2.y - v1.y * v2.x;
+        let normal_x = v1.y * v2.z - v1.z * v2.y;
+        let normal_y = v1.z * v2.x - v1.x * v2.z;
+        let normal_z = v1.x * v2.y - v1.y * v2.x;
     
         // Criamos o vetor normal
-        const normal = new Vet(normal_x, normal_y, normal_z);
+        let normal = new Vet(normal_x, normal_y, normal_z);
     
         // Normalizamos o vetor para que ele seja unitário
         return normal;
@@ -111,8 +111,12 @@ class Face{
         }
     }
 
-    draw(line: number[], y: number, ctx: CanvasRenderingContext2D) {
-        ctx.fillStyle = this.color;
+    draw(line: number[], y: number, ctx: CanvasRenderingContext2D, normal: number) {
+        if(normal < 0){
+            ctx.fillStyle = "red";
+        } else {
+            ctx.fillStyle = this.color;
+        }
 
         for (let i = 0; i < line.length; i += 2) {
             const x1 = Math.ceil(line[i]);
@@ -124,7 +128,8 @@ class Face{
         }
     }
 
-    fillpoly(ctx: CanvasRenderingContext2D, VRP: Dot, centroide: Dot): void {
+    fillpoly(ctx: CanvasRenderingContext2D, VRP: Dot, centroide: Dot, normal: number): void {
+        // console.log("Cor da face -> ", this.color)
 
      //   this.cria_arestas();
     
@@ -157,7 +162,7 @@ class Face{
     
         this.inters.forEach((line, i) => {
             line.sort((a, b) => a - b);
-            this.draw(line, ymin + i, ctx);
+            this.draw(line, ymin + i, ctx, normal);
         });
     }
 }
