@@ -128,7 +128,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
     };
 
-    draw_line(dot0, dot1, color){
+    draw_line(dot0: Dot, dot1: Dot, color: string){
         this.ctx.beginPath();
         this.ctx.moveTo(dot0.x, dot0.y);
         this.ctx.lineTo(dot1.x, dot1.y);
@@ -213,25 +213,54 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         this.surfaces[index].update_cp_with_mat(new_matriz_obj);
     }
 
-    render(vrp: Dot) {
-        // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
+    // render(vrp: Dot) {
+    //     // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
       
-        this.surfaces.forEach(surface => {
-            // console.log(surface.faces.length);
-            surface.faces.sort((faceA, faceB) => {
-                const centroideA = get_centroide(faceA);
-                const centroideB = get_centroide(faceB);
+    //     this.surfaces.forEach(surface => {
+    //         // console.log(surface.faces.length);
+    //         surface.faces.sort((faceA, faceB) => {
+    //             const centroideA = get_centroide(faceA);
+    //             const centroideB = get_centroide(faceB);
     
+    //             const distanciaA: number = calc_distance(centroideA, vrp);
+    //             const distanciaB: number = calc_distance(centroideB, vrp);
+    
+    //             return distanciaB - distanciaA;
+    //         });
+    //     });
+      
+    //     for (const surface of this.surfaces) {
+    //         surface.callfp(this.ctx, vrp);
+    //     }
+    // }
+    render(vrp: Dot) {
+        this.surfaces.forEach(surface => {
+            // Criamos uma lista de objetos para manter as faces sincronizadas
+            const indexedFaces = surface.faces_SRU.map((_, index) => ({
+                index, // Índice original
+                worldFace: surface.faces_SRU[index], // Face em coordenadas de mundo
+                screenFace: surface.faces[index] // Face em coordenadas de tela
+            }));
+
+            // Ordenamos essa estrutura com base na distância ao VRP
+            indexedFaces.sort((faceA, faceB) => {
+                const centroideA = faceA.worldFace.centroide;
+                const centroideB = faceB.worldFace.centroide;
+
                 const distanciaA: number = calc_distance(centroideA, vrp);
                 const distanciaB: number = calc_distance(centroideB, vrp);
-    
-                return distanciaB - distanciaA;
+
+                return distanciaB - distanciaA; // Ordenação decrescente
             });
+
+            // Aplicamos a ordenação às listas originais
+            surface.faces_SRU = indexedFaces.map(obj => obj.worldFace);
+            surface.faces = indexedFaces.map(obj => obj.screenFace);
         });
-      
+
         for (const surface of this.surfaces) {
             surface.callfp(this.ctx, vrp);
-        }
+        };
     }
 }
 

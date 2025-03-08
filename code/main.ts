@@ -383,11 +383,12 @@ function change_world(){
         uni.surfaces[i].update_faces_SRU();
     }
 
-    uni.update_all_face_colors_constant();
+    // uni.update_all_face_colors_constant();
+    list_of_surfaces.sort()
     uni.render(vrp_camera);
 
     for(let i=0; i<list_of_surfaces.length; i++){
-        uni.draw_whole_surface(uni.surfaces[i]);
+        // uni.draw_whole_surface(uni.surfaces[i]);
         uni.draw_cp(uni.surfaces[i]);
     }
 }
@@ -477,7 +478,7 @@ var teste_face = new Face([new Dot(21.2, 0.7, 42.3),
     new Dot(20, 20.9, 31.6)
 ])
 
-uni.update_all_face_colors_constant()
+// uni.update_all_face_colors_constant()
 uni.render(vrp_camera);
-uni.draw_whole_surface(uni.surfaces[0]);
+// uni.draw_whole_surface(uni.surfaces[0]);
 uni.draw_cp(uni.surfaces[0]);

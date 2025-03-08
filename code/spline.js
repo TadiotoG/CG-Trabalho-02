@@ -119,7 +119,29 @@ var Face = /** @class */ (function () {
                 ctx.fillRect(x, y, 2, 2);
             }
         }
+        this.draw_face(ctx);
     };
+    Face.prototype.draw_face = function (ctx) {
+        for (var i = 0; i < this.dots.length; i++) {
+            if (i === this.dots.length - 1) {
+                this.draw_line(this.dots[i], this.dots[0], "blue", ctx);
+            }
+            else {
+                // let h = 3;
+                this.draw_line(this.dots[i], this.dots[i + 1], "blue", ctx);
+            }
+        }
+    };
+    ;
+    Face.prototype.draw_line = function (dot0, dot1, color, ctx) {
+        ctx.beginPath();
+        ctx.moveTo(dot0.x, dot0.y);
+        ctx.lineTo(dot1.x, dot1.y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    };
+    ;
     Face.prototype.fillpoly = function (ctx, VRP, centroide, normal) {
         // console.log("Cor da face -> ", this.color)
         var _this = this;

@@ -1,6 +1,5 @@
 /// <reference path= "./surface.ts" />
 /// <reference path= "./camera.ts" />
-/// <reference path= "./z_buffer.ts" />
 var canvas_width = 1000;
 var canvas_height = 800;
 var Universe = /** @class */ (function () {
@@ -183,22 +182,47 @@ var Universe = /** @class */ (function () {
         var new_matriz_obj = mult_matriz(mat, this.surfaces[index].get_cp_as_mat());
         this.surfaces[index].update_cp_with_mat(new_matriz_obj);
     };
+    // render(vrp: Dot) {
+    //     // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
+    //     this.surfaces.forEach(surface => {
+    //         // console.log(surface.faces.length);
+    //         surface.faces.sort((faceA, faceB) => {
+    //             const centroideA = get_centroide(faceA);
+    //             const centroideB = get_centroide(faceB);
+    //             const distanciaA: number = calc_distance(centroideA, vrp);
+    //             const distanciaB: number = calc_distance(centroideB, vrp);
+    //             return distanciaB - distanciaA;
+    //         });
+    //     });
+    //     for (const surface of this.surfaces) {
+    //         surface.callfp(this.ctx, vrp);
+    //     }
+    // }
     Universe.prototype.render = function (vrp) {
-        // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
         this.surfaces.forEach(function (surface) {
-            // console.log(surface.faces.length);
-            surface.faces.sort(function (faceA, faceB) {
-                var centroideA = get_centroide(faceA);
-                var centroideB = get_centroide(faceB);
+            // Criamos uma lista de objetos para manter as faces sincronizadas
+            var indexedFaces = surface.faces_SRU.map(function (_, index) { return ({
+                index: index, // Índice original
+                worldFace: surface.faces_SRU[index], // Face em coordenadas de mundo
+                screenFace: surface.faces[index] // Face em coordenadas de tela
+            }); });
+            // Ordenamos essa estrutura com base na distância ao VRP
+            indexedFaces.sort(function (faceA, faceB) {
+                var centroideA = faceA.worldFace.centroide;
+                var centroideB = faceB.worldFace.centroide;
                 var distanciaA = calc_distance(centroideA, vrp);
                 var distanciaB = calc_distance(centroideB, vrp);
-                return distanciaB - distanciaA;
+                return distanciaB - distanciaA; // Ordenação decrescente
             });
+            // Aplicamos a ordenação às listas originais
+            surface.faces_SRU = indexedFaces.map(function (obj) { return obj.worldFace; });
+            surface.faces = indexedFaces.map(function (obj) { return obj.screenFace; });
         });
         for (var _i = 0, _a = this.surfaces; _i < _a.length; _i++) {
             var surface = _a[_i];
             surface.callfp(this.ctx, vrp);
         }
+        ;
     };
     return Universe;
 }());

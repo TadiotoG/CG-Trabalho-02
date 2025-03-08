@@ -1,6 +1,11 @@
 /// <reference path= "./spline.ts" />
 // import { get } from "lodash";
 // import { random } from "lodash"
+var Faces_SRU_SRT = /** @class */ (function () {
+    function Faces_SRU_SRT() {
+    }
+    return Faces_SRU_SRT;
+}());
 var Surface = /** @class */ (function () {
     function Surface(star_x, star_y, star_z, ni, nj, ti, tj, resolutioni, resolutionj, control_points, Ka, Kd, Ks, N) {
         if (control_points === void 0) { control_points = [[new Dot(0, 0, 0)]]; }
@@ -31,7 +36,6 @@ var Surface = /** @class */ (function () {
         }
         this.generateSurface();
         this.update_faces_SRU();
-        console.log("Assim que é gerado ->", this.faces_SRU);
     }
     Surface.prototype.callfp = function (ctx, vrp) {
         var _this = this;
@@ -197,7 +201,7 @@ var Surface = /** @class */ (function () {
                 var B = new Dot(this.outp[i + 1][j].x, this.outp[i + 1][j].y, this.outp[i + 1][j].z);
                 var C = new Dot(this.outp[i + 1][j + 1].x, this.outp[i + 1][j + 1].y, this.outp[i + 1][j + 1].z);
                 var D = new Dot(this.outp[i][j + 1].x, this.outp[i][j + 1].y, this.outp[i][j + 1].z);
-                var arr_dots = [A, B, C, D];
+                var arr_dots = [A, D, C, B];
                 this.faces_SRU.push(new Face(arr_dots));
             }
         }

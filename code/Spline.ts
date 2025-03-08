@@ -122,11 +122,32 @@ class Face{
             const x1 = Math.ceil(line[i]);
             const x2 = Math.floor(line[i + 1]);
             
-            for (let x = x1; x <= x2; x++) { 
-                ctx.fillRect(x, y, 2, 2);  
+            for (let x = x1; x <= x2; x++) {
+                ctx.fillRect(x, y, 2, 2);
             }
         }
+        this.draw_face(ctx);
     }
+
+    draw_face(ctx: CanvasRenderingContext2D){       
+        for (let i = 0; i < this.dots.length; i++){
+            if ( i === this.dots.length-1){
+                this.draw_line(this.dots[i], this.dots[0], "blue", ctx);
+            } else {
+                // let h = 3;
+                this.draw_line(this.dots[i], this.dots[i+1], "blue", ctx);
+            }
+        }
+    };
+
+    draw_line(dot0: Dot, dot1: Dot, color, ctx: CanvasRenderingContext2D){
+        ctx.beginPath();
+        ctx.moveTo(dot0.x, dot0.y);
+        ctx.lineTo(dot1.x, dot1.y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    };
 
     fillpoly(ctx: CanvasRenderingContext2D, VRP: Dot, centroide: Dot, normal: number): void {
         // console.log("Cor da face -> ", this.color)

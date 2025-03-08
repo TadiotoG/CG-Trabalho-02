@@ -4,6 +4,11 @@
 
 // import { random } from "lodash"
 
+class Faces_SRU_SRT{
+    faces_SRU: Array<Face>;
+    faces_screen: Array<Face>;
+}
+
 class Surface{
     control_points: Dot[][];
     control_points_screen: Dot[][]; // Pontos de controle em coordenadas de tela
@@ -33,7 +38,7 @@ class Surface{
         this.resj = resolutionj;
         let counter = 0;
         this.ka = Ka;
-        this.kd = Kd;
+        this.kd = Kd;   
         this.ks = Ks;
         this.n = N;
 
@@ -46,7 +51,6 @@ class Surface{
         }
         this.generateSurface();
         this.update_faces_SRU();
-        console.log("Assim que é gerado ->", this.faces_SRU);
     }
 
     callfp(ctx: CanvasRenderingContext2D, vrp: Dot) {
@@ -242,11 +246,10 @@ class Surface{
 
                 let D = new Dot(this.outp[i][j+1].x, this.outp[i][j+1].y, this.outp[i][j+1].z)
 
-                let arr_dots = [A, B, C, D]
+                let arr_dots = [A, D, C, B]
                 this.faces_SRU.push(new Face(arr_dots));
             }
         }
-
     }
 
     create_faces(matriz_SRU_SRT: number[][]){ // Essa funcao foi projetada para ser chamada no momento de plotar, para que tenhamos as coordenadas de tela de cada vértice/face, pois se pegassemos diretamente os pontos sem a conversao SRU_SRT, teriamos as coordenadas de mundo, o que nao traria informações uteis
