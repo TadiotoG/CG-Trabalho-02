@@ -21,12 +21,15 @@ class Surface{
     outp: Dot[][];
     faces: Array<Face>;
     faces_SRU: Array<Face>;
-    ka: number; // Material, utilizado no sombreamento
-    kd: number; // Material, utilizado no sombreamento
-    ks: number; // Material, utilizado no sombreamento
+    ka: [number, number, number]; // Material, utilizado no sombreamento
+    kd: [number, number, number]; // Material, utilizado no sombreamento
+    ks: [number, number, number]; // Material, utilizado no sombreamento
     n: number; // Material, utilizado no sombreamento
+    face_color: string;
+    other_side_color: string;
+    line_color: string;
 
-    constructor(star_x: number, star_y: number, star_z: number, ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number, control_points: Dot[][] = [[new Dot(0,0,0)]], Ka: number=0.4, Kd: number=0.6, Ks: number=0.5, N: number=20){
+    constructor(star_x: number, star_y: number, star_z: number, ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number, Ka: [number, number, number], Kd: [number, number, number], Ks: [number, number, number], N: number=2.15, face_col: string = "black", other_side_col: string = "red", cor_aresta: string = "blue", cp: Dot[][] = [[new Dot(123, 123, 123)]]){
         this.control_points = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
         this.control_points_screen = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
         this.outp = Array(resolutioni).fill(null).map(() => Array(resolutionj).fill(new Dot(0,0,0)))
@@ -41,13 +44,20 @@ class Surface{
         this.kd = Kd;   
         this.ks = Ks;
         this.n = N;
+        this.face_color = face_col;
+        this.other_side_color = other_side_col;
+        this.line_color = cor_aresta;
 
         // console.log(`x = ${star_x}  y = ${star_y}   z = ${star_z}`);
-        for(let i=0; i<ni; i++){
-            for(let j=0; j<nj; j++){
-                counter++;
-                this.control_points[i][j] = new Dot(i*13+star_x, Math.random()*10+star_y, j*13+star_z);
+        if(cp.length == 1){
+            for(let i=0; i<ni; i++){
+                for(let j=0; j<nj; j++){
+                    counter++;
+                    this.control_points[i][j] = new Dot(i*13+star_x, Math.random()*10+star_y, j*13+star_z);
+                }
             }
+        } else {
+            this.control_points = cp;
         }
         this.generateSurface();
         this.update_faces_SRU();
@@ -247,7 +257,7 @@ class Surface{
                 let D = new Dot(this.outp[i][j+1].x, this.outp[i][j+1].y, this.outp[i][j+1].z)
 
                 let arr_dots = [A, D, C, B]
-                this.faces_SRU.push(new Face(arr_dots));
+                this.faces_SRU.push(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color));
             }
         }
     }
@@ -267,7 +277,7 @@ class Surface{
                 let D = new Dot(ps[0][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[1][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[2][(i+1)*this.resj+j])
 
                 let arr_dots = [A, B, C, D]
-                this.faces.push(new Face(arr_dots));
+                this.faces.push(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color));
             }
         }
     }

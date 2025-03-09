@@ -7,12 +7,12 @@ var Faces_SRU_SRT = /** @class */ (function () {
     return Faces_SRU_SRT;
 }());
 var Surface = /** @class */ (function () {
-    function Surface(star_x, star_y, star_z, ni, nj, ti, tj, resolutioni, resolutionj, control_points, Ka, Kd, Ks, N) {
-        if (control_points === void 0) { control_points = [[new Dot(0, 0, 0)]]; }
-        if (Ka === void 0) { Ka = 0.4; }
-        if (Kd === void 0) { Kd = 0.6; }
-        if (Ks === void 0) { Ks = 0.5; }
-        if (N === void 0) { N = 20; }
+    function Surface(star_x, star_y, star_z, ni, nj, ti, tj, resolutioni, resolutionj, Ka, Kd, Ks, N, face_col, other_side_col, cor_aresta, cp) {
+        if (N === void 0) { N = 2.15; }
+        if (face_col === void 0) { face_col = "black"; }
+        if (other_side_col === void 0) { other_side_col = "red"; }
+        if (cor_aresta === void 0) { cor_aresta = "blue"; }
+        if (cp === void 0) { cp = [[new Dot(123, 123, 123)]]; }
         this.control_points = Array(ni).fill(null).map(function () { return Array(nj).fill(new Dot(0, 0, 0)); });
         this.control_points_screen = Array(ni).fill(null).map(function () { return Array(nj).fill(new Dot(0, 0, 0)); });
         this.outp = Array(resolutioni).fill(null).map(function () { return Array(resolutionj).fill(new Dot(0, 0, 0)); });
@@ -27,12 +27,20 @@ var Surface = /** @class */ (function () {
         this.kd = Kd;
         this.ks = Ks;
         this.n = N;
+        this.face_color = face_col;
+        this.other_side_color = other_side_col;
+        this.line_color = cor_aresta;
         // console.log(`x = ${star_x}  y = ${star_y}   z = ${star_z}`);
-        for (var i = 0; i < ni; i++) {
-            for (var j = 0; j < nj; j++) {
-                counter++;
-                this.control_points[i][j] = new Dot(i * 13 + star_x, Math.random() * 10 + star_y, j * 13 + star_z);
+        if (cp.length == 1) {
+            for (var i = 0; i < ni; i++) {
+                for (var j = 0; j < nj; j++) {
+                    counter++;
+                    this.control_points[i][j] = new Dot(i * 13 + star_x, Math.random() * 10 + star_y, j * 13 + star_z);
+                }
             }
+        }
+        else {
+            this.control_points = cp;
         }
         this.generateSurface();
         this.update_faces_SRU();
@@ -202,7 +210,7 @@ var Surface = /** @class */ (function () {
                 var C = new Dot(this.outp[i + 1][j + 1].x, this.outp[i + 1][j + 1].y, this.outp[i + 1][j + 1].z);
                 var D = new Dot(this.outp[i][j + 1].x, this.outp[i][j + 1].y, this.outp[i][j + 1].z);
                 var arr_dots = [A, D, C, B];
-                this.faces_SRU.push(new Face(arr_dots));
+                this.faces_SRU.push(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color));
             }
         }
     };
@@ -216,7 +224,7 @@ var Surface = /** @class */ (function () {
                 var C = new Dot(ps[0][(i + 1) * this.resj + (j + 1)] / ps[3][(i + 1) * this.resj + (j + 1)], ps[1][(i + 1) * this.resj + (j + 1)] / ps[3][(i + 1) * this.resj + (j + 1)], ps[2][(i + 1) * this.resj + (j + 1)]);
                 var D = new Dot(ps[0][(i + 1) * this.resj + j] / ps[3][(i + 1) * this.resj + j], ps[1][(i + 1) * this.resj + j] / ps[3][(i + 1) * this.resj + j], ps[2][(i + 1) * this.resj + j]);
                 var arr_dots = [A, B, C, D];
-                this.faces.push(new Face(arr_dots));
+                this.faces.push(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color));
             }
         }
     };

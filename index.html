@@ -55,7 +55,11 @@
         margin: 10px;
     }
 
-    #last_row > *, #almost_last_row > * {
+    #call_alter_prop {
+        width: 250px;
+    }
+
+    .button_row > * {
         margin-left: 30px;
         width: 170px;
         height: 30px;
@@ -76,22 +80,23 @@
         flex-direction: column;
     } */
 
-    #vrp, #fp {
+    .control_wind { 
         display: flex;
         flex-direction: column;
         justify-content: center;
         border-radius: 10px;
         border-style: solid;
         margin: 10px;
+        min-width: 300px;
     }
 
-    #inputs_fp, #inputs_vrp{
+    .inputs_control_wind{
         display: flex;
         flex-direction: row;
         justify-content: center;
     }
 
-    #inputs_vrp > *, #inputs_fp > * {
+    .inputs_control_wind > * {
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -118,8 +123,6 @@
     transition: opacity 0.4s ease-in-out; /* Suaviza a transição */
 
 }
-
-
 </style>
 
 <body>
@@ -128,26 +131,102 @@
     <div id="main">
         <div id="control_buttons">
             <div id="first_row" class="row">
-                <div id="vrp">
-                    <h2 class="title">VRP</h2>
-                    <div id="inputs_vrp">
+                <div id="window" class="control_wind">
+                    <h2 class="title">Universo</h2>
+                    <div id="inputs_window" class="inputs_control_wind">
                         <div>
-                            <label for="cam_x">X</label>
-                            <input style= "width: 50px" type="number" oninput=change_world() name="x_cam" id="cam_x" value="0" step="1">
+                            <label for="window_width">Largura</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="window_width" id="window_width" value="1000" step="1">
                         </div>
                         <div>
-                            <label for="cam_y">Y</label>
-                            <input style= "width: 50px" type="number" oninput=change_world() name="y_cam" id="cam_y" value="10" step="1">
+                            <label for="window_height">Altura</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="window_height" id="window_height" value="800" step="1">
+                        </div>
+                    </div>
+                    
+                    <label style="margin-top: 20px;">Luz ambiente</label>
+                    <div class="row">
+                        <div class="column">
+                            <label for="amb_light_r">Verm</label>
+                            <input style="width: 45px;" type="number" oninput=change_world() name="amb_light" id="amb_light_r" value="120" step="1">
+                        </div>
+
+                        <div class="column">
+                            <label for="amb_light_r">Verde</label>
+                            <input style="width: 45px;" type="number" oninput=change_world() name="amb_light" id="amb_light_g" value="120" step="1">
+                        </div>
+
+                        <div class="column">
+                            <label for="amb_light_r">Azul</label>
+                            <input style="width: 45px;" type="number" oninput=change_world() name="amb_light" id="amb_light_b" value="120" step="1">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="column">
+                            <input type="radio" name="shading" id="pintor" value="pintor" oninput=change_world()>
+                            <label for="pintor">Pintor</label>
+                            <input type="radio" name="shading" id="const" value="const" checked oninput=change_world()>
+                            <label for="const">Constante</label>
+                        </div>
+                        <div class="column">
+                            <input type="radio" name="shading" id="gouraud" value="gouraud" oninput=change_world()>
+                            <label for="gouraud">Gouraud</label>
+                            <input type="radio" name="shading" id="phong" value="phong" oninput=change_world()>
+                            <label for="phong">Phong</label>
+                        </div>
+                    </div>
+                    
+                    <label for="aresta">Desenhar Arestas</label>
+                    <input type="checkbox" name="aresta" id="aresta" style="margin-bottom: 20px;" oninput=change_world()>
+
+                    <label for="check_control_p">Desenhar pontos de controle</label>
+                    <input type="checkbox" name="check_control_p" id="check_control_p" style="margin-bottom: 20px;" oninput=change_world() checked>
+                </div>
+                <div id="lamp" class="control_wind">
+                    <h2 class="title">Lâmpada</h2>
+                    <div id="inputs_lamp" class="inputs_control_wind">
+                        <div>
+                            <label for="lamp_x">X</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="lamp_x" id="lamp_x" value="30" step="1">
                         </div>
                         <div>
-                            <label for="cam_z">Z</label>
-                            <input style= "width: 50px" type="number" oninput=change_world() name="z_cam" id="cam_z" value="10" step="1">
+                            <label for="lamp_y">Y</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="lamp_y" id="lamp_y" value="100" step="1">
+                        </div>
+                        <div>
+                            <label for="lamp_z">Z</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="lamp_z" id="lamp_z" value="30" step="1">
+                        </div>
+                        <div style="align-items: center;">
+                            <label for="lamp_intensidade">Intensidade</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="lamp_intensidade" id="lamp_intensidade" value="30" step="1">
                         </div>
                     </div>
                 </div>
-                <div id="fp">
+            </div>
+
+            <div id="second_row" class="row">
+                <div id="vrp" class="control_wind">
+                    <h2 class="title">VRP</h2>
+                    <div id="inputs_vrp" class="inputs_control_wind">
+                        <div>
+                            <label for="cam_x">X</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="x_cam" id="cam_x" value="18" step="1">
+                        </div>
+                        <div>
+                            <label for="cam_y">Y</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="y_cam" id="cam_y" value="30" step="1">
+                        </div>
+                        <div>
+                            <label for="cam_z">Z</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="z_cam" id="cam_z" value="18" step="1">
+                        </div>
+                    </div>
+                </div>
+                <div id="fp" class="control_wind">
                     <h2 class="title">FP</h2>
-                    <div id="inputs_fp">
+                    <div id="inputs_fp" class="inputs_control_wind">
                         <div>
                             <label for="focal_x">X</label>
                             <input style= "width: 50px" type="number" oninput=change_world() name="focal_x" id="focal_x" value="0" step="0.1">
@@ -160,62 +239,122 @@
                             <label for="focal_z">Z</label>
                             <input style= "width: 50px" type="number" oninput=change_world() name="focal_z" id="focal_z" value="0" step="0.1">
                         </div>
-                        <div>
-                            <label for="distance_point">DP</label>
-                            <input style= "width: 50px" type="number" oninput=change_world() name="distance_point" id="distance_point" value="240" step="1">
-                        </div>
                     </div>
                 </div>
             </div>
 
-            <div id="almost_last_row" class="row"> 
+            <div class="row button_row"> 
                 <input type="button" id="call_create_s" value="Transladar superficie" onclick=call_translada_surface()>
                 <input type="button" id="call_create_s" value="Escala em superficie" onclick=call_escala_surface()>
                 <input type="button" id="call_create_s" value="Rotacionar superficie" onclick=call_rotaciona_surface()>
             </div>
             
-            <div id="last_row" class="row"> 
+            <div class="row button_row"> 
                 <input type="button" id="call_create_s" value="Criar nova superficie" onclick=call_create_surface()>
                 <input type="button" id="alter_cp" value="Alterar Ponto de controle" onclick=call_change_dot()>
                 <input type="button" id="delete_s" value="Excluir superficie" onclick=call_remove_surf()>
             </div>
-            
+
+            <div class="row button_row"> 
+                <input type="button" id="call_alter_prop" value="Alterar Propriedades da superficie" onclick=call_alter_properties()>
+            </div>
         </div>
 
         <div id="new_surface" class="pop_up">
             <h2 class="title">Nova Superfície</h2>
             <div class="row">
+                <p style="width: 80px;">Vermelho</p>
+                <div class="column">
+                    <label for="ka_verm">KA</label>
+                    <input style= "width: 50px" type="number" name="ka_verm" id="ka_verm" value="0.2" step="0.1">
+                </div>
+                <div class="column">
+                    <label for="kd_verm">KD</label>
+                    <input style= "width: 50px" type="number" name="kd_verm" id="kd_verm" value="0" step="0.1">
+                </div>
+                <div class="column">
+                    <label for="ks_verm">KS</label>
+                    <input style= "width: 50px" type="number" name="ks_verm" id="ks_verm" value="0.5" step="0.1">
+                </div>
+            </div>
+            <div class="row">
+                <p style="width: 80px;">Verde</p>
+                <div class="column">
+                    <label for="ka_verde">KA</label>
+                    <input style= "width: 50px" type="number" name="ka_verde" id="ka_verde" value="0.4" step="0.1">
+                </div>
+                <div class="column">
+                    <label for="kd_verde">KD</label>
+                    <input style= "width: 50px" type="number" name="kd_verde" id="kd_verde" value="0.1" step="0.1">
+                </div>
+                <div class="column">
+                    <label for="ks_verde">KS</label>
+                    <input style= "width: 50px" type="number" name="ks_verde" id="ks_verde" value="0.5" step="0.1">
+                </div>
+            </div>
+            <div class="row">
+                <p style="width: 80px;">Azul</p>
+                <div class="column">
+                    <label for="ka_azul">KA</label>
+                    <input style= "width: 50px" type="number" name="ka_azul" id="ka_azul" value="0.1" step="0.1">
+                </div>
+                <div class="column">
+                    <label for="kd_azul">KD</label>
+                    <input style= "width: 50px" type="number" name="kd_azul" id="kd_azul" value="0" step="0.1">
+                </div>
+                <div class="column">
+                    <label for="ks_azul">KS</label>
+                    <input style= "width: 50px" type="number" name="ks_azul" id="ks_azul" value="0" step="0.1">
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <label for="face_color">Cor das Faces</label>
+                    <input type="color" name="face_color" id="face_color" value="#000000">
+                </div>
+
+                <div class="column">
+                    <label for="other_side_color">Cor outro lado</label>
+                    <input type="color" name="other_side_color" id="other_side_color" value="#FF0000">
+                </div>
+
+                <div class="column">
+                    <label for="aresta_color">Cor outro lado</label>
+                    <input type="color" name="aresta_color" id="aresta_color" value="#0000FF">
+                </div>
+            </div>
+            <div class="row">
                 <div class="column">
                     <label for="surface_begin_x">X</label>
-                    <input style= "width: 50px" type="number" oninput=change_world() name="surface_begin_x" id="surface_begin_x" value="0" step="10">
+                    <input style= "width: 50px" type="number" name="surface_begin_x" id="surface_begin_x" value="0" step="10">
                 </div>
                 <div class="column">
                     <label for="surface_begin_y">Y</label>
-                    <input style= "width: 50px" type="number" oninput=change_world() name="surface_begin_y" id="surface_begin_y" value="0" step="15">
+                    <input style= "width: 50px" type="number" name="surface_begin_y" id="surface_begin_y" value="0" step="15">
                 </div>
                 <div class="column">
                     <label for="surface_begin_z">Z</label>
-                    <input style= "width: 50px" type="number" oninput=change_world() name="surface_begin_z" id="surface_begin_z" value="0" step="10">
+                    <input style= "width: 50px" type="number" name="surface_begin_z" id="surface_begin_z" value="0" step="10">
                 </div>
             </div>
             <div class="row">
                 <div class="column">
                     <label for="cp_i">Quant. CPI</label>
-                    <input style= "width: 50px" type="number" oninput=change_world() name="cp_i" id="cp_i" value="4" step="1">
+                    <input style= "width: 50px" type="number" name="cp_i" id="cp_i" value="4" step="1">
                 </div>
                 <div class="column">
                     <label for="cp_j">Quant. CPJ</label>
-                    <input style= "width: 50px" type="number" oninput=change_world() name="cp_j" id="cp_j" value="4" step="1">
+                    <input style= "width: 50px" type="number" name="cp_j" id="cp_j" value="4" step="1">
                 </div>
             </div>
             <div class="row">
                 <div class="column">
                     <label for="res_i">Res. i</label>
-                    <input style= "width: 50px" type="number" oninput=change_world() name="res_i" id="res_i" value="20" step="1">
+                    <input style= "width: 50px" type="number" name="res_i" id="res_i" value="20" step="1">
                 </div>
                 <div class="column">
                     <label for="res_j">Res. j</label>
-                    <input style= "width: 50px" type="number" oninput=change_world() name="res_j" id="res_j" value="20" step="1">
+                    <input style= "width: 50px" type="number" name="res_j" id="res_j" value="20" step="1">
                 </div>
             </div>
             <div>
@@ -303,6 +442,85 @@
                 <input type="button" id="cancel_rotaciona_s" onclick=window_rotaciona_s_disappears() value="Cancelar">
             </div>
         </div>
+
+        <div id="wind_alter_prop" class="pop_up">
+            <h2 class="title">Alterar Propriedades superficie</h2>
+            <div class="row">
+                <p style="width: 80px;">Vermelho</p>
+                <div class="column">
+                    <label for="alter_prop_ka_verm">KA</label>
+                    <input style= "width: 50px" type="number" name="alter_prop_ka_verm" id="alter_prop_ka_verm" value="0.1" step="0.1" oninput=alter_prop_func()>
+                </div>
+                <div class="column">
+                    <label for="alter_prop_kd_verm">KD</label>
+                    <input style= "width: 50px" type="number" name="alter_prop_kd_verm" id="alter_prop_kd_verm" value="0" step="0.1" oninput=alter_prop_func()>
+                </div>
+                <div class="column">
+                    <label for="alter_prop_ks_verm">KS</label>
+                    <input style= "width: 50px" type="number" name="alter_prop_ks_verm" id="alter_prop_ks_verm" value="0.5" step="0.1" oninput=alter_prop_func()>
+                </div>
+            </div>
+            <div class="row">
+                <p style="width: 80px;">Verde</p>
+                <div class="column">
+                    <label for="alter_prop_ka_verde">KA</label>
+                    <input style= "width: 50px" type="number" name="alter_prop_ka_verde" id="alter_prop_ka_verde" value="0.2" step="0.1" oninput=alter_prop_func()>
+                </div>
+                <div class="column">
+                    <label for="alter_prop_kd_verde">KD</label>
+                    <input style= "width: 50px" type="number" name="alter_prop_kd_verde" id="alter_prop_kd_verde" value="0.7" step="0.1" oninput=alter_prop_func()>
+                </div>
+                <div class="column">
+                    <label for="alter_prop_ks_verde">KS</label>
+                    <input style= "width: 50px" type="number" name="alter_prop_ks_verde" id="alter_prop_ks_verde" value="0.6" step="0.1" oninput=alter_prop_func()>
+                </div>
+            </div>
+            <div class="row">
+                <p style="width: 80px;">Azul</p>
+                <div class="column">
+                    <label for="alter_prop_ka_azul">KA</label>
+                    <input style= "width: 50px" type="number" name="alter_prop_ka_azul" id="alter_prop_ka_azul" value="0.1" step="0.1" oninput=alter_prop_func()>
+                </div>
+                <div class="column">
+                    <label for="alter_prop_kd_azul">KD</label>
+                    <input style= "width: 50px" type="number" name="alter_prop_kd_azul" id="alter_prop_kd_azul" value="0" step="0.1" oninput=alter_prop_func()>
+                </div>
+                <div class="column">
+                    <label for="alter_prop_ks_azul">KS</label>
+                    <input style= "width: 50px" type="number" name="alter_prop_ks_azul" id="alter_prop_ks_azul" value="0" step="0.1" oninput=alter_prop_func()>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <label for="alter_prop_res_i">Res. i</label>
+                    <input style= "width: 50px" type="number" name="alter_prop_res_i" id="alter_prop_res_i" value="20" step="1" oninput=alter_prop_func()>
+                </div>
+                <div class="column">
+                    <label for="alter_prop_res_j">Res. j</label>
+                    <input style= "width: 50px" type="number" name="alter_prop_res_j" id="alter_prop_res_j" value="20" step="1" oninput=alter_prop_func()>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <label for="alter_face_color">Cor das Faces</label>
+                    <input type="color" name="alter_face_color" id="alter_face_color" value="#000000" oninput=alter_prop_func()>
+                </div>
+
+                <div class="column">
+                    <label for="alter_other_side_color">Cor outro lado</label>
+                    <input type="color" name="alter_other_side_color" id="alter_other_side_color" value="#FF0000" oninput=alter_prop_func()>
+                </div>
+
+                <div class="column">
+                    <label for="alter_aresta_color">Cor aresta</label>
+                    <input type="color" name="alter_aresta_color" id="alter_aresta_color" value="#0000FF" oninput=alter_prop_func()>
+                </div>
+            </div>
+            <div>
+                <input type="button" id="cancel_alter_prop" onclick=window_alter_prop_disappears() value="Fechar">
+            </div>
+        </div>
+
     </div>
     <div id="mensagem_clique">
         <h2>Clique próximo aos pontos de controle para que seja selecionado corretamente!</h2>

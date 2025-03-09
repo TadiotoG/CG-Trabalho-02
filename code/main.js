@@ -1,10 +1,18 @@
 /// <reference path= "./universe.ts" />
 // Todas as funcoes call, sao os gatilhos disponiveis no front, que chamam funcoes do back
-var my_lamp = new Lamp(100, 39, 3, 39);
 function call_create_surface() {
     var aux;
     aux = document.getElementById("new_surface");
     aux.style = "display: flex;";
+}
+function call_alter_properties() {
+    alter_prop = true;
+    translada_surface = false;
+    selecting_dot = false;
+    remove_surf = false;
+    escala_surface = false;
+    rotaciona_surface = false;
+    msg_click_appears();
 }
 function call_translada_surface() {
     translada_surface = true;
@@ -12,6 +20,7 @@ function call_translada_surface() {
     remove_surf = false;
     escala_surface = false;
     rotaciona_surface = false;
+    alter_prop = false;
     msg_click_appears();
 }
 function call_escala_surface() {
@@ -20,6 +29,7 @@ function call_escala_surface() {
     selecting_dot = false;
     remove_surf = false;
     rotaciona_surface = false;
+    alter_prop = false;
     msg_click_appears();
 }
 function call_rotaciona_surface() {
@@ -28,6 +38,7 @@ function call_rotaciona_surface() {
     selecting_dot = false;
     escala_surface = false;
     remove_surf = false;
+    alter_prop = false;
     msg_click_appears();
 }
 function call_change_dot() {
@@ -36,6 +47,7 @@ function call_change_dot() {
     remove_surf = false;
     escala_surface = false;
     rotaciona_surface = false;
+    alter_prop = false;
     msg_click_appears();
 }
 function call_remove_surf() {
@@ -44,6 +56,7 @@ function call_remove_surf() {
     selecting_dot = false;
     escala_surface = false;
     rotaciona_surface = false;
+    alter_prop = false;
     msg_click_appears();
 }
 function open_wind_change_dot() {
@@ -66,6 +79,11 @@ function open_wind_rotaciona_surface() {
     aux = document.getElementById("rotaciona_surf");
     aux.style = "display: flex;";
 }
+function open_wind_alter_prop() {
+    var aux;
+    aux = document.getElementById("wind_alter_prop");
+    aux.style = "display: flex;";
+}
 function open_window_change_dot() {
     var aux;
     aux = document.getElementById("change_dot");
@@ -79,6 +97,11 @@ function window_translada_s_disappears() {
 function window_rotaciona_s_disappears() {
     var aux;
     aux = document.getElementById("rotaciona_surf");
+    aux.style = "display: none;";
+}
+function window_alter_prop_disappears() {
+    var aux;
+    aux = document.getElementById("wind_alter_prop");
     aux.style = "display: none;";
 }
 function window_escala_s_disappears() {
@@ -110,8 +133,28 @@ function get_values_to_cam() {
     focal_y = aux.value;
     aux = document.getElementById("focal_z");
     focal_z = aux.value;
-    aux = document.getElementById("distance_point");
-    distance_point = aux.value;
+    aux = document.getElementById("lamp_x");
+    lamp_x = aux.value;
+    aux = document.getElementById("lamp_y");
+    lamp_y = aux.value;
+    aux = document.getElementById("lamp_z");
+    lamp_z = aux.value;
+    aux = document.getElementById("lamp_intensidade");
+    lamp_intensidade = aux.value;
+    aux = document.getElementById("window_width");
+    wind_width = aux.value;
+    aux = document.getElementById("window_height");
+    wind_height = aux.value;
+    aux = document.getElementById("amb_light_r");
+    luz_ambiente[0] = aux.value;
+    aux = document.getElementById("amb_light_g");
+    luz_ambiente[1] = aux.value;
+    aux = document.getElementById("amb_light_b");
+    luz_ambiente[2] = aux.value;
+    canvas.style.width = wind_width.toString(10) + "px";
+    canvas.style.height = wind_height.toString(10) + "px";
+    canvas.width = wind_width;
+    canvas.height = wind_height;
 }
 function get_values_new_surface() {
     var aux;
@@ -129,6 +172,61 @@ function get_values_new_surface() {
     res_i = Number(aux.value);
     aux = document.getElementById("res_j");
     res_j = Number(aux.value);
+    aux = document.getElementById("ka_verm");
+    ka[0] = aux.value;
+    aux = document.getElementById("ka_verde");
+    ka[1] = aux.value;
+    aux = document.getElementById("ka_azul");
+    ka[2] = aux.value;
+    aux = document.getElementById("ks_verm");
+    ks[0] = aux.value;
+    aux = document.getElementById("ks_verde");
+    ks[1] = aux.value;
+    aux = document.getElementById("ks_azul");
+    ks[2] = aux.value;
+    aux = document.getElementById("kd_verm");
+    kd[0] = aux.value;
+    aux = document.getElementById("kd_verde");
+    kd[1] = aux.value;
+    aux = document.getElementById("kd_azul");
+    kd[2] = aux.value;
+    aux = document.getElementById("face_color");
+    face_color = aux.value;
+    aux = document.getElementById("other_side_color");
+    other_side_color = aux.value;
+    aux = document.getElementById("aresta_color");
+    cor_aresta = aux.value;
+}
+function get_values_alter_prop() {
+    var aux;
+    aux = document.getElementById("alter_prop_res_i");
+    res_i = Number(aux.value);
+    aux = document.getElementById("alter_prop_res_j");
+    res_j = Number(aux.value);
+    aux = document.getElementById("alter_prop_ka_verm");
+    ka[0] = aux.value;
+    aux = document.getElementById("alter_prop_ka_verde");
+    ka[1] = aux.value;
+    aux = document.getElementById("alter_prop_ka_azul");
+    ka[2] = aux.value;
+    aux = document.getElementById("alter_prop_ks_verm");
+    ks[0] = aux.value;
+    aux = document.getElementById("alter_prop_ks_verde");
+    ks[1] = aux.value;
+    aux = document.getElementById("alter_prop_ks_azul");
+    ks[2] = aux.value;
+    aux = document.getElementById("alter_prop_kd_verm");
+    kd[0] = aux.value;
+    aux = document.getElementById("alter_prop_kd_verde");
+    kd[1] = aux.value;
+    aux = document.getElementById("alter_prop_kd_azul");
+    kd[2] = aux.value;
+    aux = document.getElementById("alter_face_color");
+    face_color = aux.value;
+    aux = document.getElementById("alter_other_side_color");
+    other_side_color = aux.value;
+    aux = document.getElementById("alter_aresta_color");
+    cor_aresta = aux.value;
 }
 function msg_click_appears() {
     var mensagem;
@@ -211,6 +309,58 @@ function rotaciona_surface_by_click(universe, A) {
     }
     rotaciona_surface = false;
 }
+function alter_prop_by_click(universe, A) {
+    var vet_aux = get_dot_and_surface_by_click(universe, A);
+    if (vet_aux[1] == -1) {
+        alert("Não foi encontrado nenhuma superfície próximo ao local clicado!");
+    }
+    else {
+        aux_surf = vet_aux[0];
+        aux_dot_x = vet_aux[1];
+        aux_dot_y = vet_aux[2];
+        var aux = void 0;
+        aux = document.getElementById("alter_prop_ka_verm");
+        aux.value = (universe.surfaces[aux_surf].ka[0]);
+        aux = document.getElementById("alter_prop_ka_verde");
+        aux.value = (universe.surfaces[aux_surf].ka[1]);
+        aux = document.getElementById("alter_prop_ka_azul");
+        aux.value = (universe.surfaces[aux_surf].ka[2]);
+        aux = document.getElementById("alter_prop_kd_verm");
+        aux.value = (universe.surfaces[aux_surf].kd[0]);
+        aux = document.getElementById("alter_prop_kd_verde");
+        aux.value = (universe.surfaces[aux_surf].kd[1]);
+        aux = document.getElementById("alter_prop_kd_azul");
+        aux.value = (universe.surfaces[aux_surf].kd[2]);
+        aux = document.getElementById("alter_prop_ks_verm");
+        aux.value = (universe.surfaces[aux_surf].ks[0]);
+        aux = document.getElementById("alter_prop_ks_verde");
+        aux.value = (universe.surfaces[aux_surf].ks[1]);
+        aux = document.getElementById("alter_prop_ks_azul");
+        aux.value = (universe.surfaces[aux_surf].ks[2]);
+        open_wind_alter_prop();
+    }
+    alter_prop = false;
+}
+function alter_prop_func() {
+    console.log("Quantas superficies -> " + uni.surfaces.length);
+    get_values_alter_prop();
+    var aux;
+    aux = uni.surfaces[aux_surf];
+    console.log("Passo 0 -> " + uni.surfaces.length);
+    uni.surfaces.splice(aux_surf, 1);
+    console.log("Passo 1 -> " + uni.surfaces.length);
+    uni.add_surface(aux);
+    console.log("Passo 2 -> " + uni.surfaces.length);
+    aux_surf = uni.surfaces.length - 1;
+    var new_surface = new Surface(0, 0, 0, uni.surfaces[aux_surf].ni, uni.surfaces[aux_surf].nj, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, other_side_color, cor_aresta, uni.surfaces[aux_surf].control_points);
+    uni.surfaces.splice(aux_surf, 1);
+    console.log("Passo 3 -> " + uni.surfaces.length);
+    uni.add_surface(new_surface);
+    console.log("Passo 4 -> " + uni.surfaces.length);
+    change_world();
+    // window_alter_prop_disappears();
+    console.log("QUantas superficies depois -> " + uni.surfaces.length);
+}
 function change_dot() {
     var aux;
     aux = document.getElementById("change_dot_x");
@@ -226,10 +376,15 @@ function change_dot() {
 }
 function create_surface() {
     get_values_new_surface();
-    var surface_01 = new Surface(star_x, star_y, star_z, amount_cp_i, amount_cp_j, 3, 3, res_i, res_j);
+    var surface_01 = new Surface(star_x, star_y, star_z, amount_cp_i, amount_cp_j, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, other_side_color, cor_aresta);
     surface_01.generateSurface();
     uni.add_surface(surface_01);
-    uni.draw_cp(surface_01);
+    var ControlPointsCheckbox;
+    ControlPointsCheckbox = document.getElementById("check_control_p");
+    if (ControlPointsCheckbox && ControlPointsCheckbox.checked) {
+        uni.draw_cp(surface_01);
+    }
+    uni.render(vrp_camera);
     window_create_s_disappears();
 }
 function translada_surf() {
@@ -295,44 +450,51 @@ function get_dot_and_surface_by_click(universe, A) {
             closer_dist = pos[2];
         }
     }
-    console.log("Closer dist -> ", closer_dist);
-    console.log("Array -> ", [which_surf, x_closer, y_closer]);
     return [which_surf, x_closer, y_closer];
 }
 function change_world() {
     erase_canvas();
     get_values_to_cam();
+    get_shading();
     // console.log(`X = ${cam_x} Y = ${cam_y} Z = ${cam_z}`);
+    var my_lamp = new Lamp(lamp_intensidade, lamp_x, lamp_y, lamp_z);
     var list_of_surfaces = uni.surfaces;
     vrp_camera = new Dot(cam_x, cam_y, cam_z);
     focal_point_camera = new Dot(focal_x, focal_y, focal_z);
     distance_point = 240;
     camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
-    uni = new Universe(ctx, camera, my_lamp, 120);
+    uni = new Universe(ctx, camera, my_lamp, luz_ambiente);
     for (var i = 0; i < list_of_surfaces.length; i++) {
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
         uni.surfaces[i].update_faces_SRU();
     }
-    // uni.update_all_face_colors_constant();
+    if (shading() == "const") {
+        uni.update_all_face_colors_constant();
+    }
     uni.render(vrp_camera);
-    for (var i = 0; i < list_of_surfaces.length; i++) {
-        // uni.draw_whole_surface(uni.surfaces[i]);
-        uni.draw_cp(uni.surfaces[i]);
+    var ControlPointsCheckbox;
+    ControlPointsCheckbox = document.getElementById("check_control_p");
+    if (ControlPointsCheckbox && ControlPointsCheckbox.checked) {
+        for (var i = 0; i < list_of_surfaces.length; i++) {
+            uni.draw_cp(uni.surfaces[i]);
+        }
     }
 }
 function erase_canvas() {
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas_width, canvas_height);
 }
+function get_shading() {
+    shading = function () {
+        var selectedRadio = document.querySelector('input[name="shading"]:checked');
+        return selectedRadio ? selectedRadio.value : null;
+    };
+}
 var canvas = document.createElement("canvas");
 canvas.id = "canvas-giratorio";
 canvas.style.backgroundColor = "white";
 canvas.style.border = "1px solid black";
-canvas.style.width = "1000px";
-canvas.style.height = "800px";
-canvas.width = 1000;
-canvas.height = 800;
 document.body.appendChild(canvas);
 var ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = false;
@@ -357,15 +519,19 @@ el.addEventListener("click", function (e) {
     else if (rotaciona_surface) {
         rotaciona_surface_by_click(uni, new Dot(x, y, 0));
     }
+    else if (alter_prop) {
+        alter_prop_by_click(uni, new Dot(x, y, 0));
+    }
     ;
 });
 var main = document.getElementById("main");
 main.appendChild(canvas);
-var translada_surface = false;
-var escala_surface = false;
-var rotaciona_surface = false;
-var selecting_dot = false; // Quando essa variavel for true, eh possivel selecionar o ponto de contr com o mouse e altera-lo
-var remove_surf = false; // Quando essa variavel for true, assim que uma superficie for selecionada ela sera deletada
+var translada_surface = false; // Quando essa var for true, vai ser possível clicar na tela e selecionar com base nos pontos de controle e alterar uma propriedade da superficie
+var escala_surface = false; // Quando essa var for true, vai ser possível clicar na tela e selecionar com base nos pontos de controle e alterar uma propriedade da superficie
+var rotaciona_surface = false; // Quando essa var for true, vai ser possível clicar na tela e selecionar com base nos pontos de controle e alterar uma propriedade da superficie
+var selecting_dot = false; // Quando essa var for true, vai ser possível clicar na tela e selecionar com base nos pontos de controle e alterar uma propriedade da superficie
+var remove_surf = false; // Quando essa var for true, vai ser possível clicar na tela e selecionar com base nos pontos de controle e alterar uma propriedade da superficie
+var alter_prop = false; // Quando essa var for true, vai ser possível clicar na tela e selecionar com base nos pontos de controle e alterar uma propriedade da superficie
 var aux_surf; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
 var aux_dot_x; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
 var aux_dot_y; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
@@ -375,13 +541,33 @@ var cam_z;
 var focal_x;
 var focal_y;
 var focal_z;
-var distance_point;
+var lamp_x;
+var lamp_y;
+var lamp_z;
+var lamp_intensidade;
+var wind_width;
+var wind_height;
+var luz_ambiente;
+luz_ambiente = [0, 0, 0]; // Luz ambiente RGB
+// ka kd e ks dos materias sobre RGB
+var ka;
+ka = [0.4, 0.4, 0.4];
+var kd;
+kd = [0.7, 0.7, 0.7];
+var ks;
+ks = [0.5, 0.5, 0.5];
+var n;
+var face_color; // Cor das faces para o pintor
+var other_side_color; // Cor do lado de baixo das faces para pintor
+var cor_aresta;
+var shading;
+get_shading();
 get_values_to_cam();
 var vrp_camera = new Dot(cam_x, cam_y, cam_z);
 var focal_point_camera = new Dot(focal_x, focal_y, focal_z);
 var distance_point = 240;
 var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
-var uni = new Universe(ctx, camera, my_lamp, 120);
+var uni = new Universe(ctx, camera, new Lamp(lamp_intensidade, lamp_x, lamp_y, lamp_z), luz_ambiente);
 var star_x;
 var star_y;
 var star_z;
@@ -390,11 +576,12 @@ var amount_cp_j;
 var res_i;
 var res_j;
 create_surface();
-var teste_face = new Face([new Dot(21.2, 0.7, 42.3),
-    new Dot(34.1, 3.4, 27.2),
-    new Dot(20, 20.9, 31.6)
-]);
-// uni.update_all_face_colors_constant()
+if (shading() == "const") {
+    uni.update_all_face_colors_constant();
+}
 uni.render(vrp_camera);
-// uni.draw_whole_surface(uni.surfaces[0]);
-uni.draw_cp(uni.surfaces[0]);
+var ControlPointsCheckbox;
+ControlPointsCheckbox = document.getElementById("check_control_p");
+if (ControlPointsCheckbox && ControlPointsCheckbox.checked) {
+    uni.draw_cp(uni.surfaces[0]);
+}

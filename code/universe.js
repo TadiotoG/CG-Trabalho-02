@@ -34,11 +34,18 @@ var Universe = /** @class */ (function () {
     ;
     Universe.prototype.update_all_face_colors_constant = function () {
         for (var i = 0; i < this.surfaces.length; i++) {
-            console.log("Surface -> ", this.surfaces[i]);
-            var amb_light = this.surfaces[i].ka * this.la;
-            console.log(amb_light);
+            var amb_light_r = this.surfaces[i].ka[0] * this.la[0];
+            var amb_light_g = this.surfaces[i].ka[1] * this.la[1];
+            var amb_light_b = this.surfaces[i].ka[2] * this.la[2];
             for (var j = 0; j < this.surfaces[i].faces.length; j++) {
-                var new_color = this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light, this.surfaces[i].ks, this.surfaces[i].kd, this.surfaces[i].n);
+                var new_color = "rgb("; // Ka: number=0.4, Kd: number=0.6, Ks: number=0.5, N: number=2.15
+                new_color += this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light_r, this.surfaces[i].ks[0], this.surfaces[i].kd[0], this.surfaces[i].n);
+                new_color += ",";
+                new_color += this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light_g, this.surfaces[i].ks[1], this.surfaces[i].kd[1], this.surfaces[i].n);
+                new_color += ",";
+                new_color += this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light_b, this.surfaces[i].ks[2], this.surfaces[i].kd[2], this.surfaces[i].n);
+                new_color += ")";
+                // console.log("New color -> ", new_color);
                 this.surfaces[i].faces[j].color = new_color;
             }
         }
@@ -77,11 +84,11 @@ var Universe = /** @class */ (function () {
             // console.log(`${r_escalar_dir_obs} ** ${n} = ${r_escalar_dir_obs**n}`)
             // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
             // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
-            var result = (amb_light + ilum_difusa + is);
-            return "rgb(".concat(result * 4, ", ").concat(result * 4, ", ").concat(result * 4, ")");
+            var result = 4 * Math.round(amb_light + ilum_difusa + is);
+            return result.toString(10);
         }
         else {
-            return "rgb(".concat(amb_light * 4, ", ").concat(amb_light * 4, ", ").concat(amb_light * 4, ")");
+            return amb_light.toString(10);
         }
     };
     Universe.prototype.draw_whole_surface = function (surface) {
@@ -155,7 +162,6 @@ var Universe = /** @class */ (function () {
     Universe.prototype.add_surface = function (obj) {
         this.surfaces.push(obj);
         obj.create_faces(this.matriz_SRU_SRT);
-        this.draw_whole_surface(obj);
     };
     ;
     Universe.prototype.get_mat_from_list_of_dots = function (arr_dots) {
