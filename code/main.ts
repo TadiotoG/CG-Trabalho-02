@@ -1,4 +1,4 @@
-/// <reference path= "./universe.ts" />
+/// <reference path="./universe.ts" />
 // Todas as funcoes call, sao os gatilhos disponiveis no front, que chamam funcoes do back
 
 function call_create_surface(){

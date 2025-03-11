@@ -411,10 +411,119 @@ function distance_between_dots_screen(A: Dot, B: Dot){
 class Aresta {
     p1: Dot;
     p2: Dot;
+    Dx: number;
+    Dy: number;
+    Dz: number;
+    tx: number;
+    tz: number;
 
     constructor(p1: Dot, p2: Dot) {
         this.p1 = p1;
         this.p2 = p2;
+        this.Dx = p2.x - p1.x;
+        this.Dy = p2.y - p1.y;
+        this.Dz = p2.z - p1.z;
+        this.tx = this.Dx/this.Dy;
+        this.tz = this.Dz/this.Dy; 
+        
+    }
+}
+
+class ZBuffer {
+    width: number;
+    height: number;
+    depthBuffer: number[][];
+    colorBuffer: string[][];
+
+    constructor(width: number, height: number) {
+        this.width = width;
+        this.height = height;
+        this.depthBuffer = Array.from({ length: height }, () => Array(width).fill(Infinity));
+        this.colorBuffer = Array.from({ length: height }, () => Array(width).fill('#000000')); // Default background color
+    }
+
+    initializeBuffers() {
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                this.depthBuffer[y][x] = Infinity;
+                this.colorBuffer[y][x] = '#000000'; // Default background color
+            }
+        }
+    }
+
+    updateBuffer(x: number, y: number, z: number, color: string) {
+        if (z < this.depthBuffer[y][x]) {
+            this.depthBuffer[y][x] = z;
+            this.colorBuffer[y][x] = color;
+        }
+    }
+
+    render(faces: Face[]) {//Quem faz tudo acontecer é essa função, ela que chama as outras funções para fazer o rasterize
+        this.initializeBuffers();//O parametro que ela usa são todas as faces do objeto (DA PRA MUDAR, NÃO PRECISA SER TODAS AS FACES)
+        for (const face of faces) {
+            this.rasterizePolygon(face);
+        }
+    }
+
+    rasterizePolygon(face: Face) {
+        let pontos = face.dots;
+        let edges: Aresta[] = [];
+        const activeEdges: Aresta[] = [];
+
+        for (let i = 0; i < pontos.length; i++) {
+            if (i + 1 < pontos.length) {
+                edges.push(new Aresta(pontos[i], pontos[i + 1]));
+            } else {
+                edges.push(new Aresta(pontos[i], pontos[0]));
+            }}
+
+        // Find ymin and ymax of the face
+        let ymin = Infinity;
+        let ymax = -Infinity;
+        for (const vertex of face.dots) {
+            if (vertex.y < ymin) ymin = vertex.y;
+            if (vertex.y > ymax) ymax = vertex.y;
+        }
+
+        // Process each scanline from ymin to ymax
+        for (let y = ymin; y <= ymax; y++) {
+            // Update active edges
+            activeEdges.length = 0;
+            for (const edge of edges) {
+                if ((edge.p1.y <= y && edge.p2.y > y) || (edge.p2.y <= y && edge.p1.y > y)) {
+                    activeEdges.push(edge);
+                }
+            }
+
+            // Sort active edges by x
+            activeEdges.sort((a, b) => a.p1.x + a.tx * (y - a.p1.y) - (b.p1.x + b.tx * (y - b.p1.y)));
+
+            // Fill pixels between pairs of intersections
+            for (let i = 0; i < activeEdges.length; i += 2) {
+                const edge1 = activeEdges[i];
+                const edge2 = activeEdges[i + 1];
+
+                let x1 = edge1.p1.x + edge1.tx * (y - edge1.p1.y);
+                let z1 = edge1.p1.z + edge1.tz * (y - edge1.p1.y);
+                let x2 = edge2.p1.x + edge2.tx * (y - edge2.p1.y);
+                let z2 = edge2.p1.z + edge2.tz * (y - edge2.p1.y);
+
+                if (x1 > x2) {
+                    [x1, x2] = [x2, x1];
+                    [z1, z2] = [z2, z1];
+                }
+
+                // Log the values for each scanline
+                
+                const tz = (x2 - x1 === 0) ? 0 : ((z2 - z1) / (x2 - x1)).toFixed(6);
+
+                for (let x = Math.ceil(x1); x <= Math.floor(x2); x++) {
+                    const t = (x - x1) / (x2 - x1);
+                    const z = z1 + t * (z2 - z1);
+                    this.updateBuffer(x, y, z, face.color);
+                }
+            }
+        }
     }
 }
 
@@ -641,6 +750,257 @@ function Recorte (face: Face, umin, umax, vmin, vmax) {
         pontos = novosPontos;
     }
     return new Face(pontos);
+}
+
+function RecorteWithColor(face: Face, umin, umax, vmin, vmax): Face { 
+    let pontos = face.dots;
+    let arestas: Aresta[] = [];
+
+    for (let i = 0; i < pontos.length; i++) {
+        if (i + 1 < pontos.length) {
+            arestas.push(new Aresta(pontos[i], pontos[i + 1]));
+        } else {
+            arestas.push(new Aresta(pontos[i], pontos[0]));
+        }
+    }
+
+    let recorteEsquerda = pontos.some(ponto => ponto.x < umin);
+
+    // Verificar recorte esquerda
+    if (recorteEsquerda) {
+        let novasArestas: Aresta[] = [];
+        let novosPontos: Dot[] = [];
+
+        arestas.forEach(aresta => {
+            let p1 = aresta.p1;
+            let p2 = aresta.p2;
+            let u;
+
+            if (p1.x < umin && p2.x >= umin) { // Adentra recorte
+                u = (umin - p1.x) / (p2.x - p1.x);
+                let x = umin;
+                let y = p1.y + u * (p2.y - p1.y);
+                let z = p1.z + u * (p2.z - p1.z);
+                let color = interpolateColor(p1.color, p2.color, u);
+
+                let Paux = new Dot(x, y, z, color);
+
+                if (Paux.x == p2.x && Paux.y == p2.y) {
+                    novosPontos.push(p2);
+                } else {
+                    novosPontos.push(Paux);
+                    novosPontos.push(p2);
+                }
+            }
+
+            if (p1.x >= umin && p2.x >= umin) { // Os dois pontos estão dentro do recorte
+                novosPontos.push(p2);
+            }
+
+            if (p1.x >= umin && p2.x < umin) { // Sai do recorte
+                u = (umin - p1.x) / (p2.x - p1.x);
+                let x = umin;
+                let y = p1.y + u * (p2.y - p1.y);
+                let z = p1.z + u * (p2.z - p1.z);
+                let color = interpolateColor(p1.color, p2.color, u);
+
+                let Paux = new Dot(x, y, z, color);
+                novosPontos.push(Paux);
+            }
+        });
+
+        for (let i = 0; i < novosPontos.length; i++) {
+            if (i + 1 < novosPontos.length) {
+                novasArestas.push(new Aresta(novosPontos[i], novosPontos[i + 1]));
+            } else {
+                novasArestas.push(new Aresta(novosPontos[i], novosPontos[0]));
+            }
+        }
+
+        arestas = novasArestas;
+        pontos = novosPontos;
+    }
+
+    let recorteDireita = pontos.some(ponto => ponto.x > umax);
+
+    // Verificar recorte direita
+    if (recorteDireita) {
+        let novasArestas: Aresta[] = [];
+        let novosPontos: Dot[] = [];
+
+        arestas.forEach(aresta => {
+            let p1 = aresta.p1;
+            let p2 = aresta.p2;
+            let u;
+
+            if (p1.x > umax && p2.x < umax) { // Adentra recorte
+                u = (umax - p1.x) / (p2.x - p1.x);
+                let x = umax;
+                let y = p1.y + u * (p2.y - p1.y);
+                let z = p1.z + u * (p2.z - p1.z);
+                let color = interpolateColor(p1.color, p2.color, u);
+
+                let Paux = new Dot(x, y, z, color);
+                if (Paux.x == p2.x && Paux.y == p2.y) {
+                    novosPontos.push(p2);
+                } else {
+                    novosPontos.push(Paux);
+                    novosPontos.push(p2);
+                }
+            }
+
+            if (p1.x <= umax && p2.x <= umax) { // Os dois pontos estão dentro do recorte
+                novosPontos.push(p2);
+            }
+
+            if (p1.x < umax && p2.x > umax) { // Sai do recorte
+                u = (umax - p1.x) / (p2.x - p1.x);
+                let x = umax;
+                let y = p1.y + u * (p2.y - p1.y);
+                let z = p1.z + u * (p2.z - p1.z);
+                let color = interpolateColor(p1.color, p2.color, u);
+
+                let Paux = new Dot(x, y, z, color);
+                novosPontos.push(Paux);
+            }
+        });
+
+        for (let i = 0; i < novosPontos.length; i++) {
+            if (i + 1 < novosPontos.length) {
+                novasArestas.push(new Aresta(novosPontos[i], novosPontos[i + 1]));
+            } else {
+                novasArestas.push(new Aresta(novosPontos[i], novosPontos[0]));
+            }
+        }
+
+        arestas = novasArestas;
+        pontos = novosPontos;
+    }
+
+    let recorteInferior = pontos.some(ponto => ponto.y > vmax);
+
+    // Verificar recorte inferior
+    if (recorteInferior) {
+        let novosPontos: Dot[] = [];
+        let novasArestas: Aresta[] = [];
+
+        arestas.forEach(aresta => {
+            let p1 = aresta.p1;
+            let p2 = aresta.p2;
+            let u;
+
+            if (p1.y > vmax && p2.y <= vmax) { // Adentra recorte
+                u = (vmax - p1.y) / (p2.y - p1.y);
+                let y = vmax;
+                let x = p1.x + u * (p2.x - p1.x);
+                let z = p1.z + u * (p2.z - p1.z);
+                let color = interpolateColor(p1.color, p2.color, u);
+
+                let Paux = new Dot(x, y, z, color);
+                if (Paux.x == p2.x && Paux.y == p2.y) {
+                    novosPontos.push(p2);
+                } else {
+                    novosPontos.push(Paux);
+                    novosPontos.push(p2);
+                }
+            }
+
+            if (p1.y <= vmax && p2.y <= vmax) { // Os dois pontos estão dentro do recorte
+                novosPontos.push(p2);
+            }
+
+            if (p1.y <= vmax && p2.y > vmax) { // Sai do recorte
+                u = (vmax - p1.y) / (p2.y - p1.y);
+                let y = vmax;
+                let x = p1.x + u * (p2.x - p1.x);
+                let z = p1.z + u * (p2.z - p1.z);
+                let color = interpolateColor(p1.color, p2.color, u);
+
+                let Paux = new Dot(x, y, z, color);
+                novosPontos.push(Paux);
+            }
+        });
+
+        for (let i = 0; i < novosPontos.length; i++) {
+            if (i + 1 < novosPontos.length) {
+                novasArestas.push(new Aresta(novosPontos[i], novosPontos[i + 1]));
+            } else {
+                novasArestas.push(new Aresta(novosPontos[i], novosPontos[0]));
+            }
+        }
+
+        arestas = novasArestas;
+        pontos = novosPontos;
+    }
+
+    let recorteSuperior = pontos.some(ponto => ponto.y < vmin);
+
+    // Verificar recorte superior
+    if (recorteSuperior) {
+        let novosPontos: Dot[] = [];
+        let novasArestas: Aresta[] = [];
+
+        arestas.forEach(aresta => {
+            let p1 = aresta.p1;
+            let p2 = aresta.p2;
+            let u;
+
+            if (p1.y < vmin && p2.y >= vmin) { // Adentra recorte
+                u = (vmin - p1.y) / (p2.y - p1.y);
+                let y = vmin;
+                let x = p1.x + u * (p2.x - p1.x);
+                let z = p1.z + u * (p2.z - p1.z);
+                let color = interpolateColor(p1.color, p2.color, u);
+
+                let Paux = new Dot(x, y, z, color);
+                if (Paux.x == p2.x && Paux.y == p2.y) {
+                    novosPontos.push(p2);
+                } else {
+                    novosPontos.push(Paux);
+                    novosPontos.push(p2);
+                }
+            }
+
+            if (p1.y >= vmin && p2.y >= vmin) { // Os dois pontos estão dentro do recorte
+                novosPontos.push(p2);
+            }
+
+            if (p1.y >= vmin && p2.y < vmin) { // Sai do recorte
+                u = (vmin - p1.y) / (p2.y - p1.y);
+                let y = vmin;
+                let x = p1.x + u * (p2.x - p1.x);
+                let z = p1.z + u * (p2.z - p1.z);
+                let color = interpolateColor(p1.color, p2.color, u);
+
+                let Paux = new Dot(x, y, z, color);
+                novosPontos.push(Paux);
+            }
+        });
+
+        for (let i = 0; i < novosPontos.length; i++) {
+            if (i + 1 < novosPontos.length) {
+                novasArestas.push(new Aresta(novosPontos[i], novosPontos[i + 1]));
+            } else {
+                novasArestas.push(new Aresta(novosPontos[i], novosPontos[0]));
+            }
+        }
+
+        arestas = novasArestas;
+        pontos = novosPontos;
+    }
+
+    return new Face(pontos);
+}
+
+function interpolateColor(color1: string, color2: string, t: number): string {
+    const c1 = color1.match(/\d+/g).map(Number);
+    const c2 = color2.match(/\d+/g).map(Number);
+
+    const r = Math.round(c1[0] + t * (c2[0] - c1[0]));
+    const g = Math.round(c1[1] + t * (c2[1] - c1[1]));
+    const b = Math.round(c1[2] + t * (c2[2] - c1[2]));
+
+    return `rgb(${r}, ${g}, ${b})`;
 }
 
 class Lamp {

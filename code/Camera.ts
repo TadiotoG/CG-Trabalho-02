@@ -1,4 +1,5 @@
-/// <reference path= "spline.ts" />
+/// <reference path="./spline.ts" />
+
 
 class Camera {
     vrp: Dot;
