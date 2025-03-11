@@ -46,8 +46,12 @@ var Vet = /** @class */ (function (_super) {
     return Vet;
 }(Dot));
 var Face = /** @class */ (function () {
-    function Face(array_dots) {
+    function Face(array_dots, col, other_side_col, cor_aresta) {
+        if (col === void 0) { col = "black"; }
+        if (other_side_col === void 0) { other_side_col = "red"; }
+        if (cor_aresta === void 0) { cor_aresta = "blue"; }
         this.color = "rgb(0, 0, 0)";
+        this.color_other_side = "rgb(0, 0, 0)";
         this.arestas = [];
         this.inters = [];
         this.inters_z = [];
@@ -56,6 +60,9 @@ var Face = /** @class */ (function () {
         this.cria_arestas();
         this.centroide = this.get_centroide();
         this.vet_normal = this.get_normal();
+        this.color = col;
+        this.color_other_side = other_side_col;
+        this.line_color = cor_aresta;
     }
     Face.prototype.cria_arestas = function () {
         var _this = this;
@@ -107,11 +114,13 @@ var Face = /** @class */ (function () {
     };
     Face.prototype.draw = function (line, y, ctx, normal) {
         if (normal < 0) {
-            ctx.fillStyle = "red";
+            ctx.fillStyle = this.color_other_side;
         }
         else {
             ctx.fillStyle = this.color;
         }
+        // console.log("COLOR -> ", this.color)
+        // ctx.fillStyle = this.color;
         for (var i = 0; i < line.length; i += 2) {
             var x1 = Math.ceil(line[i]);
             var x2 = Math.floor(line[i + 1]);
@@ -119,7 +128,33 @@ var Face = /** @class */ (function () {
                 ctx.fillRect(x, y, 2, 2);
             }
         }
+        var arestaCheckbox;
+        arestaCheckbox = document.getElementById("aresta");
+        if (arestaCheckbox && arestaCheckbox.checked) {
+            this.draw_face(ctx);
+        }
     };
+    Face.prototype.draw_face = function (ctx) {
+        for (var i = 0; i < this.dots.length; i++) {
+            if (i === this.dots.length - 1) {
+                this.draw_line(this.dots[i], this.dots[0], this.line_color, ctx);
+            }
+            else {
+                // let h = 3;
+                this.draw_line(this.dots[i], this.dots[i + 1], this.line_color, ctx);
+            }
+        }
+    };
+    ;
+    Face.prototype.draw_line = function (dot0, dot1, color, ctx) {
+        ctx.beginPath();
+        ctx.moveTo(dot0.x, dot0.y);
+        ctx.lineTo(dot1.x, dot1.y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    };
+    ;
     Face.prototype.fillpoly = function (ctx, VRP, centroide, normal) {
         // console.log("Cor da face -> ", this.color)
         var _this = this;

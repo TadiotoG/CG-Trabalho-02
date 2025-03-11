@@ -11,9 +11,9 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     surfaces: Array<Surface> = [];
     rotate_y: Boolean = false;
     lamp: Lamp;
-    la: number; // Luz ambiente
+    la: [number, number, number]; // Luz ambiente
 
-    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: number){
+    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: [number, number, number]){
         this.ctx = ctx_out;
         this.camera = cam;
         this.matriz_SRU_SRT = this.camera.get_mat_SRU_SRT();
@@ -44,11 +44,18 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
 
     update_all_face_colors_constant(){
         for(let i=0; i<this.surfaces.length; i++){
-            console.log("Surface -> ", this.surfaces[i])
-            let amb_light = this.surfaces[i].ka * this.la;
-            console.log(amb_light)
+            let amb_light_r = this.surfaces[i].ka[0] * this.la[0];
+            let amb_light_g = this.surfaces[i].ka[1] * this.la[1];
+            let amb_light_b = this.surfaces[i].ka[2] * this.la[2];
             for(let j=0; j<this.surfaces[i].faces.length; j++){
-                let new_color = this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light, this.surfaces[i].ks, this.surfaces[i].kd, this.surfaces[i].n);
+                let new_color = "rgb(";                                                         // Ka: number=0.4, Kd: number=0.6, Ks: number=0.5, N: number=2.15
+                new_color += this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light_r, this.surfaces[i].ks[0], this.surfaces[i].kd[0], this.surfaces[i].n);
+                new_color += ",";
+                new_color += this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light_g, this.surfaces[i].ks[1], this.surfaces[i].kd[1], this.surfaces[i].n);
+                new_color += ",";
+                new_color += this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light_b, this.surfaces[i].ks[2], this.surfaces[i].kd[2], this.surfaces[i].n);
+                new_color += ")";
+                // console.log("New color -> ", new_color);
                 this.surfaces[i].faces[j].color = new_color;
             }
         }
@@ -98,10 +105,10 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
             // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
             // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
 
-            let result = (amb_light + ilum_difusa + is);
-            return `rgb(${result*4}, ${result*4}, ${result*4})`;
+            let result = 4*Math.round(amb_light + ilum_difusa + is);
+            return result.toString(10);
         } else {
-            return `rgb(${amb_light*4}, ${amb_light*4}, ${amb_light*4})`;
+            return amb_light.toString(10);
         }
     }
 
@@ -128,7 +135,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
     };
 
-    draw_line(dot0, dot1, color){
+    draw_line(dot0: Dot, dot1: Dot, color: string){
         this.ctx.beginPath();
         this.ctx.moveTo(dot0.x, dot0.y);
         this.ctx.lineTo(dot1.x, dot1.y);
@@ -185,7 +192,6 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     add_surface(obj: Surface){
         this.surfaces.push(obj);
         obj.create_faces(this.matriz_SRU_SRT);
-        this.draw_whole_surface(obj);
     };
 
     get_mat_from_list_of_dots(arr_dots: Array<Dot>): number[][]{
@@ -213,25 +219,54 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         this.surfaces[index].update_cp_with_mat(new_matriz_obj);
     }
 
-    render(vrp: Dot) {
-        // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
+    // render(vrp: Dot) {
+    //     // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
       
-        this.surfaces.forEach(surface => {
-            // console.log(surface.faces.length);
-            surface.faces.sort((faceA, faceB) => {
-                const centroideA = get_centroide(faceA);
-                const centroideB = get_centroide(faceB);
+    //     this.surfaces.forEach(surface => {
+    //         // console.log(surface.faces.length);
+    //         surface.faces.sort((faceA, faceB) => {
+    //             const centroideA = get_centroide(faceA);
+    //             const centroideB = get_centroide(faceB);
     
+    //             const distanciaA: number = calc_distance(centroideA, vrp);
+    //             const distanciaB: number = calc_distance(centroideB, vrp);
+    
+    //             return distanciaB - distanciaA;
+    //         });
+    //     });
+      
+    //     for (const surface of this.surfaces) {
+    //         surface.callfp(this.ctx, vrp);
+    //     }
+    // }
+    render(vrp: Dot) {
+        this.surfaces.forEach(surface => {
+            // Criamos uma lista de objetos para manter as faces sincronizadas
+            const indexedFaces = surface.faces_SRU.map((_, index) => ({
+                index, // Índice original
+                worldFace: surface.faces_SRU[index], // Face em coordenadas de mundo
+                screenFace: surface.faces[index] // Face em coordenadas de tela
+            }));
+
+            // Ordenamos essa estrutura com base na distância ao VRP
+            indexedFaces.sort((faceA, faceB) => {
+                const centroideA = faceA.worldFace.centroide;
+                const centroideB = faceB.worldFace.centroide;
+
                 const distanciaA: number = calc_distance(centroideA, vrp);
                 const distanciaB: number = calc_distance(centroideB, vrp);
-    
-                return distanciaB - distanciaA;
+
+                return distanciaB - distanciaA; // Ordenação decrescente
             });
+
+            // Aplicamos a ordenação às listas originais
+            surface.faces_SRU = indexedFaces.map(obj => obj.worldFace);
+            surface.faces = indexedFaces.map(obj => obj.screenFace);
         });
-      
+
         for (const surface of this.surfaces) {
             surface.callfp(this.ctx, vrp);
-        }
+        };
     }
 }
 

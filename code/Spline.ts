@@ -40,18 +40,23 @@ class Vet extends Dot { // Adicionei esta classe para que assim que declarado o 
 class Face{
     dots: Array<Dot>;
     color: string = "rgb(0, 0, 0)";
+    color_other_side: string = "rgb(0, 0, 0)";
     arestas: Array<[Dot, Dot]> = []; 
     inters: number[][] = [];
     inters_z: number[][] = [];
     arestac: number = 0;
     centroide: Dot;
     vet_normal: Vet;
+    line_color: string;
 
-    constructor(array_dots: Array<Dot>){
+    constructor(array_dots: Array<Dot>, col: string = "black", other_side_col: string = "red", cor_aresta: string = "blue"){
         this.dots = array_dots;
         this.cria_arestas();
         this.centroide = this.get_centroide();
         this.vet_normal = this.get_normal();
+        this.color = col;
+        this.color_other_side = other_side_col;
+        this.line_color = cor_aresta;
     }
     cria_arestas(): void {
         this.arestas = []; 
@@ -113,20 +118,48 @@ class Face{
 
     draw(line: number[], y: number, ctx: CanvasRenderingContext2D, normal: number) {
         if(normal < 0){
-            ctx.fillStyle = "red";
+            ctx.fillStyle = this.color_other_side;
         } else {
             ctx.fillStyle = this.color;
         }
 
+        // console.log("COLOR -> ", this.color)
+        // ctx.fillStyle = this.color;
         for (let i = 0; i < line.length; i += 2) {
             const x1 = Math.ceil(line[i]);
             const x2 = Math.floor(line[i + 1]);
             
-            for (let x = x1; x <= x2; x++) { 
-                ctx.fillRect(x, y, 2, 2);  
+            for (let x = x1; x <= x2; x++) {
+                ctx.fillRect(x, y, 2, 2);
             }
         }
+        let arestaCheckbox;
+        arestaCheckbox = document.getElementById("aresta");
+
+        if (arestaCheckbox && arestaCheckbox.checked) {
+            this.draw_face(ctx);
+        }
     }
+
+    draw_face(ctx: CanvasRenderingContext2D){       
+        for (let i = 0; i < this.dots.length; i++){
+            if ( i === this.dots.length-1){
+                this.draw_line(this.dots[i], this.dots[0], this.line_color, ctx);
+            } else {
+                // let h = 3;
+                this.draw_line(this.dots[i], this.dots[i+1], this.line_color, ctx);
+            }
+        }
+    };
+
+    draw_line(dot0: Dot, dot1: Dot, color, ctx: CanvasRenderingContext2D){
+        ctx.beginPath();
+        ctx.moveTo(dot0.x, dot0.y);
+        ctx.lineTo(dot1.x, dot1.y);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    };
 
     fillpoly(ctx: CanvasRenderingContext2D, VRP: Dot, centroide: Dot, normal: number): void {
         // console.log("Cor da face -> ", this.color)
