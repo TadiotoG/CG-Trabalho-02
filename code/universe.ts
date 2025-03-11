@@ -135,7 +135,12 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     }
 
     plot_zbuffer(){
-        
+        for(let i=0; i<this.zbuffer.colorBuffer.length; i++){
+            for(let j=0; j<this.zbuffer[0].colorBuffer.length; j++){
+                this.ctx.fillStyle(this.zbuffer.colorBuffer[i][j]);
+                this.ctx.fillRect(i, j, 1, 1);
+            }
+        }
     }
 
     draw_face(face: Face){
