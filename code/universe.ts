@@ -13,19 +13,23 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     lamp: Lamp;
     la: [number, number, number]; // Luz ambiente
     zbuffer: ZBuffer;
+    width: number;
+    height: number;
 
-    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: [number, number, number], z_buffer: ZBuffer){
+    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: [number, number, number], z_buffer: ZBuffer, width: number, height: number){
         this.ctx = ctx_out;
         this.camera = cam;
         this.matriz_SRU_SRT = this.camera.get_mat_SRU_SRT();
         this.lamp = lamp;
         this.la = ambient_light;
         this.zbuffer = z_buffer;
+        this.width = width;
+        this.height = height;
     };
 
     animate_world = () => {
         this.ctx.fillStyle = "white";
-        this.ctx.fillRect(0, 0, canvas_width, canvas_height);
+        this.ctx.fillRect(0, 0, this.width, this.height);
 
         for(let i = 0; i < this.surfaces.length; i++){
             this.surfaces[i].create_faces(this.matriz_SRU_SRT);
@@ -116,14 +120,14 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
 
     cut_surface_nocolor(surface: Surface){
         for(let i=0; i < surface.faces.length; i++){
-            surface.faces[i] = Recorte(surface.faces[i], 0, 1000, 0, 800);
+            surface.faces[i] = Recorte(surface.faces[i], 0, this.width, 0, this.height);
 
         }
     };
 
     cut_surface_withcolor(surface: Surface){
         for(let i=0; i < surface.faces.length; i++){
-            surface.faces[i] = RecorteWithColor(surface.faces[i], 0, 1000, 0, 800);
+            surface.faces[i] = RecorteWithColor(surface.faces[i], 0, this.width, 0, this.height);
 
         }
     };
@@ -245,7 +249,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     }
 
     // render(vrp: Dot) {
-    //     // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
+    //     // this.ctx.clearRect(0, 0, this.width, this.height);
       
     //     this.surfaces.forEach(surface => {
     //         // console.log(surface.faces.length);

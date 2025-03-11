@@ -3,13 +3,13 @@
 var canvas_width = 1000;
 var canvas_height = 800;
 var Universe = /** @class */ (function () {
-    function Universe(ctx_out, cam, lamp, ambient_light, z_buffer) {
+    function Universe(ctx_out, cam, lamp, ambient_light, z_buffer, width, height) {
         var _this = this;
         this.surfaces = [];
         this.rotate_y = false;
         this.animate_world = function () {
             _this.ctx.fillStyle = "white";
-            _this.ctx.fillRect(0, 0, canvas_width, canvas_height);
+            _this.ctx.fillRect(0, 0, _this.width, _this.height);
             for (var i = 0; i < _this.surfaces.length; i++) {
                 _this.surfaces[i].create_faces(_this.matriz_SRU_SRT);
                 _this.cut_surface_nocolor(_this.surfaces[i]);
@@ -31,6 +31,8 @@ var Universe = /** @class */ (function () {
         this.lamp = lamp;
         this.la = ambient_light;
         this.zbuffer = z_buffer;
+        this.width = width;
+        this.height = height;
     }
     ;
     Universe.prototype.update_all_face_colors_constant = function () {
@@ -94,13 +96,13 @@ var Universe = /** @class */ (function () {
     };
     Universe.prototype.cut_surface_nocolor = function (surface) {
         for (var i = 0; i < surface.faces.length; i++) {
-            surface.faces[i] = Recorte(surface.faces[i], 0, 1000, 0, 800);
+            surface.faces[i] = Recorte(surface.faces[i], 0, this.width, 0, this.height);
         }
     };
     ;
     Universe.prototype.cut_surface_withcolor = function (surface) {
         for (var i = 0; i < surface.faces.length; i++) {
-            surface.faces[i] = RecorteWithColor(surface.faces[i], 0, 1000, 0, 800);
+            surface.faces[i] = RecorteWithColor(surface.faces[i], 0, this.width, 0, this.height);
         }
     };
     ;
@@ -209,7 +211,7 @@ var Universe = /** @class */ (function () {
         this.surfaces[index].update_cp_with_mat(new_matriz_obj);
     };
     // render(vrp: Dot) {
-    //     // this.ctx.clearRect(0, 0, canvas_width, canvas_height);
+    //     // this.ctx.clearRect(0, 0, this.width, this.height);
     //     this.surfaces.forEach(surface => {
     //         // console.log(surface.faces.length);
     //         surface.faces.sort((faceA, faceB) => {

@@ -17,8 +17,9 @@ class Camera {
     y_min: number;
     x_max: number;
     y_max: number;
+    flag_persp: boolean;
 
-    constructor(view_reference_point: Dot, focal_p: Dot, dp: number, min_x: number, min_y: number, max_x: number, max_y: number){
+    constructor(view_reference_point: Dot, focal_p: Dot, dp: number, min_x: number, min_y: number, max_x: number, max_y: number, flag: boolean = false){
         this.vrp = view_reference_point;
         this.focal_point = focal_p;
         this.dp = dp;
@@ -26,6 +27,7 @@ class Camera {
         this.y_min = min_y;
         this.x_max = max_x;
         this.y_max = max_y;
+        this.flag_persp = flag;
         this.calc_matrizes();
     }
 
@@ -47,9 +49,11 @@ class Camera {
             [this.vet_n.unitary.x, this.vet_n.unitary.y, this.vet_n.unitary.z, 0],
             [0, 0, 0, 1]
         ])
-        // print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
+        // print_matriz(this.matriz_SRU_SRC, "SRU_SRC")=
 
-        // this.matriz_persp = this.define_matriz_persp();// Projecao perspectiva, nao vai ser mais utilizado...
+        if(this.flag_persp){
+            this.matriz_persp = this.define_matriz_persp();// Projecao perspectiva, nao vai ser mais utilizado...
+        }
         // print_matriz(this.matriz_persp, "Persp");
 
         this.matriz_jp = this.define_matriz_jp();
@@ -72,33 +76,33 @@ class Camera {
         return mat_aux;
     }
 
-    // private define_matriz_persp(): number[][]{ // Projecao perspectiva, nao vai ser mais utilizado...
-    //     let mat_sru: number[][];
-    //     let mat_src: number[][];
+    private define_matriz_persp(): number[][]{ // Projecao perspectiva, nao vai ser mais utilizado...
+        let mat_sru: number[][];
+        let mat_src: number[][];
 
-    //     let x_vp: number  = (this.vrp.x + (this.dp * (-this.vet_n.unitary.x)))
-    //     let y_vp: number = (this.vrp.y + (this.dp * (-this.vet_n.unitary.y)))
-    //     let z_vp: number = (this.vrp.z + (this.dp * (-this.vet_n.unitary.z)))
+        let x_vp: number  = (this.vrp.x + (this.dp * (-this.vet_n.unitary.x)))
+        let y_vp: number = (this.vrp.y + (this.dp * (-this.vet_n.unitary.y)))
+        let z_vp: number = (this.vrp.z + (this.dp * (-this.vet_n.unitary.z)))
 
-    //     mat_sru = ([[x_vp, this.vrp.x],
-    //                 [y_vp, this.vrp.y],
-    //                 [z_vp, this.vrp.z],
-    //                 [1, 1]])
+        mat_sru = ([[x_vp, this.vrp.x],
+                    [y_vp, this.vrp.y],
+                    [z_vp, this.vrp.z],
+                    [1, 1]])
 
-    //     mat_src = mult_matriz(this.matriz_SRU_SRC, mat_sru);
-    //     // print_matriz(mat_src, "SRC");
+        mat_src = mult_matriz(this.matriz_SRU_SRC, mat_sru);
+        // print_matriz(mat_src, "SRC");
 
-    //     let new_z_vp = mat_src[2][0]
-    //     let new_z_prp = mat_src[2][1]
+        let new_z_vp = mat_src[2][0]
+        let new_z_prp = mat_src[2][1]
 
-    //     let mat_aux: number[][];// 
-    //     mat_aux = ([[1, 0, 0, 0],
-    //                 [0, 1, 0, 0],
-    //                 [0, 0, -(new_z_vp / this.dp), new_z_vp * (new_z_prp/this.dp)],
-    //                 [0, 0, -1/this.dp, new_z_prp/this.dp]
-    //     ])
-    //     return mat_aux;
-    // }
+        let mat_aux: number[][];// 
+        mat_aux = ([[1, 0, 0, 0],
+                    [0, 1, 0, 0],
+                    [0, 0, -(new_z_vp / this.dp), new_z_vp * (new_z_prp/this.dp)],
+                    [0, 0, -1/this.dp, new_z_prp/this.dp]
+        ])
+        return mat_aux;
+    }
 
     private define_matriz_jp(): number[][]{
         let u_min:number = this.x_min;
@@ -128,11 +132,12 @@ class Camera {
     get_mat_SRU_SRT(): number[][]{
         let mat_aux: number[][];
 
-        // mat_aux = mult_matriz(this.matriz_jp, this.matriz_persp);
-        // mat_aux = mult_matriz(mat_aux, this.matriz_SRU_SRC);
-
-        mat_aux = mult_matriz(this.matriz_jp, this.matriz_SRU_SRC);
-        // print_matriz(mat_aux, "Matriz_SRU_SRT")
+        if(this.flag_persp){
+            mat_aux = mult_matriz(this.matriz_jp, this.matriz_persp);
+            mat_aux = mult_matriz(mat_aux, this.matriz_SRU_SRC);
+        } else {
+            mat_aux = mult_matriz(this.matriz_jp, this.matriz_SRU_SRC);
+        }
         return mat_aux;
     }
 }
