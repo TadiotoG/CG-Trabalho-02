@@ -373,20 +373,24 @@ var ZBuffer = /** @class */ (function () {
         this.width = width;
         this.height = height;
         this.depthBuffer = Array.from({ length: height }, function () { return Array(width).fill(Infinity); });
-        this.colorBuffer = Array.from({ length: height }, function () { return Array(width).fill('#000000'); }); // Default background color
+        this.colorBuffer = Array.from({ length: height }, function () { return Array(width).fill('#FFFFFF'); }); // Default background color
     }
     ZBuffer.prototype.initializeBuffers = function () {
         for (var y = 0; y < this.height; y++) {
             for (var x = 0; x < this.width; x++) {
                 this.depthBuffer[y][x] = Infinity;
-                this.colorBuffer[y][x] = '#000000'; // Default background color
+                this.colorBuffer[y][x] = '#FFFFFF'; // Default background color
+                // console.log("Z buffer -> ", this.depthBuffer[y][x]);
             }
         }
     };
     ZBuffer.prototype.updateBuffer = function (x, y, z, color) {
-        if (z < this.depthBuffer[y][x]) {
-            this.depthBuffer[y][x] = z;
-            this.colorBuffer[y][x] = color;
+        // console.log(` y = ${y}    x = ${(x)}`);
+        // console.log("depth buffer len ", this.depthBuffer.length, "    [0] -> ", this.depthBuffer[0][0])
+        // console.log("This. depth -> ", this.depthBuffer[Math.round(y)][x])
+        if (z < this.depthBuffer[Math.ceil(y)][x]) {
+            this.depthBuffer[Math.ceil(y)][x] = z;
+            this.colorBuffer[Math.ceil(y)][x] = color;
         }
     };
     ZBuffer.prototype.render = function (faces) {

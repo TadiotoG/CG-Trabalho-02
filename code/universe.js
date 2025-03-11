@@ -1,9 +1,9 @@
 /// <reference path="./surface.ts" />
-/// <reference path="./Camera.ts" />
+/// <reference path="./camera.ts" />
 var canvas_width = 1000;
 var canvas_height = 800;
 var Universe = /** @class */ (function () {
-    function Universe(ctx_out, cam, lamp, ambient_light) {
+    function Universe(ctx_out, cam, lamp, ambient_light, z_buffer) {
         var _this = this;
         this.surfaces = [];
         this.rotate_y = false;
@@ -12,7 +12,7 @@ var Universe = /** @class */ (function () {
             _this.ctx.fillRect(0, 0, canvas_width, canvas_height);
             for (var i = 0; i < _this.surfaces.length; i++) {
                 _this.surfaces[i].create_faces(_this.matriz_SRU_SRT);
-                _this.draw_whole_surface(_this.surfaces[i]);
+                _this.cut_surface_nocolor(_this.surfaces[i]);
                 var new_matriz_obj = void 0;
                 new_matriz_obj = mult_matriz(get_matriz_rot_y(0.002), _this.surfaces[i].get_outp_as_mat()); // Faz a animacao rotacionando o objeto no eixo y
                 _this.surfaces[i].update_outp_with_mat(new_matriz_obj);
@@ -30,6 +30,7 @@ var Universe = /** @class */ (function () {
         this.matriz_SRU_SRT = this.camera.get_mat_SRU_SRT();
         this.lamp = lamp;
         this.la = ambient_light;
+        this.zbuffer = z_buffer;
     }
     ;
     Universe.prototype.update_all_face_colors_constant = function () {
@@ -91,13 +92,32 @@ var Universe = /** @class */ (function () {
             return amb_light.toString(10);
         }
     };
-    Universe.prototype.draw_whole_surface = function (surface) {
+    Universe.prototype.cut_surface_nocolor = function (surface) {
         for (var i = 0; i < surface.faces.length; i++) {
             surface.faces[i] = Recorte(surface.faces[i], 0, 1000, 0, 800);
-            this.draw_face(surface.faces[i]);
         }
     };
     ;
+    Universe.prototype.cut_surface_withcolor = function (surface) {
+        for (var i = 0; i < surface.faces.length; i++) {
+            surface.faces[i] = RecorteWithColor(surface.faces[i], 0, 1000, 0, 800);
+        }
+    };
+    ;
+    Universe.prototype.calc_zbuffer = function () {
+        for (var i = 0; i < this.surfaces.length; i++) {
+            this.zbuffer.render(this.surfaces[i].faces);
+        }
+    };
+    Universe.prototype.plot_zbuffer = function () {
+        for (var i = 0; i < this.zbuffer.colorBuffer.length; i++) {
+            for (var j = 0; j < this.zbuffer.colorBuffer[0].length; j++) {
+                // console.log(`[${i}][${j}]`)
+                this.ctx.fillStyle = this.zbuffer.colorBuffer[i][j];
+                this.ctx.fillRect(j, i, 1, 1);
+            }
+        }
+    };
     Universe.prototype.draw_face = function (face) {
         // let points = mult_matriz(this.matriz_SRU_SRT, this.get_mat_from_list_of_dots(face.dots))
         // let dots_on_screen: Array<Dot>; // Pontos em coordenada de tela, após a conversao utilizando a matriz SRU_SRT
@@ -208,8 +228,8 @@ var Universe = /** @class */ (function () {
         this.surfaces.forEach(function (surface) {
             // Criamos uma lista de objetos para manter as faces sincronizadas
             var indexedFaces = surface.faces_SRU.map(function (_, index) { return ({
-                index: index,
-                worldFace: surface.faces_SRU[index],
+                index: index, // Índice original
+                worldFace: surface.faces_SRU[index], // Face em coordenadas de mundo
                 screenFace: surface.faces[index] // Face em coordenadas de tela
             }); });
             // Ordenamos essa estrutura com base na distância ao VRP

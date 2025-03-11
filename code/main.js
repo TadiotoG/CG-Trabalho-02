@@ -463,7 +463,8 @@ function change_world() {
     focal_point_camera = new Dot(focal_x, focal_y, focal_z);
     distance_point = 240;
     camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
-    uni = new Universe(ctx, camera, my_lamp, luz_ambiente);
+    zbuffer = new ZBuffer(wind_width, wind_height);
+    uni = new Universe(ctx, camera, my_lamp, luz_ambiente, zbuffer);
     for (var i = 0; i < list_of_surfaces.length; i++) {
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
@@ -471,8 +472,12 @@ function change_world() {
     }
     if (shading() == "const") {
         uni.update_all_face_colors_constant();
+        uni.calc_zbuffer();
+        uni.plot_zbuffer();
     }
-    uni.render(vrp_camera);
+    else {
+        uni.render(vrp_camera);
+    }
     var ControlPointsCheckbox;
     ControlPointsCheckbox = document.getElementById("check_control_p");
     if (ControlPointsCheckbox && ControlPointsCheckbox.checked) {
@@ -563,11 +568,12 @@ var cor_aresta;
 var shading;
 get_shading();
 get_values_to_cam();
+var zbuffer = new ZBuffer(wind_width, wind_height);
 var vrp_camera = new Dot(cam_x, cam_y, cam_z);
 var focal_point_camera = new Dot(focal_x, focal_y, focal_z);
 var distance_point = 240;
 var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
-var uni = new Universe(ctx, camera, new Lamp(lamp_intensidade, lamp_x, lamp_y, lamp_z), luz_ambiente);
+var uni = new Universe(ctx, camera, new Lamp(lamp_intensidade, lamp_x, lamp_y, lamp_z), luz_ambiente, zbuffer);
 var star_x;
 var star_y;
 var star_z;
