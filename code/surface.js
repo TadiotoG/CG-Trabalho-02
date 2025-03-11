@@ -1,4 +1,4 @@
-/// <reference path= "./spline.ts" />
+/// <reference path="./spline.ts" />
 // import { get } from "lodash";
 // import { random } from "lodash"
 var Faces_SRU_SRT = /** @class */ (function () {

@@ -1,6 +1,5 @@
-/// <reference path= "./surface.ts" />
-/// <reference path= "./camera.ts" />
-/// <reference path= "./z_buffer.ts" />
+/// <reference path="./surface.ts" />
+/// <reference path="./Camera.ts" />
 var canvas_width = 1000;
 var canvas_height = 800;
 var Universe = /** @class */ (function () {
@@ -209,8 +208,8 @@ var Universe = /** @class */ (function () {
         this.surfaces.forEach(function (surface) {
             // Criamos uma lista de objetos para manter as faces sincronizadas
             var indexedFaces = surface.faces_SRU.map(function (_, index) { return ({
-                index: index, // Índice original
-                worldFace: surface.faces_SRU[index], // Face em coordenadas de mundo
+                index: index,
+                worldFace: surface.faces_SRU[index],
                 screenFace: surface.faces[index] // Face em coordenadas de tela
             }); });
             // Ordenamos essa estrutura com base na distância ao VRP

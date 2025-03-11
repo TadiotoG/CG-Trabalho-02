@@ -1,5 +1,5 @@
 /// <reference path="./surface.ts" />
-/// <reference path="./Camera.ts" />
+/// <reference path="./camera.ts" />
 
 let canvas_width = 1000;
 let canvas_height = 800;
@@ -12,13 +12,15 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     rotate_y: Boolean = false;
     lamp: Lamp;
     la: [number, number, number]; // Luz ambiente
+    zbuffer: ZBuffer;
 
-    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: [number, number, number]){
+    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: [number, number, number], z_buffer: ZBuffer){
         this.ctx = ctx_out;
         this.camera = cam;
         this.matriz_SRU_SRT = this.camera.get_mat_SRU_SRT();
         this.lamp = lamp;
         this.la = ambient_light;
+        this.zbuffer = z_buffer;
     };
 
     animate_world = () => {
@@ -27,7 +29,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
 
         for(let i = 0; i < this.surfaces.length; i++){
             this.surfaces[i].create_faces(this.matriz_SRU_SRT);
-            this.draw_whole_surface(this.surfaces[i]);
+            this.cut_surface_nocolor(this.surfaces[i]);
             let new_matriz_obj: number[][];
             new_matriz_obj = mult_matriz(get_matriz_rot_y(0.002), this.surfaces[i].get_outp_as_mat()); // Faz a animacao rotacionando o objeto no eixo y
             this.surfaces[i].update_outp_with_mat(new_matriz_obj);
@@ -112,12 +114,29 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
     }
 
-    draw_whole_surface(surface: Surface){
+    cut_surface_nocolor(surface: Surface){
         for(let i=0; i < surface.faces.length; i++){
             surface.faces[i] = Recorte(surface.faces[i], 0, 1000, 0, 800);
-            this.draw_face(surface.faces[i]);
+
         }
     };
+
+    cut_surface_withcolor(surface: Surface){
+        for(let i=0; i < surface.faces.length; i++){
+            surface.faces[i] = RecorteWithColor(surface.faces[i], 0, 1000, 0, 800);
+
+        }
+    };
+
+    calc_zbuffer(){
+        for(let i=0; i<this.surfaces.length; i++){
+            this.zbuffer.render(this.surfaces[i].faces)
+        }
+    }
+
+    plot_zbuffer(){
+        
+    }
 
     draw_face(face: Face){
         // let points = mult_matriz(this.matriz_SRU_SRT, this.get_mat_from_list_of_dots(face.dots))
