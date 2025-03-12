@@ -531,10 +531,13 @@ class ZBuffer {
 }
 
 function Recorte (face: Face, umin: number, umax: number, vmin: number, vmax: number) {
+<<<<<<< HEAD
     umin = Number(umin);
     umax = Number(umax);
     vmin = Number(vmin);
     vmax = Number(vmax);
+=======
+>>>>>>> 4a70147e0dd21a80b8f8edcd525a2f641f949861
 
     // console.log("Entrou")
     let pontos = face.dots;
