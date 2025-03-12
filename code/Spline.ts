@@ -519,8 +519,6 @@ class ZBuffer {
                 }
 
                 // Log the values for each scanline
-                
-                const tz = (x2 - x1 === 0) ? 0 : ((z2 - z1) / (x2 - x1)).toFixed(6);
 
                 for (let x = Math.ceil(x1); x <= Math.floor(x2); x++) {
                     const t = (x - x1) / (x2 - x1);
