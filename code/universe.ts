@@ -248,14 +248,19 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
             return distanciaB - distanciaA; // Ordenação decrescente
         });
 
-        console.log("Cor antes -> ", this.surfaces[0].double_faces[0].face.color)
+        // console.log("Cor antes -> ", this.surfaces[0].double_faces[0].face.color)
 
         for (const doubleFace of all_double_faces) {
-            let normal = prod_escalar(doubleFace.face_SRU.get_normal().unitary, new Vet(this.camera.vrp.x, this.camera.vrp.y, this.camera.vrp.z).unitary);
+            // console.log("Pontos -> ", doubleFace.face_SRU.dots)
+            // console.log("Normal -> ", doubleFace.face_SRU.get_normal())
+            let vrp_minus_cent = new Vet(doubleFace.face_SRU.centroide.x - this.camera.vrp.x, doubleFace.face_SRU.centroide.y - this.camera.vrp.y, doubleFace.face_SRU.centroide.z - this.camera.vrp.z)
+            // console.log("VRP - Centroide -> ", vrp_minus_cent)
+            let normal = prod_escalar(doubleFace.face_SRU.get_normal().unitary, vrp_minus_cent.unitary);
+            // console.log("Calculo da normal -> ", normal)
             doubleFace.face.fillpoly(this.ctx, normal);
         }
 
-        console.log("Cor depois -> ", this.surfaces[0].double_faces[0].face.color)
+        // console.log("Cor depois -> ", this.surfaces[0].double_faces[0].face.color)
     }
 }
 

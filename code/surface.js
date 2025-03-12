@@ -220,13 +220,13 @@ var Surface = /** @class */ (function () {
         for (var i = 0; i < this.resi - 1; i++) {
             for (var j = 0; j < this.resj - 1; j++) { // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca
                 var A = new Dot(ps[0][i * this.resj + j] / ps[3][i * this.resj + j], ps[1][i * this.resj + j] / ps[3][i * this.resj + j], ps[2][i * this.resj + j]);
-                var B = new Dot(ps[0][i * this.resj + (j + 1)] / ps[3][i * this.resj + (j + 1)], ps[1][i * this.resj + (j + 1)] / ps[3][i * this.resj + (j + 1)], ps[2][i * this.resj + (j + 1)]);
+                var B = new Dot(ps[0][(i + 1) * this.resj + j] / ps[3][(i + 1) * this.resj + j], ps[1][(i + 1) * this.resj + j] / ps[3][(i + 1) * this.resj + j], ps[2][(i + 1) * this.resj + j]);
                 var C = new Dot(ps[0][(i + 1) * this.resj + (j + 1)] / ps[3][(i + 1) * this.resj + (j + 1)], ps[1][(i + 1) * this.resj + (j + 1)] / ps[3][(i + 1) * this.resj + (j + 1)], ps[2][(i + 1) * this.resj + (j + 1)]);
-                var D = new Dot(ps[0][(i + 1) * this.resj + j] / ps[3][(i + 1) * this.resj + j], ps[1][(i + 1) * this.resj + j] / ps[3][(i + 1) * this.resj + j], ps[2][(i + 1) * this.resj + j]);
+                var D = new Dot(ps[0][i * this.resj + (j + 1)] / ps[3][i * this.resj + (j + 1)], ps[1][i * this.resj + (j + 1)] / ps[3][i * this.resj + (j + 1)], ps[2][i * this.resj + (j + 1)]);
                 var A_2 = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z);
-                var B_2 = new Dot(this.outp[i][j + 1].x, this.outp[i][j + 1].y, this.outp[i][j + 1].z);
+                var B_2 = new Dot(this.outp[i + 1][j].x, this.outp[i + 1][j].y, this.outp[i + 1][j].z);
                 var C_2 = new Dot(this.outp[i + 1][j + 1].x, this.outp[i + 1][j + 1].y, this.outp[i + 1][j + 1].z);
-                var D_2 = new Dot(this.outp[i + 1][j].x, this.outp[i + 1][j].y, this.outp[i + 1][j].z);
+                var D_2 = new Dot(this.outp[i][j + 1].x, this.outp[i][j + 1].y, this.outp[i][j + 1].z);
                 var arr_dots = [A, B, C, D];
                 var arr_dots_2 = [A_2, B_2, C_2, D_2];
                 this.double_faces.push(new Double_Face(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color), new Face(arr_dots_2, this.face_color, this.other_side_color, this.line_color))); // Cria a face em coordenada de tela e de SRU ao mesmo tempo

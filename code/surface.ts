@@ -275,19 +275,19 @@ class Surface{
             for(let j=0; j<this.resj-1; j++){ // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca
                 let A = new Dot(ps[0][i*this.resj+j]/ps[3][i*this.resj+j], ps[1][i*this.resj+j]/ps[3][i*this.resj+j], ps[2][i*this.resj+j])
 
-                let B = new Dot(ps[0][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[1][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[2][i*this.resj+(j+1)])
+                let B = new Dot(ps[0][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[1][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[2][(i+1)*this.resj+j])
 
                 let C = new Dot(ps[0][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[1][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[2][(i+1)*this.resj+(j+1)])
 
-                let D = new Dot(ps[0][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[1][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[2][(i+1)*this.resj+j])
+                let D = new Dot(ps[0][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[1][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[2][i*this.resj+(j+1)])
 
                 let A_2 = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z)
 
-                let B_2 = new Dot(this.outp[i][j+1].x, this.outp[i][j+1].y, this.outp[i][j+1].z)
+                let B_2 = new Dot(this.outp[i+1][j].x, this.outp[i+1][j].y, this.outp[i+1][j].z)
 
                 let C_2 = new Dot(this.outp[i+1][j+1].x, this.outp[i+1][j+1].y, this.outp[i+1][j+1].z)
 
-                let D_2 = new Dot(this.outp[i+1][j].x, this.outp[i+1][j].y, this.outp[i+1][j].z)
+                let D_2 = new Dot(this.outp[i][j+1].x, this.outp[i][j+1].y, this.outp[i][j+1].z)
 
                 let arr_dots = [A, B, C, D];
                 let arr_dots_2 = [A_2, B_2, C_2, D_2];

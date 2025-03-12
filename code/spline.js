@@ -92,14 +92,11 @@ var Face = /** @class */ (function () {
         var P1 = this.dots[1];
         var P2 = this.dots[2];
         // Criamos os vetores
-        var v1 = new Vet(P1.x - P0.x, P1.y - P0.y, P1.z - P0.z);
-        var v2 = new Vet(P2.x - P0.x, P2.y - P0.y, P2.z - P0.z);
+        var v1 = new Vet(P0.x - P1.x, P0.y - P1.y, P0.z - P1.z);
+        var v2 = new Vet(P2.x - P1.x, P2.y - P1.y, P2.z - P1.z);
         // Produto vetorial v1 x v2
-        var normal_x = v1.y * v2.z - v1.z * v2.y;
-        var normal_y = v1.z * v2.x - v1.x * v2.z;
-        var normal_z = v1.x * v2.y - v1.y * v2.x;
         // Criamos o vetor normal
-        var normal = new Vet(normal_x, normal_y, normal_z);
+        var normal = prod_vet(v2, v1);
         // Normalizamos o vetor para que ele seja unitário
         return normal;
     };

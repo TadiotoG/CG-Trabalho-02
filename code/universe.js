@@ -214,13 +214,18 @@ var Universe = /** @class */ (function () {
             var distanciaB = calc_distance(centroideB, _this.camera.vrp);
             return distanciaB - distanciaA; // Ordenação decrescente
         });
-        console.log("Cor antes -> ", this.surfaces[0].double_faces[0].face.color);
+        // console.log("Cor antes -> ", this.surfaces[0].double_faces[0].face.color)
         for (var _i = 0, all_double_faces_1 = all_double_faces; _i < all_double_faces_1.length; _i++) {
             var doubleFace = all_double_faces_1[_i];
-            var normal = prod_escalar(doubleFace.face_SRU.get_normal().unitary, new Vet(this.camera.vrp.x, this.camera.vrp.y, this.camera.vrp.z).unitary);
+            // console.log("Pontos -> ", doubleFace.face_SRU.dots)
+            // console.log("Normal -> ", doubleFace.face_SRU.get_normal())
+            var vrp_minus_cent = new Vet(doubleFace.face_SRU.centroide.x - this.camera.vrp.x, doubleFace.face_SRU.centroide.y - this.camera.vrp.y, doubleFace.face_SRU.centroide.z - this.camera.vrp.z);
+            // console.log("VRP - Centroide -> ", vrp_minus_cent)
+            var normal = prod_escalar(doubleFace.face_SRU.get_normal().unitary, vrp_minus_cent.unitary);
+            // console.log("Calculo da normal -> ", normal)
             doubleFace.face.fillpoly(this.ctx, normal);
         }
-        console.log("Cor depois -> ", this.surfaces[0].double_faces[0].face.color);
+        // console.log("Cor depois -> ", this.surfaces[0].double_faces[0].face.color)
     };
     return Universe;
 }());
