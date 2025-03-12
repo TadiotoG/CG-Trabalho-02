@@ -120,8 +120,9 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
 
     cut_surface_nocolor(surface: Surface){
         for(let i=0; i < surface.faces.length; i++){
+            console.log("Entrou assim -> ", surface.faces[i])
             surface.faces[i] = Recorte(surface.faces[i], 0, this.width, 0, this.height);
-
+            console.log("Saiu assim -> ", surface.faces[i])
         }
     };
 

@@ -588,8 +588,8 @@ function change_world(){
     for(let i=0; i<list_of_surfaces.length; i++){
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
-        // uni.cut_surface_nocolor(uni.surfaces[i]);
         uni.surfaces[i].update_faces_SRU();
+        uni.cut_surface_nocolor(uni.surfaces[i]);
     }
 
     if(shading() == "const"){
@@ -598,15 +598,15 @@ function change_world(){
         uni.plot_zbuffer();
     } else {
         uni.render(vrp_camera);
-    }
+    };
     
     let ControlPointsCheckbox;
     ControlPointsCheckbox = document.getElementById("check_control_p");
     if (ControlPointsCheckbox && ControlPointsCheckbox.checked) {
         for(let i=0; i<list_of_surfaces.length; i++){
             uni.draw_cp(uni.surfaces[i]);
-        }
-    }
+        };
+    };
 }
 
 function erase_canvas(){
@@ -725,9 +725,9 @@ var res_j: number;
 create_surface();
 
 let ControlPointsCheckbox;
-ControlPointsCheckbox = document.getElementById("check_control_p");
-if (ControlPointsCheckbox && ControlPointsCheckbox.checked) {
-    uni.draw_cp(uni.surfaces[0]);
-}
+// ControlPointsCheckbox = document.getElementById("check_control_p");
+// if (ControlPointsCheckbox && ControlPointsCheckbox.checked) {
+//     uni.draw_cp(uni.surfaces[0]);
+// }
 
 change_world();

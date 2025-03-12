@@ -531,7 +531,13 @@ class ZBuffer {
     }
 }
 
-function Recorte (face: Face, umin, umax, vmin, vmax) { 
+function Recorte (face: Face, umin, umax, vmin, vmax) {
+    umin = Number(umin)
+    umax = Number(umax)
+    vmin = Number(vmin)
+    vmax = Number(vmax)
+
+    // console.log("Entrou")
     let pontos = face.dots;
     let arestas: Aresta[] = [];
 
@@ -610,7 +616,7 @@ function Recorte (face: Face, umin, umax, vmin, vmax) {
             if (p1.x > umax && p2.x < umax) {//adentra recorte
 
                 u = (umax - p1.x) / (p2.x - p1.x);
-                let x = umax;  
+                let x = umax;
                 let y = p1.y + u * (p2.y - p1.y);
                 let z = p1.z + u * (p2.z - p1.z);
 

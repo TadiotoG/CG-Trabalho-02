@@ -464,6 +464,11 @@ var ZBuffer = /** @class */ (function () {
     return ZBuffer;
 }());
 function Recorte(face, umin, umax, vmin, vmax) {
+    umin = Number(umin);
+    umax = Number(umax);
+    vmin = Number(vmin);
+    vmax = Number(vmax);
+    // console.log("Entrou")
     var pontos = face.dots;
     var arestas = [];
     for (var i = 0; i < pontos.length; i++) {

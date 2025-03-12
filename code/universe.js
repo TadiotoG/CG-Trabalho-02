@@ -96,7 +96,9 @@ var Universe = /** @class */ (function () {
     };
     Universe.prototype.cut_surface_nocolor = function (surface) {
         for (var i = 0; i < surface.faces.length; i++) {
+            console.log("Entrou assim -> ", surface.faces[i]);
             surface.faces[i] = Recorte(surface.faces[i], 0, this.width, 0, this.height);
+            console.log("Saiu assim -> ", surface.faces[i]);
         }
     };
     ;
