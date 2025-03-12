@@ -518,8 +518,6 @@ class ZBuffer {
                 }
 
                 // Log the values for each scanline
-                
-                const tz = (x2 - x1 === 0) ? 0 : ((z2 - z1) / (x2 - x1)).toFixed(6);
 
                 for (let x = Math.ceil(x1); x <= Math.floor(x2); x++) {
                     const t = (x - x1) / (x2 - x1);
@@ -531,11 +529,7 @@ class ZBuffer {
     }
 }
 
-function Recorte (face: Face, umin, umax, vmin, vmax) {
-    umin = Number(umin)
-    umax = Number(umax)
-    vmin = Number(vmin)
-    vmax = Number(vmax)
+function Recorte (face: Face, umin: number, umax: number, vmin: number, vmax: number) {
 
     // console.log("Entrou")
     let pontos = face.dots;
