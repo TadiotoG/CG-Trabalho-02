@@ -4,9 +4,14 @@
 
 // import { random } from "lodash"
 
-class Faces_SRU_SRT{
-    faces_SRU: Array<Face>;
-    faces_screen: Array<Face>;
+class Double_Face{
+    face: Face;
+    face_SRU: Face;
+
+    constructor(normal_face: Face, face_sru: Face){
+        this.face = normal_face;
+        this.face_SRU = face_sru;
+    }
 }
 
 class Surface{
@@ -19,8 +24,9 @@ class Surface{
     resi: number;
     resj: number;
     outp: Dot[][];
-    faces: Array<Face>;
-    faces_SRU: Array<Face>;
+    // faces: Array<Face>;
+    // faces_SRU: Array<Face>;
+    double_faces: Array<Double_Face>;
     ka: [number, number, number]; // Material, utilizado no sombreamento
     kd: [number, number, number]; // Material, utilizado no sombreamento
     ks: [number, number, number]; // Material, utilizado no sombreamento
@@ -47,6 +53,7 @@ class Surface{
         this.face_color = face_col;
         this.other_side_color = other_side_col;
         this.line_color = cor_aresta;
+        this.double_faces = [];
 
         // console.log(`x = ${star_x}  y = ${star_y}   z = ${star_z}`);
         if(cp.length == 1){
@@ -60,17 +67,16 @@ class Surface{
             this.control_points = cp;
         }
         this.generateSurface();
-        this.update_faces_SRU();
     }
 
-    callfp(ctx: CanvasRenderingContext2D, vrp: Dot) {
-        this.faces.forEach((face, i) => {
+    // callfp(ctx: CanvasRenderingContext2D, vrp: Dot) {
+    //     this.faces.forEach((face, i) => {
 
-            let normal = prod_escalar(this.faces_SRU[i].get_normal().unitary, new Vet(vrp.x, vrp.y, vrp.z).unitary);
+    //         let normal = prod_escalar(this.faces_SRU[i].get_normal().unitary, new Vet(vrp.x, vrp.y, vrp.z).unitary);
 
-            face.fillpoly(ctx, vrp, vrp, normal);
-        })
-    }
+    //         face.fillpoly(ctx, vrp, vrp, normal);
+    //     })
+    // }
 
     SplineKnots(u: number[], n: number, t: number): void {
       let j: number;
@@ -107,7 +113,6 @@ class Surface{
     }
 
     generateSurface(): void {
-        let counter = 0;
         let intervalI = 0;
         let incrementI = (this.ni - this.ti + 1) / (this.resi - 1);
         let incrementJ = (this.nj - this.tj + 1) / (this.resj - 1);
@@ -244,27 +249,27 @@ class Surface{
         }
     }
 
-    update_faces_SRU(){
-        this.faces_SRU = []
-        for(let i=0; i<this.resi-1; i++){
-            for(let j=0; j<this.resj-1; j++){
-                let A = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z)
+    // update_faces_SRU(){
+    //     this.faces_SRU = []
+    //     for(let i=0; i<this.resi-1; i++){
+    //         for(let j=0; j<this.resj-1; j++){
+    //             let A = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z)
 
-                let B = new Dot(this.outp[i+1][j].x, this.outp[i+1][j].y, this.outp[i+1][j].z)
+    //             let B = new Dot(this.outp[i+1][j].x, this.outp[i+1][j].y, this.outp[i+1][j].z)
 
-                let C = new Dot(this.outp[i+1][j+1].x, this.outp[i+1][j+1].y, this.outp[i+1][j+1].z)
+    //             let C = new Dot(this.outp[i+1][j+1].x, this.outp[i+1][j+1].y, this.outp[i+1][j+1].z)
 
-                let D = new Dot(this.outp[i][j+1].x, this.outp[i][j+1].y, this.outp[i][j+1].z)
+    //             let D = new Dot(this.outp[i][j+1].x, this.outp[i][j+1].y, this.outp[i][j+1].z)
 
-                let arr_dots = [A, D, C, B]
-                this.faces_SRU.push(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color));
-            }
-        }
-    }
+    //             let arr_dots = [A, D, C, B]
+    //             this.faces_SRU.push(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color));
+    //         }
+    //     }
+    // }
 
     create_faces(matriz_SRU_SRT: number[][]){ // Essa funcao foi projetada para ser chamada no momento de plotar, para que tenhamos as coordenadas de tela de cada vértice/face, pois se pegassemos diretamente os pontos sem a conversao SRU_SRT, teriamos as coordenadas de mundo, o que nao traria informações uteis
         let ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat()) // ps = points_screen
-        this.faces = [];
+        this.double_faces = [];
 
         for(let i=0; i<this.resi-1; i++){
             for(let j=0; j<this.resj-1; j++){ // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca
@@ -276,11 +281,40 @@ class Surface{
 
                 let D = new Dot(ps[0][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[1][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[2][(i+1)*this.resj+j])
 
-                let arr_dots = [A, B, C, D]
-                this.faces.push(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color));
+                let A_2 = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z)
+
+                let B_2 = new Dot(this.outp[i][j+1].x, this.outp[i][j+1].y, this.outp[i][j+1].z)
+
+                let C_2 = new Dot(this.outp[i+1][j+1].x, this.outp[i+1][j+1].y, this.outp[i+1][j+1].z)
+
+                let D_2 = new Dot(this.outp[i+1][j].x, this.outp[i+1][j].y, this.outp[i+1][j].z)
+
+                let arr_dots = [A, B, C, D];
+                let arr_dots_2 = [A_2, B_2, C_2, D_2];
+                this.double_faces.push(new Double_Face(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color), new Face(arr_dots_2, this.face_color, this.other_side_color, this.line_color))); // Cria a face em coordenada de tela e de SRU ao mesmo tempo
             }
         }
     }
+
+    // create_faces(matriz_SRU_SRT: number[][]){ // Essa funcao foi projetada para ser chamada no momento de plotar, para que tenhamos as coordenadas de tela de cada vértice/face, pois se pegassemos diretamente os pontos sem a conversao SRU_SRT, teriamos as coordenadas de mundo, o que nao traria informações uteis
+    //     let ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat()) // ps = points_screen
+    //     this.faces = [];
+
+    //     for(let i=0; i<this.resi-1; i++){
+    //         for(let j=0; j<this.resj-1; j++){ // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca
+    //             let A = new Dot(ps[0][i*this.resj+j]/ps[3][i*this.resj+j], ps[1][i*this.resj+j]/ps[3][i*this.resj+j], ps[2][i*this.resj+j])
+
+    //             let B = new Dot(ps[0][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[1][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[2][i*this.resj+(j+1)])
+
+    //             let C = new Dot(ps[0][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[1][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[2][(i+1)*this.resj+(j+1)])
+
+    //             let D = new Dot(ps[0][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[1][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[2][(i+1)*this.resj+j])
+
+    //             let arr_dots = [A, B, C, D]
+    //             this.faces.push(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color));
+    //         }
+    //     }
+    // }
 
     define_dots_screen(matriz_SRU_SRT: number[][]){
         // console.log("Get cp as mat -> ", this.get_cp_as_mat())

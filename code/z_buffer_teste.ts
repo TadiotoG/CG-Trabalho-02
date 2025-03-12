@@ -38,8 +38,8 @@ class Z_Buffer{
                 [face.arestas[i][0], face.arestas[i][1]] = [aresta[1], aresta[0]];
             }
             
-            const x1 = aresta[0].x, y1 = aresta[0].y;
-            const x2 = aresta[1].x, y2 = aresta[1].y;
+            const x1 = aresta[0].x, y1 = Math.ceil(aresta[0].y);
+            const x2 = aresta[1].x, y2 = Math.floor(aresta[1].y);
 
             const z1 = aresta[0].z;
             const z2 = aresta[1].z;
@@ -124,7 +124,6 @@ function testZBuffer() {
         for (let y = 0; y < canvas.height; y++) {
             ctx.fillStyle = zBuffer.buffer[x][y].color;
             ctx.fillRect(x, y, 1, 1);
-            
         }
     }
     // console.log("Buffer -> ", zBuffer.buffer)

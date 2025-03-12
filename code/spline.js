@@ -50,8 +50,6 @@ var Face = /** @class */ (function () {
         if (col === void 0) { col = "black"; }
         if (other_side_col === void 0) { other_side_col = "red"; }
         if (cor_aresta === void 0) { cor_aresta = "blue"; }
-        this.color = "rgb(0, 0, 0)";
-        this.color_other_side = "rgb(0, 0, 0)";
         this.arestas = [];
         this.inters = [];
         this.inters_z = [];
@@ -59,7 +57,9 @@ var Face = /** @class */ (function () {
         this.dots = array_dots;
         this.cria_arestas();
         this.centroide = this.get_centroide();
-        this.vet_normal = this.get_normal();
+        if (array_dots.length > 2) {
+            this.vet_normal = this.get_normal();
+        }
         this.color = col;
         this.color_other_side = other_side_col;
         this.line_color = cor_aresta;
@@ -112,6 +112,37 @@ var Face = /** @class */ (function () {
             this.arestas[i] = [dot2, dot1];
         }
     };
+    Face.prototype.fillpoly = function (ctx, normal) {
+        // console.log("Cor da face -> ", this.color)
+        var _this = this;
+        //   this.cria_arestas();
+        var ymin = Math.round(Math.min.apply(Math, this.dots.map(function (p) { return p.y; })));
+        var ymax = Math.round(Math.max.apply(Math, this.dots.map(function (p) { return p.y; })));
+        this.inters = Array.from({ length: ymax - ymin + 1 }, function () { return []; });
+        this.arestas.forEach(function (aresta, i) {
+            var _a;
+            if (aresta[0].y === aresta[1].y)
+                return;
+            if (aresta[0].y > aresta[1].y) {
+                _a = [aresta[1], aresta[0]], _this.arestas[i][0] = _a[0], _this.arestas[i][1] = _a[1];
+            }
+            var x1 = aresta[0].x, y1 = Math.ceil(aresta[0].y);
+            var x2 = aresta[1].x, y2 = Math.floor(aresta[1].y);
+            var coeficiente = (x2 - x1) / (y2 - y1);
+            var x = x1;
+            var index = Math.floor(y1 - ymin);
+            for (var y = y1; y <= y2; y++) {
+                if (!_this.inters[index])
+                    _this.inters[index] = [];
+                _this.inters[index++].push(Math.round(x));
+                x += coeficiente;
+            }
+        });
+        this.inters.forEach(function (line, i) {
+            line.sort(function (a, b) { return a - b; });
+            _this.draw(line, ymin + i, ctx, normal);
+        });
+    };
     Face.prototype.draw = function (line, y, ctx, normal) {
         if (normal < 0) {
             ctx.fillStyle = this.color_other_side;
@@ -125,7 +156,7 @@ var Face = /** @class */ (function () {
             var x1 = Math.ceil(line[i]);
             var x2 = Math.floor(line[i + 1]);
             for (var x = x1; x <= x2; x++) {
-                ctx.fillRect(x, y, 2, 2);
+                ctx.fillRect(x, y, 1, 1);
             }
         }
         var arestaCheckbox;
@@ -151,41 +182,10 @@ var Face = /** @class */ (function () {
         ctx.moveTo(dot0.x, dot0.y);
         ctx.lineTo(dot1.x, dot1.y);
         ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         ctx.stroke();
     };
     ;
-    Face.prototype.fillpoly = function (ctx, VRP, centroide, normal) {
-        // console.log("Cor da face -> ", this.color)
-        var _this = this;
-        //   this.cria_arestas();
-        var ymin = Math.round(Math.min.apply(Math, this.dots.map(function (p) { return p.y; })));
-        var ymax = Math.round(Math.max.apply(Math, this.dots.map(function (p) { return p.y; })));
-        this.inters = Array.from({ length: ymax - ymin + 1 }, function () { return []; });
-        this.arestas.forEach(function (aresta, i) {
-            var _a;
-            if (aresta[0].y === aresta[1].y)
-                return;
-            if (aresta[0].y > aresta[1].y) {
-                _a = [aresta[1], aresta[0]], _this.arestas[i][0] = _a[0], _this.arestas[i][1] = _a[1];
-            }
-            var x1 = aresta[0].x, y1 = aresta[0].y;
-            var x2 = aresta[1].x, y2 = aresta[1].y;
-            var coeficiente = (x2 - x1) / (y2 - y1);
-            var x = x1;
-            var index = Math.floor(y1 - ymin);
-            for (var y = y1; y <= y2; y++) {
-                if (!_this.inters[index])
-                    _this.inters[index] = [];
-                _this.inters[index++].push(Math.round(x));
-                x += coeficiente;
-            }
-        });
-        this.inters.forEach(function (line, i) {
-            line.sort(function (a, b) { return a - b; });
-            _this.draw(line, ymin + i, ctx, normal);
-        });
-    };
     return Face;
 }());
 var Spline = /** @class */ (function () {
@@ -663,9 +663,13 @@ function Recorte(face, umin, umax, vmin, vmax) {
         arestas = novasArestas;
         pontos = novosPontos_4;
     }
-    return new Face(pontos);
+    return new Face(pontos, face.color, face.color_other_side, face.line_color);
 }
 function RecorteWithColor(face, umin, umax, vmin, vmax) {
+    umin = Number(umin);
+    umax = Number(umax);
+    vmin = Number(vmin);
+    vmax = Number(vmax);
     var pontos = face.dots;
     var arestas = [];
     for (var i = 0; i < pontos.length; i++) {
@@ -868,7 +872,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
         arestas = novasArestas;
         pontos = novosPontos_8;
     }
-    return new Face(pontos);
+    return new Face(pontos, face.color, face.color_other_side, face.line_color);
 }
 function interpolateColor(color1, color2, t) {
     var c1 = color1.match(/\d+/g).map(Number);
