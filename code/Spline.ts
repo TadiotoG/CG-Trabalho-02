@@ -3,6 +3,10 @@ class Dot{ // Classe para pontos ou vertices
     y: number;
     z: number;
     color: string;
+    gouraud: Vet;
+    r_gouraud: number;
+    g_gouraud: number;
+    b_gouraud: number;
 
     constructor(new_x: number, new_y: number, new_z: number, col: string = "red"){
         this.x = new_x;
@@ -338,6 +342,17 @@ function VetA_minus_VetB(A: Dot, B: Dot) { // Subtracao entre 2 pontos ou vetore
     x = A.x - B.x;
     y = A.y - B.y;
     z = A.z - B.z;
+
+    let C = new Vet(x, y, z);
+
+    return C;
+}
+
+function VetA_plus_VetB(A: Dot, B: Dot) { // Adicao entre 2 pontos ou vetores, resultando em um Vetor
+    let x: number, y: number, z: number;
+    x = A.x + B.x;
+    y = A.y + B.y;
+    z = A.z + B.z;
 
     let C = new Vet(x, y, z);
 

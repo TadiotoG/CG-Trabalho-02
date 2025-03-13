@@ -1,4 +1,4 @@
-/// <reference path="./spline.ts" />
+/// <reference path="./camera.ts" />
 
 // import { get } from "lodash";
 
@@ -281,13 +281,21 @@ class Surface{
 
                 let D = new Dot(ps[0][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[1][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[2][i*this.resj+(j+1)])
 
-                let A_2 = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z)
+                // let A_2 = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z)
 
-                let B_2 = new Dot(this.outp[i+1][j].x, this.outp[i+1][j].y, this.outp[i+1][j].z)
+                // let B_2 = new Dot(this.outp[i+1][j].x, this.outp[i+1][j].y, this.outp[i+1][j].z)
 
-                let C_2 = new Dot(this.outp[i+1][j+1].x, this.outp[i+1][j+1].y, this.outp[i+1][j+1].z)
+                // let C_2 = new Dot(this.outp[i+1][j+1].x, this.outp[i+1][j+1].y, this.outp[i+1][j+1].z)
 
-                let D_2 = new Dot(this.outp[i][j+1].x, this.outp[i][j+1].y, this.outp[i][j+1].z)
+                // let D_2 = new Dot(this.outp[i][j+1].x, this.outp[i][j+1].y, this.outp[i][j+1].z)
+
+                let A_2 = this.outp[i][j];
+
+                let B_2 = this.outp[i+1][j];
+
+                let C_2 = this.outp[i+1][j+1];
+
+                let D_2 = this.outp[i][j+1];
 
                 let arr_dots = [A, B, C, D];
                 let arr_dots_2 = [A_2, B_2, C_2, D_2];

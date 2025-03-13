@@ -736,3 +736,4 @@ let ControlPointsCheckbox;
 // }
 
 change_world();
+uni.call_gouraud(uni.surfaces[0]);

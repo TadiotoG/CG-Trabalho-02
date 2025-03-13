@@ -1,5 +1,4 @@
-/// <reference path="./surface.ts" />
-/// <reference path="./camera.ts" />
+/// <reference path="./gouraud.ts" />
 
 let canvas_width = 1000;
 let canvas_height = 800;
@@ -34,11 +33,11 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
             let amb_light_b = this.surfaces[i].ka[2] * this.la[2];
             for(let j=0; j<this.surfaces[i].double_faces.length; j++){
                 let new_color = "rgb(";                                                         // Ka: number=0.4, Kd: number=0.6, Ks: number=0.5, N: number=2.15
-                new_color += this.get_face_color_constant(this.surfaces[i].double_faces[j].face_SRU, amb_light_r, this.surfaces[i].ks[0], this.surfaces[i].kd[0], this.surfaces[i].n);
+                new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_r, this.surfaces[i].ks[0], this.surfaces[i].kd[0], this.surfaces[i].n);
                 new_color += ",";
-                new_color += this.get_face_color_constant(this.surfaces[i].double_faces[j].face_SRU, amb_light_g, this.surfaces[i].ks[1], this.surfaces[i].kd[1], this.surfaces[i].n);
+                new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_g, this.surfaces[i].ks[1], this.surfaces[i].kd[1], this.surfaces[i].n);
                 new_color += ",";
-                new_color += this.get_face_color_constant(this.surfaces[i].double_faces[j].face_SRU, amb_light_b, this.surfaces[i].ks[2], this.surfaces[i].kd[2], this.surfaces[i].n);
+                new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_b, this.surfaces[i].ks[2], this.surfaces[i].kd[2], this.surfaces[i].n);
                 new_color += ")";
                 // console.log("New color -> ", new_color);
                 this.surfaces[i].double_faces[j].face.color = new_color;
@@ -46,36 +45,51 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
     }
 
-    get_face_color_constant(face: Face, amb_light_par: number, ks: number, kd: number, n: number){
+    call_gouraud(surface: Surface){
+        define_vet_normal_vertices(surface.outp);
+        let amb_light_r = surface.ka[0] * this.la[0];
+        let amb_light_g = surface.ka[1] * this.la[1];
+        let amb_light_b = surface.ka[2] * this.la[2];
+        for(let i=0; i<surface.outp.length; i++){
+            for(let j=0; j<surface.outp[0].length; j++){
+                let teste = (this.get_ilum(surface.outp[i][j].gouraud, surface.outp[i][j], amb_light_r, surface.ks[0], surface.kd[0], surface.n));
+                surface.outp[i][j].r_gouraud = Number(teste);
+                surface.outp[i][j].g_gouraud = Number(this.get_ilum(surface.outp[i][j].gouraud, surface.outp[i][j], amb_light_g, surface.ks[1], surface.kd[1], surface.n));
+                surface.outp[i][j].b_gouraud = Number(this.get_ilum(surface.outp[i][j].gouraud, surface.outp[i][j], amb_light_b, surface.ks[2], surface.kd[2], surface.n));
+            }
+        }
+    }
+
+    get_ilum(vet_normal: Vet, centroide: Dot, amb_light_par: number, ks: number, kd: number, n: number){
         let amb_light = amb_light_par;
         // console.log("================================================");
         // console.log("Centroide face = ", face);
         // console.log("Lamp x = ", this.lamp.pos.x);
-        let aux_x = this.lamp.pos.x - face.centroide.x;
-        let aux_y = this.lamp.pos.y - face.centroide.y;
-        let aux_z = this.lamp.pos.z - face.centroide.z;
+        let aux_x = this.lamp.pos.x - centroide.x;
+        let aux_y = this.lamp.pos.y - centroide.y;
+        let aux_z = this.lamp.pos.z - centroide.z;
 
         let vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
         // vet_LampMinusCent.print_obj("Lamp - Centroide");
 
-        let UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, face.vet_normal.unitary)
+        let UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, vet_normal.unitary)
         // console.log("UN times UL = ", UN_times_UL);
-        // console.log("vet_normal = ", face.vet_normal.unitary);
+        // console.log("vet_normal = ", vet_normal.unitary);
 
         if(UN_times_UL){
             let ilum_difusa = this.lamp.il * kd * UN_times_UL;
             // console.log("Ilumincao difusa: ", ilum_difusa)
 
-            aux_x = 2*UN_times_UL*face.vet_normal.unitary.x-vet_LampMinusCent.unitary.x;
-            aux_y = 2*UN_times_UL*face.vet_normal.unitary.y-vet_LampMinusCent.unitary.y;
-            aux_z = 2*UN_times_UL*face.vet_normal.unitary.z-vet_LampMinusCent.unitary.z;
+            aux_x = 2*UN_times_UL*vet_normal.unitary.x-vet_LampMinusCent.unitary.x;
+            aux_y = 2*UN_times_UL*vet_normal.unitary.y-vet_LampMinusCent.unitary.y;
+            aux_z = 2*UN_times_UL*vet_normal.unitary.z-vet_LampMinusCent.unitary.z;
 
             let idk_r = new Vet(aux_x, aux_y, aux_z);
             // idk_r.print_obj("Vet r")
 
-            aux_x = this.camera.vrp.x-face.centroide.x;
-            aux_y = this.camera.vrp.y-face.centroide.y;
-            aux_z = this.camera.vrp.z-face.centroide.z;
+            aux_x = this.camera.vrp.x-centroide.x;
+            aux_y = this.camera.vrp.y-centroide.y;
+            aux_z = this.camera.vrp.z-centroide.z;
 
             let direcao_observ = new Vet(aux_x, aux_y, aux_z);
             // direcao_observ.print_obj("Direcao observ");

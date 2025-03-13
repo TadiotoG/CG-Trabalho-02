@@ -301,6 +301,14 @@ function VetA_minus_VetB(A, B) {
     var C = new Vet(x, y, z);
     return C;
 }
+function VetA_plus_VetB(A, B) {
+    var x, y, z;
+    x = A.x + B.x;
+    y = A.y + B.y;
+    z = A.z + B.z;
+    var C = new Vet(x, y, z);
+    return C;
+}
 function prod_escalar(A, B) {
     return (A.x * B.x + A.y * B.y + A.z * B.z);
 }

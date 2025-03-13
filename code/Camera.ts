@@ -1,6 +1,5 @@
 /// <reference path="./spline.ts" />
 
-
 class Camera {
     vrp: Dot;
     focal_point: Dot;

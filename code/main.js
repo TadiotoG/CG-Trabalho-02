@@ -598,3 +598,4 @@ var ControlPointsCheckbox;
 //     uni.draw_cp(uni.surfaces[0]);
 // }
 change_world();
+uni.call_gouraud(uni.surfaces[0]);
