@@ -1,6 +1,5 @@
 /// <reference path="./surface.ts" />
 /// <reference path="./camera.ts" />
-/// <reference path="./z_buffer_teste.ts" />
 
 let canvas_width = 1000;
 let canvas_height = 800;
