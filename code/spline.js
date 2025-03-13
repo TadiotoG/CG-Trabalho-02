@@ -50,6 +50,7 @@ var Face = /** @class */ (function () {
         if (col === void 0) { col = "black"; }
         if (other_side_col === void 0) { other_side_col = "red"; }
         if (cor_aresta === void 0) { cor_aresta = "blue"; }
+        this.color_other_side = "red";
         this.arestas = [];
         this.inters = [];
         this.inters_z = [];
@@ -372,102 +373,96 @@ var ZBuffer = /** @class */ (function () {
     function ZBuffer(width, height) {
         this.width = width;
         this.height = height;
-        this.depthBuffer = Array.from({ length: height }, function () { return Array(width).fill(Infinity); });
-        this.colorBuffer = Array.from({ length: height }, function () { return Array(width).fill('#FFFFFF'); }); // Default background color
+        this.scanline = new Map(); // Inicializa o HashMap
+        this.depthBuffer = Array.from({ length: height }, function () { return Array(width).fill(-100000000); });
+        this.colorBuffer = Array.from({ length: height }, function () { return Array(width).fill('#FFFFFF'); });
     }
-    ZBuffer.prototype.initializeBuffers = function () {
-        for (var y = 0; y < this.height; y++) {
-            for (var x = 0; x < this.width; x++) {
-                this.depthBuffer[y][x] = Infinity;
-                this.colorBuffer[y][x] = '#FFFFFF'; // Default background color
-                // console.log("Z buffer -> ", this.depthBuffer[y][x]);
-            }
-        }
-    };
-    ZBuffer.prototype.updateBuffer = function (x, y, z, color) {
-        // console.log(` y = ${y}    x = ${(x)}`);
-        // console.log("depth buffer len ", this.depthBuffer.length, "    [0] -> ", this.depthBuffer[0][0])
-        // console.log("This. depth -> ", this.depthBuffer[Math.round(y)][x])
-        if (z < this.depthBuffer[Math.ceil(y)][x]) {
-            this.depthBuffer[Math.ceil(y)][x] = z;
-            this.colorBuffer[Math.ceil(y)][x] = color;
-        }
-    };
-    ZBuffer.prototype.render = function (faces) {
-        this.initializeBuffers(); //O parametro que ela usa são todas as faces do objeto (DA PRA MUDAR, NÃO PRECISA SER TODAS AS FACES)
-        for (var _i = 0, faces_1 = faces; _i < faces_1.length; _i++) {
-            var face = faces_1[_i];
-            this.rasterizePolygon(face);
-        }
-    };
     ZBuffer.prototype.rasterizePolygon = function (face) {
-        var pontos = face.dots;
-        var edges = [];
-        var activeEdges = [];
-        for (var i = 0; i < pontos.length; i++) {
-            if (i + 1 < pontos.length) {
-                edges.push(new Aresta(pontos[i], pontos[i + 1]));
-            }
-            else {
-                edges.push(new Aresta(pontos[i], pontos[0]));
+        this.Scanline([face]);
+    };
+    ZBuffer.prototype.Scanline = function (faces) {
+        for (var _i = 0, faces_1 = faces; _i < faces_1.length; _i++) {
+            var face_1 = faces_1[_i];
+            for (var i = 0; i < face_1.dots.length; i++) {
+                var next_i = (i + 1) % face_1.dots.length;
+                if (face_1.dots[i].y === face_1.dots[next_i].y) {
+                    continue;
+                }
+                face_1.dots[i].x = Math.round(face_1.dots[i].x);
+                face_1.dots[i].y = Math.round(face_1.dots[i].y);
+                var start = face_1.dots[i].y < face_1.dots[next_i].y ? face_1.dots[i] : face_1.dots[next_i];
+                var end = face_1.dots[i].y < face_1.dots[next_i].y ? face_1.dots[next_i] : face_1.dots[i];
+                var Dx = end.x - start.x;
+                var Dy = end.y - start.y;
+                var Dz = end.z - start.z;
+                var Tx = Dx / Dy;
+                var Tz = Dz / Dy;
+                var x = start.x;
+                var z = start.z;
+                for (var y = start.y; y < end.y; y++) {
+                    // Adiciona ao HashMap de scanlines
+                    this.updateHash(y, x, z, start.color);
+                    x += Tx;
+                    z += Tz;
+                }
             }
         }
-        // Find ymin and ymax of the face
-        var ymin = Infinity;
-        var ymax = -Infinity;
-        for (var _i = 0, _a = face.dots; _i < _a.length; _i++) {
-            var vertex = _a[_i];
-            if (vertex.y < ymin)
-                ymin = vertex.y;
-            if (vertex.y > ymax)
-                ymax = vertex.y;
+        //console.log(this.scanline);
+    };
+    ZBuffer.prototype.updateHash = function (y, x, z, color) {
+        if (!this.scanline.has(y)) {
+            // Se 'y' não existe no HashMap, criamos uma nova lista vazia
+            this.scanline.set(y, []);
         }
-        var _loop_1 = function (y) {
-            var _b, _c;
-            // Update active edges
-            activeEdges.length = 0;
-            for (var _d = 0, edges_1 = edges; _d < edges_1.length; _d++) {
-                var edge = edges_1[_d];
-                if ((edge.p1.y <= y && edge.p2.y > y) || (edge.p2.y <= y && edge.p1.y > y)) {
-                    activeEdges.push(edge);
-                }
-            }
-            // Sort active edges by x
-            activeEdges.sort(function (a, b) { return a.p1.x + a.tx * (y - a.p1.y) - (b.p1.x + b.tx * (y - b.p1.y)); });
-            // Fill pixels between pairs of intersections
-            for (var i = 0; i < activeEdges.length; i += 2) {
-                var edge1 = activeEdges[i];
-                var edge2 = activeEdges[i + 1];
-                var x1 = edge1.p1.x + edge1.tx * (y - edge1.p1.y);
-                var z1 = edge1.p1.z + edge1.tz * (y - edge1.p1.y);
-                var x2 = edge2.p1.x + edge2.tx * (y - edge2.p1.y);
-                var z2 = edge2.p1.z + edge2.tz * (y - edge2.p1.y);
-                if (x1 > x2) {
-                    _b = [x2, x1], x1 = _b[0], x2 = _b[1];
-                    _c = [z2, z1], z1 = _c[0], z2 = _c[1];
-                }
-                // Log the values for each scanline
-                var tz = (x2 - x1 === 0) ? 0 : ((z2 - z1) / (x2 - x1)).toFixed(6);
-                for (var x = Math.ceil(x1); x <= Math.floor(x2); x++) {
-                    var t = (x - x1) / (x2 - x1);
-                    var z = z1 + t * (z2 - z1);
-                    this_1.updateBuffer(x, y, z, face.color);
-                }
-            }
-        };
-        var this_1 = this;
-        // Process each scanline from ymin to ymax
-        for (var y = ymin; y <= ymax; y++) {
-            _loop_1(y);
+        var listaDePontos = this.scanline.get(y);
+        var novoPonto = new Dot(x, y, z, color);
+        listaDePontos.push(novoPonto);
+    };
+    ZBuffer.prototype.Zbuffer = function () {
+        var _this = this;
+        this.scanline.forEach(function (points, y) {
+            console.log("Y = ".concat(y, ":"));
+            points.sort(function (a, b) { return a.x - b.x; }); // Ordena pela coordenada x
+            // Após a ordenação, podemos atualizar o scanline
+            _this.scanline.set(y, points);
+        });
+        //console.log(this.scanline);
+    };
+    ZBuffer.prototype.AtualizaBuffer = function (constant_z, new_R, new_G, new_B, x, y) {
+        if (constant_z > this.depthBuffer[y][x]) {
+            this.depthBuffer[y][x] = constant_z;
+            this.colorBuffer[y][x] = "rgb(".concat(new_R, ", ").concat(new_G, ", ").concat(new_B, ")");
         }
     };
     return ZBuffer;
 }());
+/* public zbufferConstante(HashMap){
+    
+
+    if(new_z > zbuffer[y][x].z){
+        zbuffer[y][x].z = new_z
+    }
+    
+    
+    if(new_z > zbuffer[y][x].z){
+        zbuffer[y][x].z = new_z
+        zbuffer[y][x].R = new_R
+        zbuffer[y][x].G = new_G
+        zbuffer[y][x].B = new_B
+    }
+} */
+var face = new Face([
+    new Dot(319.000, 160.774, -51.524, "rgb(118, 92, 0)"),
+    new Dot(190.427, 0.000, -48.792, "rgb(64, 90, 7)"),
+    new Dot(149.864, 0.000, -46.762, "rgb(48, 0, 0)"),
+    new Dot(151.303, 239.000, -41.331, "rgb(48, 0, 0)"),
+    new Dot(319.000, 239.000, -49.722, "rgb(117, 89, 6)") // A''
+]);
+var zBuffer = new ZBuffer(1000, 800);
+zBuffer.Scanline([face]);
+zBuffer.Zbuffer();
+//console.log(zBuffer.scanline)
 function Recorte(face, umin, umax, vmin, vmax) {
-    umin = Number(umin);
-    umax = Number(umax);
-    vmin = Number(vmin);
-    vmax = Number(vmax);
     // console.log("Entrou")
     var pontos = face.dots;
     var arestas = [];

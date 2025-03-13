@@ -1,6 +1,5 @@
 /// <reference path="./surface.ts" />
-/// <reference path="./camera.ts" />
-/// <reference path="./z_buffer_teste.ts" />
+/// <reference path="./Camera.ts" />
 var canvas_width = 1000;
 var canvas_height = 800;
 var Universe = /** @class */ (function () {
@@ -95,26 +94,10 @@ var Universe = /** @class */ (function () {
     };
     ;
     Universe.prototype.calc_zbuffer = function () {
-        this.zbuffer.initializeBuffers();
         for (var i = 0; i < this.surfaces.length; i++) {
             for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
                 this.zbuffer.rasterizePolygon(this.surfaces[i].double_faces[j].face);
-            }
-        }
-        for (var x = 0; x < this.zbuffer.depthBuffer.length; x++) { // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
-            for (var z = 0; z < this.zbuffer.depthBuffer[0].length; z++) {
-                if (this.zbuffer.depthBuffer[x][z] < 100000) {
-                    console.log("ZBuffer [".concat(x, "][").concat(z, "] = ").concat(this.zbuffer.depthBuffer[x][z], "  e   ").concat(this.zbuffer.colorBuffer[x][z]));
-                }
-            }
-        }
-    };
-    Universe.prototype.plot_zbuffer = function () {
-        for (var i = 0; i < this.zbuffer.colorBuffer.length; i++) {
-            for (var j = 0; j < this.zbuffer.colorBuffer[0].length; j++) {
-                // console.log(`[${i}][${j}]`)
-                this.ctx.fillStyle = this.zbuffer.colorBuffer[i][j];
-                this.ctx.fillRect(j, i, 1, 1);
+                zBuffer.render(ctx);
             }
         }
     };

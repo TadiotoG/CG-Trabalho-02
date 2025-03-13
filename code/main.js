@@ -465,7 +465,7 @@ function change_world() {
     distance_point = 240;
     // camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height, flag_persp);
     camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
-    zbuffer = new ZBuffer(wind_width, wind_height);
+    zbuffer = new ZBuffer();
     uni = new Universe(ctx, camera, my_lamp, luz_ambiente, zbuffer, wind_width, wind_height);
     for (var i = 0; i < list_of_surfaces.length; i++) {
         uni.surfaces = list_of_surfaces;
@@ -482,7 +482,7 @@ function change_world() {
     }
     else {
         uni.calc_zbuffer();
-        uni.plot_zbuffer();
+        //uni.plot_zbuffer();
     }
     var ControlPointsCheckbox;
     ControlPointsCheckbox = document.getElementById("check_control_p");
@@ -577,7 +577,7 @@ var shading;
 var flag_persp;
 get_shading();
 get_values_to_cam();
-var zbuffer = new ZBuffer(wind_width, wind_height);
+var zbuffer = new ZBuffer();
 var vrp_camera = new Dot(cam_x, cam_y, cam_z);
 var focal_point_camera = new Dot(focal_x, focal_y, focal_z);
 var distance_point = 240;

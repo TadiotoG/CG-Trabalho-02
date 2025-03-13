@@ -3,6 +3,10 @@ class Dot{ // Classe para pontos ou vertices
     y: number;
     z: number;
     color: string;
+    gouraud: Vet;
+    r_gouraud: number;
+    g_gouraud: number;
+    b_gouraud: number;
 
     constructor(new_x: number, new_y: number, new_z: number, col: string = "red"){
         this.x = new_x;
@@ -40,7 +44,7 @@ class Vet extends Dot { // Adicionei esta classe para que assim que declarado o 
 class Face{
     dots: Array<Dot>;
     color: string;
-    color_other_side: string;
+    color_other_side: string = "red";
     arestas: Array<[Dot, Dot]> = []; 
     inters: number[][] = [];
     inters_z: number[][] = [];
@@ -431,6 +435,7 @@ class Aresta {
 }
 
 class ZBuffer {
+    scanline: Map<number, Array<Dot>>; // HashMap para armazenar os valores
     width: number;
     height: number;
     depthBuffer: number[][];
@@ -439,96 +444,132 @@ class ZBuffer {
     constructor(width: number, height: number) {
         this.width = width;
         this.height = height;
-        this.depthBuffer = Array.from({ length: height }, () => Array(width).fill(Infinity));
-        this.colorBuffer = Array.from({ length: height }, () => Array(width).fill('#FFFFFF')); // Default background color
-    }
-
-    initializeBuffers() {
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                this.depthBuffer[y][x] = Infinity;
-                this.colorBuffer[y][x] = '#FFFFFF'; // Default background color
-                // console.log("Z buffer -> ", this.depthBuffer[y][x]);
-            }
-        }
-    }
-
-    updateBuffer(x: number, y: number, z: number, color: string) {
-        // console.log(` y = ${y}    x = ${(x)}`);
-        // console.log("depth buffer len ", this.depthBuffer.length, "    [0] -> ", this.depthBuffer[0][0])
-        // console.log("This. depth -> ", this.depthBuffer[Math.round(y)][x])
-        if (z < this.depthBuffer[Math.ceil(y)][x]) {
-            this.depthBuffer[Math.ceil(y)][x] = z;
-            this.colorBuffer[Math.ceil(y)][x] = color;
-        }
-    }
-
-    render(faces: Face[]) {//Quem faz tudo acontecer é essa função, ela que chama as outras funções para fazer o rasterize
-        this.initializeBuffers();//O parametro que ela usa são todas as faces do objeto (DA PRA MUDAR, NÃO PRECISA SER TODAS AS FACES)
-        for (const face of faces) {
-            this.rasterizePolygon(face);
-        }
+        this.scanline = new Map(); // Inicializa o HashMap
+        this.depthBuffer = Array.from({ length: height }, () => Array(width).fill(-100000000));
+        this.colorBuffer = Array.from({ length: height }, () => Array(width).fill('#FFFFFF'));
     }
 
     rasterizePolygon(face: Face) {
-        let pontos = face.dots;
-        let edges: Aresta[] = [];
-        const activeEdges: Aresta[] = [];
+        this.Scanline([face]);
+    }
 
-        for (let i = 0; i < pontos.length; i++) {
-            if (i + 1 < pontos.length) {
-                edges.push(new Aresta(pontos[i], pontos[i + 1]));
-            } else {
-                edges.push(new Aresta(pontos[i], pontos[0]));
-            }}
+    Scanline(faces: Array<Face>) {
+        for (const face of faces) {
+            for (let i = 0; i < face.dots.length; i++) {
+                const next_i = (i + 1) % face.dots.length;
 
-        // Find ymin and ymax of the face
-        let ymin = Infinity;
-        let ymax = -Infinity;
-        for (const vertex of face.dots) {
-            if (vertex.y < ymin) ymin = vertex.y;
-            if (vertex.y > ymax) ymax = vertex.y;
+                if (face.dots[i].y === face.dots[next_i].y) {
+                    continue;
+                }
+
+                face.dots[i].x = Math.round(face.dots[i].x);
+                face.dots[i].y = Math.round(face.dots[i].y);
+
+                const start = face.dots[i].y < face.dots[next_i].y ? face.dots[i] : face.dots[next_i];
+                const end = face.dots[i].y < face.dots[next_i].y ? face.dots[next_i] : face.dots[i];
+
+                const Dx = end.x - start.x;
+                const Dy = end.y - start.y;
+                const Dz = end.z - start.z;
+
+                const Tx = Dx / Dy;
+                const Tz = Dz / Dy;
+
+                let x = start.x;
+                let z = start.z;
+
+                for (let y = start.y; y < end.y; y++) {
+                    // Adiciona ao HashMap de scanlines
+                    this.updateHash(y, x, z, start.color);
+
+                    x += Tx;
+                    z += Tz;
+                }
+            }
         }
+        //console.log(this.scanline);
+    }
 
-        // Process each scanline from ymin to ymax
-        for (let y = ymin; y <= ymax; y++) {
-            // Update active edges
-            activeEdges.length = 0;
-            for (const edge of edges) {
-                if ((edge.p1.y <= y && edge.p2.y > y) || (edge.p2.y <= y && edge.p1.y > y)) {
-                    activeEdges.push(edge);
+    updateHash(y: number, x: number, z: number, color: string) {
+
+        if (!this.scanline.has(y)) { 
+            // Se 'y' não existe no HashMap, criamos uma nova lista vazia
+            this.scanline.set(y, []);
+        }
+        
+        let listaDePontos = this.scanline.get(y);
+
+        let novoPonto = new Dot(x, y, z, color);
+
+        listaDePontos!.push(novoPonto);
+        
+    }
+
+    Zbuffer() {
+
+        this.scanline.forEach((points, y) => {
+        
+            //console.log(`Y = ${y}:`);
+            points.sort((a, b) => a.x - b.x); // Ordena pela coordenada x
+
+            // Após a ordenação, podemos atualizar o scanline
+            this.scanline.set(y, points);
+        })
+
+        this.scanline.forEach((points, y) => {
+            for (let i = 0; i < points.length; i += 2) {
+                const x1 = Math.ceil(points[i].x);
+                const x2 = Math.floor(points[i + 1].x);
+
+                let z1 = points[i].z;
+                const z2 = points[i + 1].z;
+                let R = points[i].r_gouraud;
+                let G = points[i].g_gouraud;
+                let B = points[i].b_gouraud;
+
+                const dz = (z2 - z1) / (x2 - x1);
+                const dR = (points[i + 1].r_gouraud - points[i].r_gouraud) / (x2 - x1);
+                const dG = (points[i + 1].g_gouraud - points[i].g_gouraud) / (x2 - x1);
+                const dB = (points[i + 1].b_gouraud - points[i].b_gouraud) / (x2 - x1);
+
+
+                for (let x = x1; x <= x2; x++) {
+                    this.AtualizaBuffer(z1, points[i].r_gouraud, points[i].g_gouraud, points[i].b_gouraud, x, y);
+                    z1 += dz;
+                    R += dR;
+                    G += dG;
+                    B += dB;
                 }
             }
+        });
+        
 
-            // Sort active edges by x
-            activeEdges.sort((a, b) => a.p1.x + a.tx * (y - a.p1.y) - (b.p1.x + b.tx * (y - b.p1.y)));
+        //console.log(this.scanline);
+    }
 
-            // Fill pixels between pairs of intersections
-            for (let i = 0; i < activeEdges.length; i += 2) {
-                const edge1 = activeEdges[i];
-                const edge2 = activeEdges[i + 1];
-
-                let x1 = edge1.p1.x + edge1.tx * (y - edge1.p1.y);
-                let z1 = edge1.p1.z + edge1.tz * (y - edge1.p1.y);
-                let x2 = edge2.p1.x + edge2.tx * (y - edge2.p1.y);
-                let z2 = edge2.p1.z + edge2.tz * (y - edge2.p1.y);
-
-                if (x1 > x2) {
-                    [x1, x2] = [x2, x1];
-                    [z1, z2] = [z2, z1];
-                }
-
-                // Log the values for each scanline
-
-                for (let x = Math.ceil(x1); x <= Math.floor(x2); x++) {
-                    const t = (x - x1) / (x2 - x1);
-                    const z = z1 + t * (z2 - z1);
-                    this.updateBuffer(x, y, z, face.color);
-                }
-            }
+    AtualizaBuffer(constant_z: number, new_R: number, new_G: number, new_B: number, x: number, y: number){
+        if (constant_z > this.depthBuffer[y][x]) {
+            this.depthBuffer[y][x] = constant_z;
+            this.colorBuffer[y][x] = `rgb(${new_R}, ${new_G}, ${new_B})`;
         }
     }
 }
+
+
+ const face = new Face([
+    new Dot(319.000, 160.774, -51.524, "rgb(118, 92, 0)"), // B'
+    new Dot(190.427, 0.000, -48.792, "rgb(64, 90, 7)"),   // B''
+    new Dot(149.864, 0.000, -46.762, "rgb(48, 0, 0)"),   // E''
+    new Dot(151.303, 239.000, -41.331, "rgb(48, 0, 0)"), // E'
+    new Dot(319.000, 239.000, -49.722, "rgb(117, 89, 6)") // A''
+]);
+
+const zBuffer = new ZBuffer(1000, 800);
+zBuffer.Scanline([face]);
+zBuffer.Zbuffer();
+//console.log(zBuffer.scanline)
+
+
 
 function Recorte (face: Face, umin: number, umax: number, vmin: number, vmax: number) {
 

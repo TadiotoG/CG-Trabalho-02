@@ -1,6 +1,5 @@
 /// <reference path="./surface.ts" />
-/// <reference path="./camera.ts" />
-/// <reference path="./z_buffer_teste.ts" />
+/// <reference path="./Camera.ts" />
 
 let canvas_width = 1000;
 let canvas_height = 800;
@@ -116,18 +115,11 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
     };
 
-    calc_zbuffer(){
-        this.zbuffer.initializeBuffers();
+    /* calc_zbuffer(){
         for(let i=0; i<this.surfaces.length; i++){
             for(let j=0; j<this.surfaces[i].double_faces.length; j++){
                 this.zbuffer.rasterizePolygon(this.surfaces[i].double_faces[j].face);
-            }
-        }
-        for(let x=0; x<this.zbuffer.depthBuffer.length; x++){ // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
-            for(let z=0; z<this.zbuffer.depthBuffer[0].length; z++){
-                if(this.zbuffer.depthBuffer[x][z] < 100000){
-                    console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
-                }
+                zBuffer.render(ctx);
             }
         }
     }
@@ -140,7 +132,9 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
                 this.ctx.fillRect(j, i, 1, 1);
             }
         }
-    }
+    } */
+
+
 
     draw_face(face: Face){
         // let points = mult_matriz(this.matriz_SRU_SRT, this.get_mat_from_list_of_dots(face.dots))
