@@ -39,8 +39,8 @@ class Vet extends Dot { // Adicionei esta classe para que assim que declarado o 
 
 class Face{
     dots: Array<Dot>;
-    color: string = "rgb(0, 0, 0)";
-    color_other_side: string = "rgb(0, 0, 0)";
+    color: string;
+    color_other_side: string;
     arestas: Array<[Dot, Dot]> = []; 
     inters: number[][] = [];
     inters_z: number[][] = [];
@@ -53,7 +53,9 @@ class Face{
         this.dots = array_dots;
         this.cria_arestas();
         this.centroide = this.get_centroide();
-        this.vet_normal = this.get_normal();
+        if(array_dots.length > 2){
+            this.vet_normal = this.get_normal();
+        }
         this.color = col;
         this.color_other_side = other_side_col;
         this.line_color = cor_aresta;
@@ -89,16 +91,13 @@ class Face{
         let P2 = this.dots[2];
 
         // Criamos os vetores
-        let v1 = new Vet(P1.x - P0.x, P1.y - P0.y, P1.z - P0.z);
-        let v2 = new Vet(P2.x - P0.x, P2.y - P0.y, P2.z - P0.z);
+        let v1 = new Vet(P0.x - P1.x, P0.y - P1.y, P0.z - P1.z);
+        let v2 = new Vet(P2.x - P1.x, P2.y - P1.y, P2.z - P1.z);
     
         // Produto vetorial v1 x v2
-        let normal_x = v1.y * v2.z - v1.z * v2.y;
-        let normal_y = v1.z * v2.x - v1.x * v2.z;
-        let normal_z = v1.x * v2.y - v1.y * v2.x;
     
         // Criamos o vetor normal
-        let normal = new Vet(normal_x, normal_y, normal_z);
+        let normal = prod_vet(v2, v1);
     
         // Normalizamos o vetor para que ele seja unitário
         return normal;
@@ -116,6 +115,44 @@ class Face{
         }
     }
 
+    fillpoly(ctx: CanvasRenderingContext2D, normal: number): void {
+        // console.log("Cor da face -> ", this.color)
+
+     //   this.cria_arestas();
+    
+        const ymin = Math.round(Math.min(...this.dots.map(p => p.y)));
+        const ymax = Math.round(Math.max(...this.dots.map(p => p.y)));
+    
+        this.inters = Array.from({ length: ymax - ymin +1}, () => []);
+    
+        this.arestas.forEach((aresta, i) => {
+            if (aresta[0].y === aresta[1].y) return; 
+            if (aresta[0].y > aresta[1].y) {
+                [this.arestas[i][0], this.arestas[i][1]] = [aresta[1], aresta[0]];
+            }
+            
+            const x1 = aresta[0].x, y1 = Math.ceil(aresta[0].y);
+            const x2 = aresta[1].x, y2 = Math.floor(aresta[1].y);
+            
+            const coeficiente = (x2 - x1) / (y2 - y1);
+            
+            let x = x1;
+            let index = Math.floor(y1 - ymin);
+            
+            for (let y = y1; y <= y2; y++) {
+                if (!this.inters[index]) this.inters[index] = []; 
+                this.inters[index++].push(Math.round(x));
+
+                x += coeficiente;
+            }
+        });
+    
+        this.inters.forEach((line, i) => {
+            line.sort((a, b) => a - b);
+            this.draw(line, ymin + i, ctx, normal);
+        });
+    }
+
     draw(line: number[], y: number, ctx: CanvasRenderingContext2D, normal: number) {
         if(normal < 0){
             ctx.fillStyle = this.color_other_side;
@@ -130,7 +167,7 @@ class Face{
             const x2 = Math.floor(line[i + 1]);
             
             for (let x = x1; x <= x2; x++) {
-                ctx.fillRect(x, y, 2, 2);
+                ctx.fillRect(x, y, 1, 1);
             }
         }
         let arestaCheckbox;
@@ -157,47 +194,9 @@ class Face{
         ctx.moveTo(dot0.x, dot0.y);
         ctx.lineTo(dot1.x, dot1.y);
         ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         ctx.stroke();
     };
-
-    fillpoly(ctx: CanvasRenderingContext2D, VRP: Dot, centroide: Dot, normal: number): void {
-        // console.log("Cor da face -> ", this.color)
-
-     //   this.cria_arestas();
-    
-        const ymin = Math.round(Math.min(...this.dots.map(p => p.y)));
-        const ymax = Math.round(Math.max(...this.dots.map(p => p.y)));
-    
-        this.inters = Array.from({ length: ymax - ymin +1}, () => []);
-    
-        this.arestas.forEach((aresta, i) => {
-            if (aresta[0].y === aresta[1].y) return; 
-            if (aresta[0].y > aresta[1].y) {
-                [this.arestas[i][0], this.arestas[i][1]] = [aresta[1], aresta[0]];
-            }
-            
-            const x1 = aresta[0].x, y1 = aresta[0].y;
-            const x2 = aresta[1].x, y2 = aresta[1].y;
-            
-            const coeficiente = (x2 - x1) / (y2 - y1);
-            
-            let x = x1;
-            let index = Math.floor(y1 - ymin);
-            
-            for (let y = y1; y <= y2; y++) {
-                if (!this.inters[index]) this.inters[index] = []; 
-                this.inters[index++].push(Math.round(x));
-
-                x += coeficiente;
-            }
-        });
-    
-        this.inters.forEach((line, i) => {
-            line.sort((a, b) => a - b);
-            this.draw(line, ymin + i, ctx, normal);
-        });
-    }
 }
 
 class Spline{
@@ -425,7 +424,6 @@ class Aresta {
         this.Dz = p2.z - p1.z;
         this.tx = this.Dx/this.Dy;
         this.tz = this.Dz/this.Dy; 
-        
     }
 }
 
@@ -530,6 +528,10 @@ class ZBuffer {
 }
 
 function Recorte (face: Face, umin: number, umax: number, vmin: number, vmax: number) {
+    umin = Number(umin);
+    umax = Number(umax);
+    vmin = Number(vmin);
+    vmax = Number(vmax);
 
     // console.log("Entrou")
     let pontos = face.dots;
@@ -753,10 +755,15 @@ function Recorte (face: Face, umin: number, umax: number, vmin: number, vmax: nu
         arestas = novasArestas;
         pontos = novosPontos;
     }
-    return new Face(pontos);
+    return new Face(pontos, face.color, face.color_other_side, face.line_color);
 }
 
-function RecorteWithColor(face: Face, umin, umax, vmin, vmax): Face { 
+function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, vmax: number): Face {
+    umin = Number(umin);
+    umax = Number(umax);
+    vmin = Number(vmin);
+    vmax = Number(vmax);
+
     let pontos = face.dots;
     let arestas: Aresta[] = [];
 
@@ -993,7 +1000,7 @@ function RecorteWithColor(face: Face, umin, umax, vmin, vmax): Face {
         pontos = novosPontos;
     }
 
-    return new Face(pontos);
+    return new Face(pontos, face.color, face.color_other_side, face.line_color);
 }
 
 function interpolateColor(color1: string, color2: string, t: number): string {

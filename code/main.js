@@ -470,18 +470,20 @@ function change_world() {
     for (var i = 0; i < list_of_surfaces.length; i++) {
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
-        uni.surfaces[i].update_faces_SRU();
-        uni.cut_surface_nocolor(uni.surfaces[i]);
     }
     if (shading() == "const") {
         uni.update_all_face_colors_constant();
+    }
+    for (var i = 0; i < list_of_surfaces.length; i++) {
+        uni.cut_surface_nocolor(uni.surfaces[i]);
+    }
+    if (shading() == "pintor") {
+        uni.render();
+    }
+    else {
         uni.calc_zbuffer();
         uni.plot_zbuffer();
     }
-    else {
-        uni.render(vrp_camera);
-    }
-    ;
     var ControlPointsCheckbox;
     ControlPointsCheckbox = document.getElementById("check_control_p");
     if (ControlPointsCheckbox && ControlPointsCheckbox.checked) {

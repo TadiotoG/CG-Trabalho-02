@@ -27,42 +27,21 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         this.height = height;
     };
 
-    animate_world = () => {
-        this.ctx.fillStyle = "white";
-        this.ctx.fillRect(0, 0, this.width, this.height);
-
-        for(let i = 0; i < this.surfaces.length; i++){
-            this.surfaces[i].create_faces(this.matriz_SRU_SRT);
-            this.cut_surface_nocolor(this.surfaces[i]);
-            let new_matriz_obj: number[][];
-            new_matriz_obj = mult_matriz(get_matriz_rot_y(0.002), this.surfaces[i].get_outp_as_mat()); // Faz a animacao rotacionando o objeto no eixo y
-            this.surfaces[i].update_outp_with_mat(new_matriz_obj);
-        }
-
-        for(let i = 0; i < this.surfaces.length; i++){   
-            this.draw_cp(this.surfaces[i]);
-            let new_matriz_obj: number[][];
-            new_matriz_obj = mult_matriz(get_matriz_rot_y(0.002), this.surfaces[i].get_cp_as_mat()); // Faz a animacao rotacionando o objeto no eixo y
-            this.surfaces[i].update_cp_with_mat(new_matriz_obj);
-        }
-        requestAnimationFrame(this.animate_world);
-    };
-
     update_all_face_colors_constant(){
         for(let i=0; i<this.surfaces.length; i++){
             let amb_light_r = this.surfaces[i].ka[0] * this.la[0];
             let amb_light_g = this.surfaces[i].ka[1] * this.la[1];
             let amb_light_b = this.surfaces[i].ka[2] * this.la[2];
-            for(let j=0; j<this.surfaces[i].faces.length; j++){
+            for(let j=0; j<this.surfaces[i].double_faces.length; j++){
                 let new_color = "rgb(";                                                         // Ka: number=0.4, Kd: number=0.6, Ks: number=0.5, N: number=2.15
-                new_color += this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light_r, this.surfaces[i].ks[0], this.surfaces[i].kd[0], this.surfaces[i].n);
+                new_color += this.get_face_color_constant(this.surfaces[i].double_faces[j].face_SRU, amb_light_r, this.surfaces[i].ks[0], this.surfaces[i].kd[0], this.surfaces[i].n);
                 new_color += ",";
-                new_color += this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light_g, this.surfaces[i].ks[1], this.surfaces[i].kd[1], this.surfaces[i].n);
+                new_color += this.get_face_color_constant(this.surfaces[i].double_faces[j].face_SRU, amb_light_g, this.surfaces[i].ks[1], this.surfaces[i].kd[1], this.surfaces[i].n);
                 new_color += ",";
-                new_color += this.get_face_color_constant(this.surfaces[i].faces_SRU[j], amb_light_b, this.surfaces[i].ks[2], this.surfaces[i].kd[2], this.surfaces[i].n);
+                new_color += this.get_face_color_constant(this.surfaces[i].double_faces[j].face_SRU, amb_light_b, this.surfaces[i].ks[2], this.surfaces[i].kd[2], this.surfaces[i].n);
                 new_color += ")";
                 // console.log("New color -> ", new_color);
-                this.surfaces[i].faces[j].color = new_color;
+                this.surfaces[i].double_faces[j].face.color = new_color;
             }
         }
     }
@@ -119,23 +98,36 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     }
 
     cut_surface_nocolor(surface: Surface){
-        for(let i=0; i < surface.faces.length; i++){
-            console.log("Entrou assim -> ", surface.faces[i])
-            surface.faces[i] = Recorte(surface.faces[i], 0, this.width, 0, this.height);
-            console.log("Saiu assim -> ", surface.faces[i])
+        for(let i=0; i < surface.double_faces.length; i++){
+            // console.log("Entrou assim -> ", surface.double_faces[i].face)
+            surface.double_faces[i].face = Recorte(surface.double_faces[i].face, 0, this.width, 0, this.height);
+            // console.log("Saiu assim -> ", surface.double_faces[i].face)
         }
     };
 
     cut_surface_withcolor(surface: Surface){
-        for(let i=0; i < surface.faces.length; i++){
-            surface.faces[i] = RecorteWithColor(surface.faces[i], 0, this.width, 0, this.height);
-
+        for(let i=0; i < surface.double_faces.length; i++){
+            surface.double_faces[i].face = RecorteWithColor(surface.double_faces[i].face, 0, this.width, 0, this.height);
+            if(surface.double_faces[i].face.dots.length == 0){ // Caso o recorte retorne uma face sem pontos, a face é tirada da lista de faces
+                surface.double_faces.splice(i);
+                i--;
+            }
         }
     };
 
     calc_zbuffer(){
+        this.zbuffer.initializeBuffers();
         for(let i=0; i<this.surfaces.length; i++){
-            this.zbuffer.render(this.surfaces[i].faces)
+            for(let j=0; j<this.surfaces[i].double_faces.length; j++){
+                this.zbuffer.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+            }
+        }
+        for(let x=0; x<this.zbuffer.depthBuffer.length; x++){ // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
+            for(let z=0; z<this.zbuffer.depthBuffer[0].length; z++){
+                if(this.zbuffer.depthBuffer[x][z] < 100000){
+                    console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
+                }
+            }
         }
     }
 
@@ -187,19 +179,6 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
     };
 
-    // draw_cp(obj: Surface){
-    //     let mat_control_p = obj.get_cp_as_mat();
-
-    //     let points: number[][];
-
-    //     points = mult_matriz(this.matriz_SRU_SRT, mat_control_p);
-    //     // print_matriz(points, "POINTS")
-
-    //     for(let i = 0; i < points[0].length; i++){
-    //         this.draw_dot(points[0][i] / points[3][i], points[1][i] / points[3][i], "red"); // Divide pelo fator homogenio
-    //     }
-    // }
-
     draw_cp(obj: Surface){
         // console.log("Antes obj.cp -> ", obj.control_points);
         obj.define_dots_screen(this.matriz_SRU_SRT);
@@ -249,54 +228,38 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         this.surfaces[index].update_cp_with_mat(new_matriz_obj);
     }
 
-    // render(vrp: Dot) {
-    //     // this.ctx.clearRect(0, 0, this.width, this.height);
-      
-    //     this.surfaces.forEach(surface => {
-    //         // console.log(surface.faces.length);
-    //         surface.faces.sort((faceA, faceB) => {
-    //             const centroideA = get_centroide(faceA);
-    //             const centroideB = get_centroide(faceB);
-    
-    //             const distanciaA: number = calc_distance(centroideA, vrp);
-    //             const distanciaB: number = calc_distance(centroideB, vrp);
-    
-    //             return distanciaB - distanciaA;
-    //         });
-    //     });
-      
-    //     for (const surface of this.surfaces) {
-    //         surface.callfp(this.ctx, vrp);
-    //     }
-    // }
-    render(vrp: Dot) {
-        this.surfaces.forEach(surface => {
-            // Criamos uma lista de objetos para manter as faces sincronizadas
-            const indexedFaces = surface.faces_SRU.map((_, index) => ({
-                index, // Índice original
-                worldFace: surface.faces_SRU[index], // Face em coordenadas de mundo
-                screenFace: surface.faces[index] // Face em coordenadas de tela
-            }));
+    render() {
+        let all_double_faces = [];
 
-            // Ordenamos essa estrutura com base na distância ao VRP
-            indexedFaces.sort((faceA, faceB) => {
-                const centroideA = faceA.worldFace.centroide;
-                const centroideB = faceB.worldFace.centroide;
+        for(let i=0; i<this.surfaces.length; i++){
+            for(let j=0; j<this.surfaces[i].double_faces.length; j++){
+                all_double_faces.push(this.surfaces[i].double_faces[j]);
+            }
+        }
 
-                const distanciaA: number = calc_distance(centroideA, vrp);
-                const distanciaB: number = calc_distance(centroideB, vrp);
+        all_double_faces.sort((faceA, faceB) => {
+            const centroideA = faceA.face_SRU.centroide;
+            const centroideB = faceB.face_SRU.centroide;
 
-                return distanciaB - distanciaA; // Ordenação decrescente
-            });
+            const distanciaA: number = calc_distance(centroideA, this.camera.vrp);
+            const distanciaB: number = calc_distance(centroideB, this.camera.vrp);
 
-            // Aplicamos a ordenação às listas originais
-            surface.faces_SRU = indexedFaces.map(obj => obj.worldFace);
-            surface.faces = indexedFaces.map(obj => obj.screenFace);
+            return distanciaB - distanciaA; // Ordenação decrescente
         });
 
-        for (const surface of this.surfaces) {
-            surface.callfp(this.ctx, vrp);
-        };
+        // console.log("Cor antes -> ", this.surfaces[0].double_faces[0].face.color)
+
+        for (const doubleFace of all_double_faces) {
+            // console.log("Pontos -> ", doubleFace.face_SRU.dots)
+            // console.log("Normal -> ", doubleFace.face_SRU.get_normal())
+            let vrp_minus_cent = new Vet(doubleFace.face_SRU.centroide.x - this.camera.vrp.x, doubleFace.face_SRU.centroide.y - this.camera.vrp.y, doubleFace.face_SRU.centroide.z - this.camera.vrp.z)
+            // console.log("VRP - Centroide -> ", vrp_minus_cent)
+            let normal = prod_escalar(doubleFace.face_SRU.get_normal().unitary, vrp_minus_cent.unitary);
+            // console.log("Calculo da normal -> ", normal)
+            doubleFace.face.fillpoly(this.ctx, normal);
+        }
+
+        // console.log("Cor depois -> ", this.surfaces[0].double_faces[0].face.color)
     }
 }
 
