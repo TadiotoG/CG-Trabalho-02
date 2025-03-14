@@ -1,4 +1,4 @@
-/// <reference path="./gouraud.ts" />
+/// <reference path="./zbuffer.ts" />
 
 let canvas_width = 1000;
 let canvas_height = 800;
@@ -45,19 +45,23 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
     }
 
-    call_gouraud(surface: Surface){
-        define_vet_normal_vertices(surface.outp);
-        let amb_light_r = surface.ka[0] * this.la[0];
-        let amb_light_g = surface.ka[1] * this.la[1];
-        let amb_light_b = surface.ka[2] * this.la[2];
-        for(let i=0; i<surface.outp.length; i++){
-            for(let j=0; j<surface.outp[0].length; j++){
-                let teste = (this.get_ilum(surface.outp[i][j].gouraud, surface.outp[i][j], amb_light_r, surface.ks[0], surface.kd[0], surface.n));
-                surface.outp[i][j].r_gouraud = Number(teste);
-                surface.outp[i][j].g_gouraud = Number(this.get_ilum(surface.outp[i][j].gouraud, surface.outp[i][j], amb_light_g, surface.ks[1], surface.kd[1], surface.n));
-                surface.outp[i][j].b_gouraud = Number(this.get_ilum(surface.outp[i][j].gouraud, surface.outp[i][j], amb_light_b, surface.ks[2], surface.kd[2], surface.n));
+    call_gouraud(){
+        for(let surf=0; surf<this.surfaces.length; surf++){
+            define_vet_normal_vertices(this.surfaces[surf].outp);
+            let amb_light_r = this.surfaces[surf].ka[0] * this.la[0];
+            let amb_light_g = this.surfaces[surf].ka[1] * this.la[1];
+            let amb_light_b = this.surfaces[surf].ka[2] * this.la[2];
+            for(let i=0; i<this.surfaces[surf].outp.length; i++){
+                for(let j=0; j<this.surfaces[surf].outp[0].length; j++){
+                    let teste = (this.get_ilum(this.surfaces[surf].outp[i][j].gouraud, this.surfaces[surf].outp[i][j], amb_light_r, this.surfaces[surf].ks[0], this.surfaces[surf].kd[0], this.surfaces[surf].n));
+                    this.surfaces[surf].outp[i][j].r_gouraud = Number(teste);
+                    this.surfaces[surf].outp[i][j].g_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].gouraud, this.surfaces[surf].outp[i][j], amb_light_g, this.surfaces[surf].ks[1], this.surfaces[surf].kd[1], this.surfaces[surf].n));
+                    this.surfaces[surf].outp[i][j].b_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].gouraud, this.surfaces[surf].outp[i][j], amb_light_b, this.surfaces[surf].ks[2], this.surfaces[surf].kd[2], this.surfaces[surf].n));
+                }
             }
+            this.surfaces[surf].create_faces(this.matriz_SRU_SRT);
         }
+        console.log("Primeira face -> ", this.surfaces[0].double_faces)
     }
 
     get_ilum(vet_normal: Vet, centroide: Dot, amb_light_par: number, ks: number, kd: number, n: number){
@@ -130,17 +134,19 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     };
 
     calc_zbuffer(){
-        this.zbuffer.initializeBuffers();
         for(let i=0; i<this.surfaces.length; i++){
             for(let j=0; j<this.surfaces[i].double_faces.length; j++){
                 this.zbuffer.rasterizePolygon(this.surfaces[i].double_faces[j].face);
             }
         }
+        this.zbuffer.Zbuffer();
+        // console.log("Executou ")
         for(let x=0; x<this.zbuffer.depthBuffer.length; x++){ // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
             for(let z=0; z<this.zbuffer.depthBuffer[0].length; z++){
-                if(this.zbuffer.depthBuffer[x][z] < 100000){
-                    console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
-                }
+                this.ctx.fillStyle = this.zbuffer.colorBuffer[x][z];
+                this.ctx.fillRect(z, x, 1, 1);
+                
+                    // console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
             }
         }
     }
@@ -207,7 +213,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
 
     draw_dot(A: Dot){
         this.ctx.beginPath();
-        this.ctx.fillStyle = A.color;
+        this.ctx.fillStyle = "grey";
         this.ctx.arc(A.x, A.y, 2, 0, 360, false);
         this.ctx.fill();
     };

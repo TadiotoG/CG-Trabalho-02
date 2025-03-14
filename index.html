@@ -165,7 +165,7 @@
                     <div class="row">
                         <div class="column">
                             <input type="radio" name="shading" id="pintor" value="pintor" oninput=change_world() checked>
-                            <label for="pintor">Pintor</label>
+                            <label for="pintor">Wireframe</label>
                             <input type="radio" name="shading" id="const" value="const" oninput=change_world()>
                             <label for="const">Constante</label>
                         </div>
@@ -178,7 +178,7 @@
                     </div>
                     
                     <label for="aresta">Desenhar Arestas</label>
-                    <input type="checkbox" name="aresta" id="aresta" style="margin-bottom: 20px;" oninput=change_world()>
+                    <input type="checkbox" name="aresta" id="aresta" style="margin-bottom: 20px;" oninput=change_world() checked>
 
                     <label for="check_control_p">Desenhar pontos de controle</label>
                     <input type="checkbox" name="check_control_p" id="check_control_p" style="margin-bottom: 20px;" oninput=change_world() checked>
@@ -317,13 +317,13 @@
                 </div>
 
                 <div class="column">
-                    <label for="other_side_color">Cor outro lado</label>
-                    <input type="color" name="other_side_color" id="other_side_color" value="#FF0000">
+                    <label for="aresta_color">Cor aresta</label>
+                    <input type="color" name="aresta_color" id="aresta_color" value="#0000FF">
                 </div>
 
                 <div class="column">
-                    <label for="aresta_color">Cor outro lado</label>
-                    <input type="color" name="aresta_color" id="aresta_color" value="#0000FF">
+                    <label for="other_side_aresta_color">Cor aresta outro lado</label>
+                    <input type="color" name="other_side_aresta_color" id="other_side_aresta_color" value="#FF0000">
                 </div>
             </div>
             <div class="row">
@@ -510,13 +510,13 @@
                 </div>
 
                 <div class="column">
-                    <label for="alter_other_side_color">Cor outro lado</label>
-                    <input type="color" name="alter_other_side_color" id="alter_other_side_color" value="#FF0000" oninput=alter_prop_func()>
+                    <label for="alter_aresta_color">Cor aresta</label>
+                    <input type="color" name="alter_aresta_color" id="alter_aresta_color" value="#FF0000" oninput=alter_prop_func()>
                 </div>
 
                 <div class="column">
-                    <label for="alter_aresta_color">Cor aresta</label>
-                    <input type="color" name="alter_aresta_color" id="alter_aresta_color" value="#0000FF" oninput=alter_prop_func()>
+                    <label for="alter_other_side_aresta_color">Cor aresta outro lado</label>
+                    <input type="color" name="alter_other_side_aresta_color" id="alter_other_side_aresta_color" value="#0000FF" oninput=alter_prop_func()>
                 </div>
             </div>
             <div>
@@ -534,6 +534,7 @@
     <script src="code/camera.js"></script>
     <script src="code/gouraud.js"></script>
     <script src="code/surface.js"></script>
+    <script src="code/zbuffer.js"></script>
     <script src="code/universe.js"></script>
     <script src="code/main.js"></script>
 </body>

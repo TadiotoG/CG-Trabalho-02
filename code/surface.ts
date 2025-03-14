@@ -281,14 +281,6 @@ class Surface{
 
                 let D = new Dot(ps[0][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[1][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[2][i*this.resj+(j+1)])
 
-                // let A_2 = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z)
-
-                // let B_2 = new Dot(this.outp[i+1][j].x, this.outp[i+1][j].y, this.outp[i+1][j].z)
-
-                // let C_2 = new Dot(this.outp[i+1][j+1].x, this.outp[i+1][j+1].y, this.outp[i+1][j+1].z)
-
-                // let D_2 = new Dot(this.outp[i][j+1].x, this.outp[i][j+1].y, this.outp[i][j+1].z)
-
                 let A_2 = this.outp[i][j];
 
                 let B_2 = this.outp[i+1][j];
@@ -296,6 +288,22 @@ class Surface{
                 let C_2 = this.outp[i+1][j+1];
 
                 let D_2 = this.outp[i][j+1];
+
+                A.r_gouraud = A_2.r_gouraud; 
+                A.g_gouraud = A_2.g_gouraud;
+                A.b_gouraud = A_2.b_gouraud;
+
+                B.r_gouraud = B_2.r_gouraud; 
+                B.g_gouraud = B_2.g_gouraud;
+                B.b_gouraud = B_2.b_gouraud;
+
+                C.r_gouraud = C_2.r_gouraud; 
+                C.g_gouraud = C_2.g_gouraud;
+                C.b_gouraud = C_2.b_gouraud;
+
+                D.r_gouraud = D_2.r_gouraud; 
+                D.g_gouraud = D_2.g_gouraud;
+                D.b_gouraud = D_2.b_gouraud;
 
                 let arr_dots = [A, B, C, D];
                 let arr_dots_2 = [A_2, B_2, C_2, D_2];

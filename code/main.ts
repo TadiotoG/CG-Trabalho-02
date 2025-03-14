@@ -254,11 +254,11 @@ function get_values_new_surface(){
     aux = document.getElementById("face_color")
     face_color = aux.value;
 
-    aux = document.getElementById("other_side_color")
-    other_side_color = aux.value;
-
     aux = document.getElementById("aresta_color")
-    cor_aresta = aux.value;
+    aresta_color = aux.value;
+
+    aux = document.getElementById("other_side_aresta_color")
+    other_side_aresta_color = aux.value;
 }
 
 function get_values_alter_prop(){
@@ -300,11 +300,11 @@ function get_values_alter_prop(){
     aux = document.getElementById("alter_face_color")
     face_color = aux.value;
 
-    aux = document.getElementById("alter_other_side_color")
-    other_side_color = aux.value;
-
     aux = document.getElementById("alter_aresta_color")
-    cor_aresta = aux.value;
+    aresta_color = aux.value;
+
+    aux = document.getElementById("alter_other_side_aresta_color")
+    other_side_aresta_color = aux.value;
 }
 
 function msg_click_appears(){
@@ -440,25 +440,25 @@ function alter_prop_by_click(universe: Universe, A: Dot){
 }
 
 function alter_prop_func(){
-    console.log("Quantas superficies -> " + uni.surfaces.length)
+    // console.log("Quantas superficies -> " + uni.surfaces.length)
     get_values_alter_prop();
     let aux;
     aux = uni.surfaces[aux_surf];
-    console.log("Passo 0 -> " + uni.surfaces.length)
+    // console.log("Passo 0 -> " + uni.surfaces.length)
     uni.surfaces.splice(aux_surf,1);
-    console.log("Passo 1 -> " + uni.surfaces.length)
+    // console.log("Passo 1 -> " + uni.surfaces.length)
     uni.add_surface(aux);
-    console.log("Passo 2 -> " + uni.surfaces.length)
+    // console.log("Passo 2 -> " + uni.surfaces.length)
     aux_surf = uni.surfaces.length-1;
 
-    let new_surface = new Surface(0, 0, 0, uni.surfaces[aux_surf].ni, uni.surfaces[aux_surf].nj, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, other_side_color, cor_aresta, uni.surfaces[aux_surf].control_points);
+    let new_surface = new Surface(0, 0, 0, uni.surfaces[aux_surf].ni, uni.surfaces[aux_surf].nj, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, aresta_color, other_side_aresta_color, uni.surfaces[aux_surf].control_points);
     uni.surfaces.splice(aux_surf,1);
-    console.log("Passo 3 -> " + uni.surfaces.length)
+    // console.log("Passo 3 -> " + uni.surfaces.length)
     uni.add_surface(new_surface);
-    console.log("Passo 4 -> " + uni.surfaces.length)
+    // console.log("Passo 4 -> " + uni.surfaces.length)
     change_world();
     // window_alter_prop_disappears();
-    console.log("QUantas superficies depois -> " + uni.surfaces.length)
+    // console.log("QUantas superficies depois -> " + uni.surfaces.length)
 }
 
 function change_dot(){
@@ -481,7 +481,7 @@ function change_dot(){
 
 function create_surface(){
     get_values_new_surface();
-    let surface_01 = new Surface(star_x, star_y, star_z, amount_cp_i, amount_cp_j, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, other_side_color, cor_aresta);
+    let surface_01 = new Surface(star_x, star_y, star_z, amount_cp_i, amount_cp_j, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, aresta_color, other_side_aresta_color);
     uni.add_surface(surface_01);
     change_world();
     window_create_s_disappears();
@@ -592,6 +592,10 @@ function change_world(){
 
     if(shading() == "const"){
         uni.update_all_face_colors_constant();
+    } else if (shading() == "gouraud"){
+        uni.call_gouraud();
+        uni.calc_zbuffer();
+        // uni.plot_zbuffer();
     }
 
     for(let i=0; i<list_of_surfaces.length; i++){
@@ -600,10 +604,7 @@ function change_world(){
 
     if(shading() == "pintor"){
         uni.render();
-    } else {
-        uni.calc_zbuffer();
-        uni.plot_zbuffer();
-    }
+    } 
     
     let ControlPointsCheckbox;
     ControlPointsCheckbox = document.getElementById("check_control_p");
@@ -615,7 +616,7 @@ function change_world(){
 }
 
 function erase_canvas(){
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "black";
     ctx.fillRect(0, 0, wind_width, wind_height);
 }
 
@@ -628,7 +629,7 @@ function get_shading(){
 
 const canvas = document.createElement("canvas")
 canvas.id = "canvas-giratorio"
-canvas.style.backgroundColor = "white"
+canvas.style.backgroundColor = "black"
 canvas.style.border = "1px solid black"
 
 document.body.appendChild(canvas);
@@ -704,8 +705,8 @@ ks = [0.5, 0.5, 0.5]
 var n: number;
 
 var face_color: string; // Cor das faces para o pintor
-var other_side_color: string; // Cor do lado de baixo das faces para pintor
-var cor_aresta: string;
+var aresta_color: string; // Cor do lado de baixo das faces para pintor
+var other_side_aresta_color: string;
 var shading;
 var flag_persp; 
 
@@ -736,4 +737,6 @@ let ControlPointsCheckbox;
 // }
 
 change_world();
-uni.call_gouraud(uni.surfaces[0]);
+
+
+// spline -> camera -> surface -> gouraud -> zbuffer -> universe -> 

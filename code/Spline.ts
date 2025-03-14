@@ -13,6 +13,9 @@ class Dot{ // Classe para pontos ou vertices
         this.y = new_y;
         this.z = new_z;
         this.color = col;
+        this.r_gouraud = 0;
+        this.g_gouraud = 255;
+        this.b_gouraud = 0;
     }
 
     print_obj(dot_name: string){
@@ -44,7 +47,7 @@ class Vet extends Dot { // Adicionei esta classe para que assim que declarado o 
 class Face{
     dots: Array<Dot>;
     color: string;
-    color_other_side: string;
+    other_side_line_color: string;
     arestas: Array<[Dot, Dot]> = []; 
     inters: number[][] = [];
     inters_z: number[][] = [];
@@ -61,7 +64,7 @@ class Face{
             this.vet_normal = this.get_normal();
         }
         this.color = col;
-        this.color_other_side = other_side_col;
+        this.other_side_line_color = other_side_col;
         this.line_color = cor_aresta;
     }
     cria_arestas(): void {
@@ -158,14 +161,8 @@ class Face{
     }
 
     draw(line: number[], y: number, ctx: CanvasRenderingContext2D, normal: number) {
-        if(normal < 0){
-            ctx.fillStyle = this.color_other_side;
-        } else {
-            ctx.fillStyle = this.color;
-        }
-
         // console.log("COLOR -> ", this.color)
-        // ctx.fillStyle = this.color;
+        ctx.fillStyle = this.color;
         for (let i = 0; i < line.length; i += 2) {
             const x1 = Math.ceil(line[i]);
             const x2 = Math.floor(line[i + 1]);
@@ -178,26 +175,30 @@ class Face{
         arestaCheckbox = document.getElementById("aresta");
 
         if (arestaCheckbox && arestaCheckbox.checked) {
-            this.draw_face(ctx);
+            this.draw_face(ctx, normal);
         }
     }
 
-    draw_face(ctx: CanvasRenderingContext2D){       
+    draw_face(ctx: CanvasRenderingContext2D, normal: number){       
         for (let i = 0; i < this.dots.length; i++){
             if ( i === this.dots.length-1){
-                this.draw_line(this.dots[i], this.dots[0], this.line_color, ctx);
+                this.draw_line(this.dots[i], this.dots[0], ctx, normal);
             } else {
                 // let h = 3;
-                this.draw_line(this.dots[i], this.dots[i+1], this.line_color, ctx);
+                this.draw_line(this.dots[i], this.dots[i+1], ctx, normal);
             }
         }
     };
 
-    draw_line(dot0: Dot, dot1: Dot, color, ctx: CanvasRenderingContext2D){
+    draw_line(dot0: Dot, dot1: Dot, ctx: CanvasRenderingContext2D, normal: number){
         ctx.beginPath();
         ctx.moveTo(dot0.x, dot0.y);
         ctx.lineTo(dot1.x, dot1.y);
-        ctx.strokeStyle = color;
+        if(normal < 0){
+            ctx.strokeStyle = this.line_color;
+        } else {
+            ctx.strokeStyle = this.other_side_line_color;
+        }
         ctx.lineWidth = 1;
         ctx.stroke();
     };
@@ -442,107 +443,107 @@ class Aresta {
     }
 }
 
-class ZBuffer {
-    width: number;
-    height: number;
-    depthBuffer: number[][];
-    colorBuffer: string[][];
+// class ZBuffer {
+//     width: number;
+//     height: number;
+//     depthBuffer: number[][];
+//     colorBuffer: string[][];
 
-    constructor(width: number, height: number) {
-        this.width = width;
-        this.height = height;
-        this.depthBuffer = Array.from({ length: height }, () => Array(width).fill(Infinity));
-        this.colorBuffer = Array.from({ length: height }, () => Array(width).fill('#FFFFFF')); // Default background color
-    }
+//     constructor(width: number, height: number) {
+//         this.width = width;
+//         this.height = height;
+//         this.depthBuffer = Array.from({ length: height }, () => Array(width).fill(Infinity));
+//         this.colorBuffer = Array.from({ length: height }, () => Array(width).fill('#FFFFFF')); // Default background color
+//     }
 
-    initializeBuffers() {
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                this.depthBuffer[y][x] = Infinity;
-                this.colorBuffer[y][x] = '#FFFFFF'; // Default background color
-                // console.log("Z buffer -> ", this.depthBuffer[y][x]);
-            }
-        }
-    }
+//     initializeBuffers() {
+//         for (let y = 0; y < this.height; y++) {
+//             for (let x = 0; x < this.width; x++) {
+//                 this.depthBuffer[y][x] = Infinity;
+//                 this.colorBuffer[y][x] = '#FFFFFF'; // Default background color
+//                 // console.log("Z buffer -> ", this.depthBuffer[y][x]);
+//             }
+//         }
+//     }
 
-    updateBuffer(x: number, y: number, z: number, color: string) {
-        // console.log(` y = ${y}    x = ${(x)}`);
-        // console.log("depth buffer len ", this.depthBuffer.length, "    [0] -> ", this.depthBuffer[0][0])
-        // console.log("This. depth -> ", this.depthBuffer[Math.round(y)][x])
-        if (z < this.depthBuffer[Math.ceil(y)][x]) {
-            this.depthBuffer[Math.ceil(y)][x] = z;
-            this.colorBuffer[Math.ceil(y)][x] = color;
-        }
-    }
+//     updateBuffer(x: number, y: number, z: number, color: string) {
+//         // console.log(` y = ${y}    x = ${(x)}`);
+//         // console.log("depth buffer len ", this.depthBuffer.length, "    [0] -> ", this.depthBuffer[0][0])
+//         // console.log("This. depth -> ", this.depthBuffer[Math.round(y)][x])
+//         if (z < this.depthBuffer[Math.ceil(y)][x]) {
+//             this.depthBuffer[Math.ceil(y)][x] = z;
+//             this.colorBuffer[Math.ceil(y)][x] = color;
+//         }
+//     }
 
-    render(faces: Face[]) {//Quem faz tudo acontecer é essa função, ela que chama as outras funções para fazer o rasterize
-        this.initializeBuffers();//O parametro que ela usa são todas as faces do objeto (DA PRA MUDAR, NÃO PRECISA SER TODAS AS FACES)
-        for (const face of faces) {
-            this.rasterizePolygon(face);
-        }
-    }
+//     render(faces: Face[]) {//Quem faz tudo acontecer é essa função, ela que chama as outras funções para fazer o rasterize
+//         this.initializeBuffers();//O parametro que ela usa são todas as faces do objeto (DA PRA MUDAR, NÃO PRECISA SER TODAS AS FACES)
+//         for (const face of faces) {
+//             this.rasterizePolygon(face);
+//         }
+//     }
 
-    rasterizePolygon(face: Face) {
-        let pontos = face.dots;
-        let edges: Aresta[] = [];
-        const activeEdges: Aresta[] = [];
+//     rasterizePolygon(face: Face) {
+//         let pontos = face.dots;
+//         let edges: Aresta[] = [];
+//         const activeEdges: Aresta[] = [];
 
-        for (let i = 0; i < pontos.length; i++) {
-            if (i + 1 < pontos.length) {
-                edges.push(new Aresta(pontos[i], pontos[i + 1]));
-            } else {
-                edges.push(new Aresta(pontos[i], pontos[0]));
-            }}
+//         for (let i = 0; i < pontos.length; i++) {
+//             if (i + 1 < pontos.length) {
+//                 edges.push(new Aresta(pontos[i], pontos[i + 1]));
+//             } else {
+//                 edges.push(new Aresta(pontos[i], pontos[0]));
+//             }}
 
-        // Find ymin and ymax of the face
-        let ymin = Infinity;
-        let ymax = -Infinity;
-        for (const vertex of face.dots) {
-            if (vertex.y < ymin) ymin = vertex.y;
-            if (vertex.y > ymax) ymax = vertex.y;
-        }
+//         // Find ymin and ymax of the face
+//         let ymin = Infinity;
+//         let ymax = -Infinity;
+//         for (const vertex of face.dots) {
+//             if (vertex.y < ymin) ymin = vertex.y;
+//             if (vertex.y > ymax) ymax = vertex.y;
+//         }
 
-        // Process each scanline from ymin to ymax
-        for (let y = ymin; y <= ymax; y++) {
-            // Update active edges
-            activeEdges.length = 0;
-            for (const edge of edges) {
-                if ((edge.p1.y <= y && edge.p2.y > y) || (edge.p2.y <= y && edge.p1.y > y)) {
-                    activeEdges.push(edge);
-                }
-            }
+//         // Process each scanline from ymin to ymax
+//         for (let y = ymin; y <= ymax; y++) {
+//             // Update active edges
+//             activeEdges.length = 0;
+//             for (const edge of edges) {
+//                 if ((edge.p1.y <= y && edge.p2.y > y) || (edge.p2.y <= y && edge.p1.y > y)) {
+//                     activeEdges.push(edge);
+//                 }
+//             }
 
-            // Sort active edges by x
-            activeEdges.sort((a, b) => a.p1.x + a.tx * (y - a.p1.y) - (b.p1.x + b.tx * (y - b.p1.y)));
+//             // Sort active edges by x
+//             activeEdges.sort((a, b) => a.p1.x + a.tx * (y - a.p1.y) - (b.p1.x + b.tx * (y - b.p1.y)));
 
-            // Fill pixels between pairs of intersections
-            for (let i = 0; i < activeEdges.length; i += 2) {
-                const edge1 = activeEdges[i];
-                const edge2 = activeEdges[i + 1];
+//             // Fill pixels between pairs of intersections
+//             for (let i = 0; i < activeEdges.length; i += 2) {
+//                 const edge1 = activeEdges[i];
+//                 const edge2 = activeEdges[i + 1];
 
-                let x1 = edge1.p1.x + edge1.tx * (y - edge1.p1.y);
-                let z1 = edge1.p1.z + edge1.tz * (y - edge1.p1.y);
-                let x2 = edge2.p1.x + edge2.tx * (y - edge2.p1.y);
-                let z2 = edge2.p1.z + edge2.tz * (y - edge2.p1.y);
+//                 let x1 = edge1.p1.x + edge1.tx * (y - edge1.p1.y);
+//                 let z1 = edge1.p1.z + edge1.tz * (y - edge1.p1.y);
+//                 let x2 = edge2.p1.x + edge2.tx * (y - edge2.p1.y);
+//                 let z2 = edge2.p1.z + edge2.tz * (y - edge2.p1.y);
 
-                if (x1 > x2) {
-                    [x1, x2] = [x2, x1];
-                    [z1, z2] = [z2, z1];
-                }
+//                 if (x1 > x2) {
+//                     [x1, x2] = [x2, x1];
+//                     [z1, z2] = [z2, z1];
+//                 }
 
-                // Log the values for each scanline
+//                 // Log the values for each scanline
                 
-                const tz = (x2 - x1 === 0) ? 0 : ((z2 - z1) / (x2 - x1)).toFixed(6);
+//                 const tz = (x2 - x1 === 0) ? 0 : ((z2 - z1) / (x2 - x1)).toFixed(6);
 
-                for (let x = Math.ceil(x1); x <= Math.floor(x2); x++) {
-                    const t = (x - x1) / (x2 - x1);
-                    const z = z1 + t * (z2 - z1);
-                    this.updateBuffer(x, y, z, face.color);
-                }
-            }
-        }
-    }
-}
+//                 for (let x = Math.ceil(x1); x <= Math.floor(x2); x++) {
+//                     const t = (x - x1) / (x2 - x1);
+//                     const z = z1 + t * (z2 - z1);
+//                     this.updateBuffer(x, y, z, face.color);
+//                 }
+//             }
+//         }
+//     }
+// }
 
 function Recorte (face: Face, umin: number, umax: number, vmin: number, vmax: number) {
     umin = Number(umin);
@@ -772,7 +773,8 @@ function Recorte (face: Face, umin: number, umax: number, vmin: number, vmax: nu
         arestas = novasArestas;
         pontos = novosPontos;
     }
-    return new Face(pontos, face.color, face.color_other_side, face.line_color);
+    return new Face(pontos, face.color, face.other_side_line_color, face.line_color);
+    
 }
 
 function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, vmax: number): Face {
@@ -1017,7 +1019,7 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
         pontos = novosPontos;
     }
 
-    return new Face(pontos, face.color, face.color_other_side, face.line_color);
+    return new Face(pontos, face.color, face.other_side_line_color, face.line_color);
 }
 
 function interpolateColor(color1: string, color2: string, t: number): string {
