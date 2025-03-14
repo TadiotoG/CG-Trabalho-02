@@ -12,11 +12,11 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     rotate_y: Boolean = false;
     lamp: Lamp;
     la: [number, number, number]; // Luz ambiente
-    zbuffer: ZBuffer;
+    zbuffer: ZbufferConstante;
     width: number;
     height: number;
 
-    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: [number, number, number], z_buffer: ZBuffer, width: number, height: number){
+    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: [number, number, number], z_buffer: ZbufferConstante, width: number, height: number){
         this.ctx = ctx_out;
         this.camera = cam;
         this.matriz_SRU_SRT = this.camera.get_mat_SRU_SRT();
@@ -115,24 +115,40 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
     };
 
-    /* calc_zbuffer(){
+    calc_zbuffer(){
+        let cont = 0;
         for(let i=0; i<this.surfaces.length; i++){
             for(let j=0; j<this.surfaces[i].double_faces.length; j++){
                 this.zbuffer.rasterizePolygon(this.surfaces[i].double_faces[j].face);
-                zBuffer.render(ctx);
+                cont++;
+            }
+        }
+        console.log("Contador -> ", cont);
+        //console.log(this.zbuffer.depthBuffer);
+        this.zbuffer.ZbufferConstante();
+        //console.log("Zbuffer -> ", this.zbuffer.colorBuffer);
+        // console.log("Executou ")
+        for(let x=0; x<this.zbuffer.depthBuffer.length; x++){ // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
+            for(let z=0; z<this.zbuffer.depthBuffer[0].length; z++){
+                this.ctx.fillStyle = this.zbuffer.colorBuffer[x][z];
+                this.ctx.fillRect(z, x, 1, 1);
+                
+                    // console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
             }
         }
     }
 
-    plot_zbuffer(){
-        for(let i=0; i<this.zbuffer.colorBuffer.length; i++){
-            for(let j=0; j<this.zbuffer.colorBuffer[0].length; j++){
-                // console.log(`[${i}][${j}]`)
-                this.ctx.fillStyle = this.zbuffer.colorBuffer[i][j];
-                this.ctx.fillRect(j, i, 1, 1);
+
+        plot_zbuffer(){
+            for(let i=0; i<this.zbuffer.colorBuffer.length; i++){
+                for(let j=0; j<this.zbuffer.colorBuffer[0].length; j++){
+                    // console.log(`[${i}][${j}]`)
+                    this.ctx.fillStyle = this.zbuffer.colorBuffer[i][j];
+                    this.ctx.fillRect(j, i, 1, 1);
+                }
             }
         }
-    } */
+
 
 
 
@@ -242,14 +258,14 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
             return distanciaB - distanciaA; // Ordenação decrescente
         });
 
-        console.log("Cor antes -> ", this.surfaces[0].double_faces[0].face.color)
+        //console.log("Cor antes -> ", this.surfaces[0].double_faces[0].face.color)
 
         for (const doubleFace of all_double_faces) {
             let normal = prod_escalar(doubleFace.face_SRU.get_normal().unitary, new Vet(this.camera.vrp.x, this.camera.vrp.y, this.camera.vrp.z).unitary);
             doubleFace.face.fillpoly(this.ctx, normal);
         }
 
-        console.log("Cor depois -> ", this.surfaces[0].double_faces[0].face.color)
+        //console.log("Cor depois -> ", this.surfaces[0].double_faces[0].face.color)
     }
 }
 
@@ -263,7 +279,7 @@ function calc_distance(centroide: Dot, VRP: Dot): number {
 
 function get_centroide(face: Face): Dot {
     if (!face.dots || face.dots.length === 0) {
-        console.error("Erro: Face não contém pontos válidos", face);
+        // console.error("Erro: Face não contém pontos válidos", face);
         return new Dot(0, 0, 0); 
     }
 

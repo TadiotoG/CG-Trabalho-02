@@ -94,10 +94,32 @@ var Universe = /** @class */ (function () {
     };
     ;
     Universe.prototype.calc_zbuffer = function () {
+        var cont = 0;
         for (var i = 0; i < this.surfaces.length; i++) {
             for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
                 this.zbuffer.rasterizePolygon(this.surfaces[i].double_faces[j].face);
-                zBuffer.render(ctx);
+                cont++;
+            }
+        }
+        console.log("Contador -> ", cont);
+        //console.log(this.zbuffer.depthBuffer);
+        this.zbuffer.ZbufferConstante();
+        //console.log("Zbuffer -> ", this.zbuffer.colorBuffer);
+        // console.log("Executou ")
+        for (var x = 0; x < this.zbuffer.depthBuffer.length; x++) { // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
+            for (var z = 0; z < this.zbuffer.depthBuffer[0].length; z++) {
+                this.ctx.fillStyle = this.zbuffer.colorBuffer[x][z];
+                this.ctx.fillRect(z, x, 1, 1);
+                // console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
+            }
+        }
+    };
+    Universe.prototype.plot_zbuffer = function () {
+        for (var i = 0; i < this.zbuffer.colorBuffer.length; i++) {
+            for (var j = 0; j < this.zbuffer.colorBuffer[0].length; j++) {
+                // console.log(`[${i}][${j}]`)
+                this.ctx.fillStyle = this.zbuffer.colorBuffer[i][j];
+                this.ctx.fillRect(j, i, 1, 1);
             }
         }
     };
@@ -197,13 +219,13 @@ var Universe = /** @class */ (function () {
             var distanciaB = calc_distance(centroideB, _this.camera.vrp);
             return distanciaB - distanciaA; // Ordenação decrescente
         });
-        console.log("Cor antes -> ", this.surfaces[0].double_faces[0].face.color);
+        //console.log("Cor antes -> ", this.surfaces[0].double_faces[0].face.color)
         for (var _i = 0, all_double_faces_1 = all_double_faces; _i < all_double_faces_1.length; _i++) {
             var doubleFace = all_double_faces_1[_i];
             var normal = prod_escalar(doubleFace.face_SRU.get_normal().unitary, new Vet(this.camera.vrp.x, this.camera.vrp.y, this.camera.vrp.z).unitary);
             doubleFace.face.fillpoly(this.ctx, normal);
         }
-        console.log("Cor depois -> ", this.surfaces[0].double_faces[0].face.color);
+        //console.log("Cor depois -> ", this.surfaces[0].double_faces[0].face.color)
     };
     return Universe;
 }());
@@ -214,7 +236,7 @@ function calc_distance(centroide, VRP) {
 }
 function get_centroide(face) {
     if (!face.dots || face.dots.length === 0) {
-        console.error("Erro: Face não contém pontos válidos", face);
+        // console.error("Erro: Face não contém pontos válidos", face);
         return new Dot(0, 0, 0);
     }
     var sum_x = 0, sum_y = 0, sum_z = 0;

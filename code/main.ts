@@ -582,7 +582,7 @@ function change_world(){
     distance_point = 240;
     // camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height, flag_persp);
     camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
-    //zbuffer = new ZBuffer();
+    zbuffer = new ZbufferConstante(wind_width, wind_height);
     uni = new Universe(ctx, camera, my_lamp, luz_ambiente, zbuffer, wind_width, wind_height);
     
     for(let i=0; i<list_of_surfaces.length; i++){
@@ -601,7 +601,7 @@ function change_world(){
     if(shading() == "pintor"){
         uni.render();
     } else {
-        //uni.calc_zbuffer();
+        uni.calc_zbuffer();
         //uni.plot_zbuffer();
     }
     
@@ -712,7 +712,7 @@ var flag_persp;
 get_shading();
 get_values_to_cam();
 
-var zbuffer = new ZBuffer(1000, 800);
+var zbuffer = new ZbufferConstante(wind_width, wind_height);
 var vrp_camera = new Dot(cam_x, cam_y, cam_z);
 var focal_point_camera = new Dot(focal_x, focal_y, focal_z);
 var distance_point = 240;
