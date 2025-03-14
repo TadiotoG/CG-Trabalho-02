@@ -374,29 +374,52 @@ var ZBuffer = /** @class */ (function () {
         this.width = width;
         this.height = height;
         this.scanline = new Map(); // Inicializa o HashMap
-        this.depthBuffer = Array.from({ length: height }, function () { return Array(width).fill(-100000000); });
+        this.depthBuffer = Array.from({ length: height }, function () { return Array(width).fill(100000000); });
         this.colorBuffer = Array.from({ length: height }, function () { return Array(width).fill('#FFFFFF'); });
     }
     ZBuffer.prototype.rasterizePolygon = function (face) {
         this.Scanline([face]);
     };
     ZBuffer.prototype.Scanline = function (faces) {
+        var gambiarra = false;
+        var y_original;
+        var z_original;
         for (var _i = 0, faces_1 = faces; _i < faces_1.length; _i++) {
             var face_1 = faces_1[_i];
             for (var i = 0; i < face_1.dots.length; i++) {
+                var Dx = void 0, Dy = void 0, Dz = void 0, Tx = void 0, Tz = void 0;
                 var next_i = (i + 1) % face_1.dots.length;
+                if (i === 0) {
+                    y_original = face_1.dots[0].y; //para ele nunca mudar de valor
+                    z_original = face_1.dots[0].z;
+                }
+                //console.log(y_original);
+                //console.log(next_i)
                 if (face_1.dots[i].y === face_1.dots[next_i].y) {
                     continue;
                 }
-                face_1.dots[i].x = Math.round(face_1.dots[i].x);
-                face_1.dots[i].y = Math.round(face_1.dots[i].y);
+                //face.dots[i].x = Math.round(face.dots[i].x);
                 var start = face_1.dots[i].y < face_1.dots[next_i].y ? face_1.dots[i] : face_1.dots[next_i];
                 var end = face_1.dots[i].y < face_1.dots[next_i].y ? face_1.dots[next_i] : face_1.dots[i];
-                var Dx = end.x - start.x;
-                var Dy = end.y - start.y;
-                var Dz = end.z - start.z;
-                var Tx = Dx / Dy;
-                var Tz = Dz / Dy;
+                if (!gambiarra) {
+                    if (next_i == 0) { //para o caso de ser o ultimo ponto, ele não troca de valor dai
+                        Dx = end.x - start.x;
+                        Dy = end.y - y_original;
+                        Dz = end.z - z_original;
+                        Tx = Dx / Dy;
+                        Tz = Dz / Dy;
+                    }
+                    else {
+                        Dx = end.x - start.x;
+                        Dy = end.y - start.y;
+                        Dz = end.z - start.z;
+                        Tx = Dx / Dy;
+                        Tz = Dz / Dy;
+                    }
+                    gambiarra = true;
+                }
+                console.log("Dx = ".concat(Dx.toFixed(3), ", Dy = ").concat(Dy.toFixed(3), ", Dz = ").concat(Dz.toFixed(3), ", Tx = ").concat(Tx.toFixed(3), ", Tz = ").concat(Tz.toFixed(3)));
+                face_1.dots[i].y = Math.round(face_1.dots[i].y);
                 var x = start.x;
                 var z = start.z;
                 for (var y = start.y; y < end.y; y++) {
@@ -405,13 +428,13 @@ var ZBuffer = /** @class */ (function () {
                     x += Tx;
                     z += Tz;
                 }
+                gambiarra = false;
             }
         }
         //console.log(this.scanline);
     };
     ZBuffer.prototype.updateHash = function (y, x, z, color) {
         if (!this.scanline.has(y)) {
-            // Se 'y' não existe no HashMap, criamos uma nova lista vazia
             this.scanline.set(y, []);
         }
         var listaDePontos = this.scanline.get(y);
@@ -421,36 +444,51 @@ var ZBuffer = /** @class */ (function () {
     ZBuffer.prototype.Zbuffer = function () {
         var _this = this;
         this.scanline.forEach(function (points, y) {
-            console.log("Y = ".concat(y, ":"));
+            //console.log(`Y = ${y}:`);
             points.sort(function (a, b) { return a.x - b.x; }); // Ordena pela coordenada x
             // Após a ordenação, podemos atualizar o scanline
             _this.scanline.set(y, points);
         });
+        this.scanline.forEach(function (points, y) {
+            for (var i = 0; i < points.length; i += 2) {
+                var next_i = (i + 1) % face.dots.length;
+                var z1 = points[i].z;
+                var z2 = points[next_i].z;
+                //console.log(points[i].x, points[i+1].x, points[i].z, points[i+1].z);
+                var dz = (z2 - z1) / (points[next_i].x - points[i].x);
+                // console.log(dz);
+                var dR = (points[next_i].r_gouraud - points[i].r_gouraud) / (points[next_i].x - points[i].x);
+                var dG = (points[next_i].g_gouraud - points[i].g_gouraud) / (points[next_i].x - points[i].x);
+                var dB = (points[next_i].b_gouraud - points[i].b_gouraud) / (points[next_i].x - points[i].x);
+                var x1 = Math.ceil(points[i].x);
+                var x2 = Math.floor(points[next_i].x);
+                var R = points[i].r_gouraud;
+                var G = points[i].g_gouraud;
+                var B = points[i].b_gouraud;
+                for (var x = x1; x <= x2; x++) {
+                    _this.AtualizaBuffer(z1, points[i].r_gouraud, points[i].g_gouraud, points[i].b_gouraud, x, y);
+                    z1 += dz;
+                    R += dR;
+                    G += dG;
+                    B += dB;
+                }
+            }
+        });
+        //console.log(this.depthBuffer[0][150]);
         //console.log(this.scanline);
     };
     ZBuffer.prototype.AtualizaBuffer = function (constant_z, new_R, new_G, new_B, x, y) {
-        if (constant_z > this.depthBuffer[y][x]) {
+        //console.log(constant_z);
+        if (constant_z < this.depthBuffer[y][x]) {
             this.depthBuffer[y][x] = constant_z;
+            //console.log(this.depthBuffer[y][x]);
             this.colorBuffer[y][x] = "rgb(".concat(new_R, ", ").concat(new_G, ", ").concat(new_B, ")");
+            //console.log(this.colorBuffer[y][x]);
+            //console.log(this.depthBuffer);
         }
     };
     return ZBuffer;
 }());
-/* public zbufferConstante(HashMap){
-    
-
-    if(new_z > zbuffer[y][x].z){
-        zbuffer[y][x].z = new_z
-    }
-    
-    
-    if(new_z > zbuffer[y][x].z){
-        zbuffer[y][x].z = new_z
-        zbuffer[y][x].R = new_R
-        zbuffer[y][x].G = new_G
-        zbuffer[y][x].B = new_B
-    }
-} */
 var face = new Face([
     new Dot(319.000, 160.774, -51.524, "rgb(118, 92, 0)"),
     new Dot(190.427, 0.000, -48.792, "rgb(64, 90, 7)"),
@@ -458,7 +496,7 @@ var face = new Face([
     new Dot(151.303, 239.000, -41.331, "rgb(48, 0, 0)"),
     new Dot(319.000, 239.000, -49.722, "rgb(117, 89, 6)") // A''
 ]);
-var zBuffer = new ZBuffer(1000, 800);
+var zBuffer = new ZBuffer(238, 304);
 zBuffer.Scanline([face]);
 zBuffer.Zbuffer();
 //console.log(zBuffer.scanline)

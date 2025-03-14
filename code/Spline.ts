@@ -445,7 +445,7 @@ class ZBuffer {
         this.width = width;
         this.height = height;
         this.scanline = new Map(); // Inicializa o HashMap
-        this.depthBuffer = Array.from({ length: height }, () => Array(width).fill(-100000000));
+        this.depthBuffer = Array.from({ length: height }, () => Array(width).fill(100000000));
         this.colorBuffer = Array.from({ length: height }, () => Array(width).fill('#FFFFFF'));
     }
 
@@ -454,26 +454,63 @@ class ZBuffer {
     }
 
     Scanline(faces: Array<Face>) {
+        let gambiarra = false;
+        let y_original;
+        let z_original;
         for (const face of faces) {
             for (let i = 0; i < face.dots.length; i++) {
+                let Dx, Dy, Dz, Tx, Tz;
                 const next_i = (i + 1) % face.dots.length;
+                
+                
+                if(i===0){
+                    y_original = face.dots[0].y;//para ele nunca mudar de valor
+                    z_original = face.dots[0].z;
+                }
+                
+
+                //console.log(y_original);
+                //console.log(next_i)
 
                 if (face.dots[i].y === face.dots[next_i].y) {
                     continue;
                 }
 
-                face.dots[i].x = Math.round(face.dots[i].x);
-                face.dots[i].y = Math.round(face.dots[i].y);
+                //face.dots[i].x = Math.round(face.dots[i].x);
+                
+                
 
                 const start = face.dots[i].y < face.dots[next_i].y ? face.dots[i] : face.dots[next_i];
                 const end = face.dots[i].y < face.dots[next_i].y ? face.dots[next_i] : face.dots[i];
+                if(!gambiarra){
+                    
+                    if(next_i == 0){//para o caso de ser o ultimo ponto, ele não troca de valor dai
+                        Dx = end.x - start.x;
+                        Dy = end.y - y_original;
+                        Dz = end.z - z_original;
+                        
 
-                const Dx = end.x - start.x;
-                const Dy = end.y - start.y;
-                const Dz = end.z - start.z;
+                        Tx = Dx / Dy;
 
-                const Tx = Dx / Dy;
-                const Tz = Dz / Dy;
+                        Tz = Dz / Dy;
+                    }else{
+                        
+                        Dx = end.x - start.x;
+                        Dy = end.y - start.y;
+                        Dz = end.z - start.z;
+
+
+                        Tx = Dx / Dy;
+
+                        Tz = Dz / Dy;
+                    }
+
+                    gambiarra = true;
+
+                }
+                console.log(`Dx = ${Dx.toFixed(3)}, Dy = ${Dy.toFixed(3)}, Dz = ${Dz.toFixed(3)}, Tx = ${Tx.toFixed(3)}, Tz = ${Tz.toFixed(3)}`);
+
+                face.dots[i].y = Math.round(face.dots[i].y);
 
                 let x = start.x;
                 let z = start.z;
@@ -485,6 +522,7 @@ class ZBuffer {
                     x += Tx;
                     z += Tz;
                 }
+                gambiarra = false
             }
         }
         //console.log(this.scanline);
@@ -493,7 +531,6 @@ class ZBuffer {
     updateHash(y: number, x: number, z: number, color: string) {
 
         if (!this.scanline.has(y)) { 
-            // Se 'y' não existe no HashMap, criamos uma nova lista vazia
             this.scanline.set(y, []);
         }
         
@@ -517,20 +554,31 @@ class ZBuffer {
         })
 
         this.scanline.forEach((points, y) => {
+            
+            
             for (let i = 0; i < points.length; i += 2) {
-                const x1 = Math.ceil(points[i].x);
-                const x2 = Math.floor(points[i + 1].x);
-
+                const next_i = (i + 1) % face.dots.length;
                 let z1 = points[i].z;
-                const z2 = points[i + 1].z;
+                
+                const z2 = points[next_i].z;
+                //console.log(points[i].x, points[i+1].x, points[i].z, points[i+1].z);
+                
+                const dz = (z2 - z1) / (points[next_i].x - points[i].x);
+                // console.log(dz);
+                
+                const dR = (points[next_i].r_gouraud - points[i].r_gouraud) / (points[next_i].x - points[i].x);
+                const dG = (points[next_i].g_gouraud - points[i].g_gouraud) / (points[next_i].x - points[i].x);
+                const dB = (points[next_i].b_gouraud - points[i].b_gouraud) / (points[next_i].x - points[i].x);
+                
+                const x1 = Math.ceil(points[i].x);
+                const x2 = Math.floor(points[next_i].x);
+
+                
                 let R = points[i].r_gouraud;
                 let G = points[i].g_gouraud;
                 let B = points[i].b_gouraud;
 
-                const dz = (z2 - z1) / (x2 - x1);
-                const dR = (points[i + 1].r_gouraud - points[i].r_gouraud) / (x2 - x1);
-                const dG = (points[i + 1].g_gouraud - points[i].g_gouraud) / (x2 - x1);
-                const dB = (points[i + 1].b_gouraud - points[i].b_gouraud) / (x2 - x1);
+                
 
 
                 for (let x = x1; x <= x2; x++) {
@@ -542,15 +590,22 @@ class ZBuffer {
                 }
             }
         });
+
+        //console.log(this.depthBuffer[0][150]);
         
 
         //console.log(this.scanline);
     }
 
     AtualizaBuffer(constant_z: number, new_R: number, new_G: number, new_B: number, x: number, y: number){
-        if (constant_z > this.depthBuffer[y][x]) {
+        //console.log(constant_z);
+        if (constant_z < this.depthBuffer[y][x]) {
             this.depthBuffer[y][x] = constant_z;
+            //console.log(this.depthBuffer[y][x]);
+            
             this.colorBuffer[y][x] = `rgb(${new_R}, ${new_G}, ${new_B})`;
+            //console.log(this.colorBuffer[y][x]);
+            //console.log(this.depthBuffer);
         }
     }
 }
@@ -564,7 +619,7 @@ class ZBuffer {
     new Dot(319.000, 239.000, -49.722, "rgb(117, 89, 6)") // A''
 ]);
 
-const zBuffer = new ZBuffer(1000, 800);
+const zBuffer = new ZBuffer(238, 304);
 zBuffer.Scanline([face]);
 zBuffer.Zbuffer();
 //console.log(zBuffer.scanline)
