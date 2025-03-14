@@ -452,7 +452,8 @@ class ZbufferGourand {
         this.colorBuffer = Array.from({ length: height }, () => Array(width).fill('#FFFFFF'));
         for(let i=0; i<height; i++){
             for(let j=0; j<width; j++){
-                this.depthBuffer[i][j] = 1000000
+                this.depthBuffer[i][j] = 1000000;
+                this.colorBuffer[i][j] = '#FFFFFF';
             }
         };
     }
@@ -461,94 +462,109 @@ class ZbufferGourand {
         this.Scanline([face]);
     }
 
-    extractRGB(colorString) {
-        const match = colorString.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-        if (match) {
-            return {
-                r: parseInt(match[1], 10),
-                g: parseInt(match[2], 10),
-                b: parseInt(match[3], 10)
-            };
-        }
-        return { r: 0, g: 0, b: 0 }; // Retorna preto se a cor não for válida
-    }
     Scanline(faces: Array<Face>) {
-        let gambiarra = false;
-        let y_original;
-        let z_original;
-        for (const face of faces) {
-            for (let i = 0; i < face.dots.length; i++) {
-                let Dx, Dy, Dz, Tx, Tz;
-                const next_i = (i + 1) % face.dots.length;
-                
-                
-                if(i===0){
-                    y_original = face.dots[0].y;//para ele nunca mudar de valor
-                    z_original = face.dots[0].z;
+        console.log("Faces -> ", faces);
+       let gambiarra = false;
+       let y_original;
+       let z_original;
+       for (const face of faces) {
+
+           for (let i = 0; i < face.dots.length; i++) {
+               // console.log("Pontos ", face.dots[i]);
+               let Dx, Dy, Dz, Tx, Tz;
+               const next_i = (i + 1) % face.dots.length;
+               // console.log(next_i);
+               
+               
+          /*      if(i===0){
+                   y_original = face.dots[0].y;//para ele nunca mudar de valor
+                   z_original = face.dots[0].z;
+               } */
+               
+
+               //console.log(y_original);
+               //console.log(next_i)
+
+               if (face.dots[i].y === face.dots[next_i].y) {
+                   continue;
+               }
+
+               //face.dots[i].x = Math.round(face.dots[i].x);
+               
+               let start, end;
+
+               // const start = face.dots[i].y < face.dots[next_i].y ? face.dots[i] : face.dots[next_i];
+               // const end = face.dots[i].y < face.dots[next_i].y ? face.dots[next_i] : face.dots[i];
+
+               if(face.dots[i].y < face.dots[next_i].y){
+                   start = face.dots[i];
+                   end = face.dots[next_i];
+               }else{
+                   start = face.dots[next_i];
+                   end = face.dots[i];
                 }
-                
 
-                //console.log(y_original);
-                //console.log(next_i)
+               console.log("Start -> ", start, "End -> ", end);
+   /* 
+               if(!gambiarra){
+                   
+                   if(next_i == 0){//para o caso de ser o ultimo ponto, ele não troca de valor dai
+                       Dx = end.x - start.x;
+                       Dy = end.y - y_original;
+                       //console.log(end.z, z_original);
+                       Dz = end.z - z_original;
+                       
 
-                if (face.dots[i].y === face.dots[next_i].y) {
-                    continue;
+                       Tx = Dx / Dy;
+
+                       Tz = Dz / Dy;
+                   }else{
+                   */     
+                       Dx = end.x - start.x;
+                       Dy = end.y - start.y;
+                       Dz = end.z - start.z;
+
+
+                       Tx = Dx / Dy;
+
+                       Tz = Dz / Dy;
+                   //}
+                   
+                   //console.log(`Start = (${start.x}, ${start.y}, ${start.z}), End = (${end.x}, ${end.y}, ${end.z})`);  
+                  // gambiarra = true;
+
+               //}
+               //console.log(`Dx = ${Dx.toFixed(3)}, Dy = ${Dy.toFixed(3)}, Dz = ${Dz.toFixed(3)}, Tx = ${Tx.toFixed(3)}, Tz = ${Tz.toFixed(3)}`);
+
+               let start_y;
+               let end_y;
+               
+               if(face.dots[i].y < face.dots[next_i].y){
+                   start_y = Math.round(face.dots[i].y);
+                   end_y = Math.round(face.dots[next_i].y);
+               }else{
+                   start_y = Math.round(face.dots[next_i].y);
+                   end_y = Math.round(face.dots[i].y);
                 }
-
-                //face.dots[i].x = Math.round(face.dots[i].x);
-                
-                
-
-                const start = face.dots[i].y < face.dots[next_i].y ? face.dots[i] : face.dots[next_i];
-                const end = face.dots[i].y < face.dots[next_i].y ? face.dots[next_i] : face.dots[i];
-	
-                if(!gambiarra){
-                    
-                    if(next_i == 0){//para o caso de ser o ultimo ponto, ele não troca de valor dai
-                        Dx = end.x - start.x;
-                        Dy = end.y - y_original;
-                        //console.log(end.z, z_original);
-                        Dz = end.z - z_original;
-                        
-
-                        Tx = Dx / Dy;
-
-                        Tz = Dz / Dy;
-                    }else{
-                        
-                        Dx = end.x - start.x;
-                        Dy = end.y - start.y;
-                        Dz = end.z - start.z;
-
-
-                        Tx = Dx / Dy;
-
-                        Tz = Dz / Dy;
-                    }
-                    
-                    //console.log(`Start = (${start.x}, ${start.y}, ${start.z}), End = (${end.x}, ${end.y}, ${end.z})`);  
-                    gambiarra = true;
-
-                }
-                //console.log(`Dx = ${Dx.toFixed(3)}, Dy = ${Dy.toFixed(3)}, Dz = ${Dz.toFixed(3)}, Tx = ${Tx.toFixed(3)}, Tz = ${Tz.toFixed(3)}`);
-
-                face.dots[i].y = Math.round(face.dots[i].y);
-
-                let x = start.x;
-                let z = start.z;
-                //const rgb1 = this.extractRGB(start.color);
-                for (let y = start.y; y < end.y; y++) {
-                    // Adiciona ao HashMap de scanlines
-                    this.updateHash(y, x, z, start.r_gouraud, start.g_gouraud, start.b_gouraud);
-
-                    x += Tx;
-                    z += Tz;
-                }
-                gambiarra = false
+               
+               
+               let x = start.x;
+               let z = start.z;
+               //const rgb1 = this.extractRGB(start.color);
+               for (let y = start.y; y < end.y; y++) {
+                // Adiciona ao HashMap de scanlines
+                this.updateHash(y, x, z, start.r_gouraud, start.g_gouraud, start.b_gouraud);
+        
+                x += Tx;
+                z += Tz;
             }
-        }
-        //console.log(this.scanline);
-    }
+               //gambiarra = false
+           }
+       }
+       //console.log(this.scanline);
+   }
+
+    
 
     updateHash(y: number, x: number, z: number, new_R: number, new_G: number, new_B: number,) {
 
@@ -580,14 +596,11 @@ class ZbufferGourand {
 
         
 
-        this.OrdenaScanline();
-
         this.scanline.forEach((points, y) => {
+            points = points.sort((a, b) => a.x - b.x);
             
-            
-            for (let i = 0; i < points.length; i += 2) {
-                const next_i = (i + 1) % points.length;
-                console.log(next_i);
+            for (let i = 0; i < points.length-1; i += 2) {
+                const next_i = (i + 1) % (points.length);
                 let z1 = points[i].z;
                 
                 const z2 = points[next_i].z;
@@ -610,8 +623,19 @@ class ZbufferGourand {
                 let B = points[i].b_gouraud;
 
                 
+                let start = x1, end = x2;
 
+                if(x1 > x2){
+                    // start = x2;
+                    // end = x1;
+                    console.log("Invertido");
 
+                    // points.sort((a, b) => a.x - b.x);
+                }
+
+                let dx = points[i].x - x1
+                z1 += dx * dz;
+                
                 for (let x = x1; x <= x2; x++) {
                     this.AtualizaBufferGourand(z1, points[i].r_gouraud, points[i].g_gouraud, points[i].b_gouraud, x, y);
                     //console.log(points[i].r_gouraud, points[i].g_gouraud, points[i].b_gouraud);
@@ -638,7 +662,7 @@ class ZbufferGourand {
             //console.log(this.depthBuffer[y][x]);
             
             this.colorBuffer[y][x] = `rgb(${new_R}, ${new_G}, ${new_B})`;
-            console.log(this.colorBuffer[y][x]);
+            //console.log(this.colorBuffer[y][x]);
             //console.log(this.depthBuffer);
         }
     }
