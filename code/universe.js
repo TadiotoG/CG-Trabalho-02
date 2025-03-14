@@ -114,17 +114,17 @@ var Universe = /** @class */ (function () {
         for (var i = 0; i < this.surfaces.length; i++) {
             for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
                 this.zbuffer.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                this.zbuffer.ZbufferConstante();
             }
         }
-        this.zbuffer.Zbuffer();
         // console.log("Executou ")
-        for (var x = 0; x < this.zbuffer.depthBuffer.length; x++) { // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
-            for (var z = 0; z < this.zbuffer.depthBuffer[0].length; z++) {
-                this.ctx.fillStyle = this.zbuffer.colorBuffer[x][z];
-                this.ctx.fillRect(z, x, 1, 1);
-                // console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
-            }
-        }
+        // for(let x=0; x<this.zbuffer.depthBuffer.length; x++){ // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
+        //     for(let z=0; z<this.zbuffer.depthBuffer[0].length; z++){
+        //         this.ctx.fillStyle = this.zbuffer.colorBuffer[x][z];
+        //         this.ctx.fillRect(z, x, 1, 1);
+        //             // console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
+        //     }
+        // }
     };
     Universe.prototype.plot_zbuffer = function () {
         for (var i = 0; i < this.zbuffer.colorBuffer.length; i++) {
