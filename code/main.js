@@ -470,6 +470,7 @@ function change_world() {
     for (var i = 0; i < list_of_surfaces.length; i++) {
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
+        uni.cut_surface_withcolor(uni.surfaces[i]);
     }
     if (shading() == "const") {
         uni.update_all_face_colors_constant();

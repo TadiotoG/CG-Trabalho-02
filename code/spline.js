@@ -692,7 +692,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var x = umin;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_5.push(p2);
@@ -710,7 +710,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var x = umin;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 novosPontos_5.push(Paux);
             }
@@ -740,7 +740,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var x = umax;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_6.push(p2);
@@ -758,7 +758,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var x = umax;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 novosPontos_6.push(Paux);
             }
@@ -788,7 +788,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var y = vmax;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_7.push(p2);
@@ -806,7 +806,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var y = vmax;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 novosPontos_7.push(Paux);
             }
@@ -836,7 +836,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var y = vmin;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_8.push(p2);
@@ -854,7 +854,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var y = vmin;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 novosPontos_8.push(Paux);
             }
@@ -872,12 +872,10 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
     }
     return new Face(pontos, face.color, face.other_side_line_color, face.line_color);
 }
-function interpolateColor(color1, color2, t) {
-    var c1 = color1.match(/\d+/g).map(Number);
-    var c2 = color2.match(/\d+/g).map(Number);
-    var r = Math.round(c1[0] + t * (c2[0] - c1[0]));
-    var g = Math.round(c1[1] + t * (c2[1] - c1[1]));
-    var b = Math.round(c1[2] + t * (c2[2] - c1[2]));
+function interpolateColor(r0, g0, b0, r1, g1, b1, t) {
+    var r = Math.round(r0 + t * (r1 - r0));
+    var g = Math.round(g0 + t * (g1 - g0));
+    var b = Math.round(b0 + t * (b1 - b0));
     return "rgb(".concat(r, ", ").concat(g, ", ").concat(b, ")");
 }
 var Lamp = /** @class */ (function () {
