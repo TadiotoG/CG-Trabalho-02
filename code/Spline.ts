@@ -191,6 +191,7 @@ class Face{
     };
 
     draw_line(dot0: Dot, dot1: Dot, ctx: CanvasRenderingContext2D, normal: number){
+        ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.moveTo(dot0.x, dot0.y);
         ctx.lineTo(dot1.x, dot1.y);
@@ -199,7 +200,6 @@ class Face{
         } else {
             ctx.strokeStyle = this.other_side_line_color;
         }
-        ctx.lineWidth = 1;
         ctx.stroke();
     };
 }

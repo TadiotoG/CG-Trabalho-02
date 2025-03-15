@@ -273,13 +273,21 @@ class Surface{
 
         for(let i=0; i<this.resi-1; i++){
             for(let j=0; j<this.resj-1; j++){ // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca
-                let A = new Dot(ps[0][i*this.resj+j]/ps[3][i*this.resj+j], ps[1][i*this.resj+j]/ps[3][i*this.resj+j], ps[2][i*this.resj+j])
+                // let A = new Dot(ps[0][i*this.resj+j]/ps[3][i*this.resj+j], ps[1][i*this.resj+j]/ps[3][i*this.resj+j], ps[2][i*this.resj+j])
 
-                let B = new Dot(ps[0][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[1][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[2][(i+1)*this.resj+j])
+                // let B = new Dot(ps[0][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[1][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[2][(i+1)*this.resj+j])
 
-                let C = new Dot(ps[0][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[1][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[2][(i+1)*this.resj+(j+1)])
+                // let C = new Dot(ps[0][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[1][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[2][(i+1)*this.resj+(j+1)])
 
-                let D = new Dot(ps[0][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[1][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[2][i*this.resj+(j+1)])
+                // let D = new Dot(ps[0][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[1][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[2][i*this.resj+(j+1)])
+
+                let A = new Dot(ps[0][i*this.resj+j], ps[1][i*this.resj+j], ps[2][i*this.resj+j])
+
+                let B = new Dot(ps[0][(i+1)*this.resj+j], ps[1][(i+1)*this.resj+j], ps[2][(i+1)*this.resj+j])
+
+                let C = new Dot(ps[0][(i+1)*this.resj+(j+1)], ps[1][(i+1)*this.resj+(j+1)], ps[2][(i+1)*this.resj+(j+1)])
+
+                let D = new Dot(ps[0][i*this.resj+(j+1)], ps[1][i*this.resj+(j+1)], ps[2][i*this.resj+(j+1)])
 
                 let A_2 = this.outp[i][j];
 

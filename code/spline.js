@@ -175,6 +175,7 @@ var Face = /** @class */ (function () {
     };
     ;
     Face.prototype.draw_line = function (dot0, dot1, ctx, normal) {
+        ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.moveTo(dot0.x, dot0.y);
         ctx.lineTo(dot1.x, dot1.y);
@@ -184,7 +185,6 @@ var Face = /** @class */ (function () {
         else {
             ctx.strokeStyle = this.other_side_line_color;
         }
-        ctx.lineWidth = 1;
         ctx.stroke();
     };
     ;
