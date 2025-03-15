@@ -14,12 +14,18 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 var Dot = /** @class */ (function () {
-    function Dot(new_x, new_y, new_z, col) {
+    function Dot(new_x, new_y, new_z, col, r_gou, g_gou, b_gou) {
         if (col === void 0) { col = "red"; }
+        if (r_gou === void 0) { r_gou = 0; }
+        if (g_gou === void 0) { g_gou = 0; }
+        if (b_gou === void 0) { b_gou = 0; }
         this.x = new_x;
         this.y = new_y;
         this.z = new_z;
         this.color = col;
+        this.r_gouraud = r_gou;
+        this.g_gouraud = g_gou;
+        this.b_gouraud = b_gou;
     }
     Dot.prototype.print_obj = function (dot_name) {
         console.log(dot_name + "-> (" + this.x + "," + this.y + "," + this.z + ")");
@@ -61,7 +67,7 @@ var Face = /** @class */ (function () {
             this.vet_normal = this.get_normal();
         }
         this.color = col;
-        this.color_other_side = other_side_col;
+        this.other_side_line_color = other_side_col;
         this.line_color = cor_aresta;
     }
     Face.prototype.cria_arestas = function () {
@@ -141,14 +147,8 @@ var Face = /** @class */ (function () {
         });
     };
     Face.prototype.draw = function (line, y, ctx, normal) {
-        if (normal < 0) {
-            ctx.fillStyle = this.color_other_side;
-        }
-        else {
-            ctx.fillStyle = this.color;
-        }
         // console.log("COLOR -> ", this.color)
-        // ctx.fillStyle = this.color;
+        ctx.fillStyle = this.color;
         for (var i = 0; i < line.length; i += 2) {
             var x1 = Math.ceil(line[i]);
             var x2 = Math.floor(line[i + 1]);
@@ -159,27 +159,32 @@ var Face = /** @class */ (function () {
         var arestaCheckbox;
         arestaCheckbox = document.getElementById("aresta");
         if (arestaCheckbox && arestaCheckbox.checked) {
-            this.draw_face(ctx);
+            this.draw_face(ctx, normal);
         }
     };
-    Face.prototype.draw_face = function (ctx) {
+    Face.prototype.draw_face = function (ctx, normal) {
         for (var i = 0; i < this.dots.length; i++) {
             if (i === this.dots.length - 1) {
-                this.draw_line(this.dots[i], this.dots[0], this.line_color, ctx);
+                this.draw_line(this.dots[i], this.dots[0], ctx, normal);
             }
             else {
                 // let h = 3;
-                this.draw_line(this.dots[i], this.dots[i + 1], this.line_color, ctx);
+                this.draw_line(this.dots[i], this.dots[i + 1], ctx, normal);
             }
         }
     };
     ;
-    Face.prototype.draw_line = function (dot0, dot1, color, ctx) {
+    Face.prototype.draw_line = function (dot0, dot1, ctx, normal) {
+        ctx.lineWidth = 0.5;
         ctx.beginPath();
         ctx.moveTo(dot0.x, dot0.y);
         ctx.lineTo(dot1.x, dot1.y);
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1;
+        if (normal < 0) {
+            ctx.strokeStyle = this.line_color;
+        }
+        else {
+            ctx.strokeStyle = this.other_side_line_color;
+        }
         ctx.stroke();
     };
     ;
@@ -301,6 +306,14 @@ function VetA_minus_VetB(A, B) {
     var C = new Vet(x, y, z);
     return C;
 }
+function VetA_plus_VetB(A, B) {
+    var x, y, z;
+    x = A.x + B.x;
+    y = A.y + B.y;
+    z = A.z + B.z;
+    var C = new Vet(x, y, z);
+    return C;
+}
 function prod_escalar(A, B) {
     return (A.x * B.x + A.y * B.y + A.z * B.z);
 }
@@ -364,101 +377,6 @@ var Aresta = /** @class */ (function () {
         this.tz = this.Dz / this.Dy;
     }
     return Aresta;
-}());
-var ZBuffer = /** @class */ (function () {
-    function ZBuffer(width, height) {
-        this.width = width;
-        this.height = height;
-        this.depthBuffer = Array.from({ length: height }, function () { return Array(width).fill(Infinity); });
-        this.colorBuffer = Array.from({ length: height }, function () { return Array(width).fill('#FFFFFF'); }); // Default background color
-    }
-    ZBuffer.prototype.initializeBuffers = function () {
-        for (var y = 0; y < this.height; y++) {
-            for (var x = 0; x < this.width; x++) {
-                this.depthBuffer[y][x] = Infinity;
-                this.colorBuffer[y][x] = '#FFFFFF'; // Default background color
-                // console.log("Z buffer -> ", this.depthBuffer[y][x]);
-            }
-        }
-    };
-    ZBuffer.prototype.updateBuffer = function (x, y, z, color) {
-        // console.log(` y = ${y}    x = ${(x)}`);
-        // console.log("depth buffer len ", this.depthBuffer.length, "    [0] -> ", this.depthBuffer[0][0])
-        // console.log("This. depth -> ", this.depthBuffer[Math.round(y)][x])
-        if (z < this.depthBuffer[Math.ceil(y)][x]) {
-            this.depthBuffer[Math.ceil(y)][x] = z;
-            this.colorBuffer[Math.ceil(y)][x] = color;
-        }
-    };
-    ZBuffer.prototype.render = function (faces) {
-        this.initializeBuffers(); //O parametro que ela usa são todas as faces do objeto (DA PRA MUDAR, NÃO PRECISA SER TODAS AS FACES)
-        for (var _i = 0, faces_1 = faces; _i < faces_1.length; _i++) {
-            var face = faces_1[_i];
-            this.rasterizePolygon(face);
-        }
-    };
-    ZBuffer.prototype.rasterizePolygon = function (face) {
-        var pontos = face.dots;
-        var edges = [];
-        var activeEdges = [];
-        for (var i = 0; i < pontos.length; i++) {
-            if (i + 1 < pontos.length) {
-                edges.push(new Aresta(pontos[i], pontos[i + 1]));
-            }
-            else {
-                edges.push(new Aresta(pontos[i], pontos[0]));
-            }
-        }
-        // Find ymin and ymax of the face
-        var ymin = Infinity;
-        var ymax = -Infinity;
-        for (var _i = 0, _a = face.dots; _i < _a.length; _i++) {
-            var vertex = _a[_i];
-            if (vertex.y < ymin)
-                ymin = vertex.y;
-            if (vertex.y > ymax)
-                ymax = vertex.y;
-        }
-        var _loop_1 = function (y) {
-            var _b, _c;
-            // Update active edges
-            activeEdges.length = 0;
-            for (var _d = 0, edges_1 = edges; _d < edges_1.length; _d++) {
-                var edge = edges_1[_d];
-                if ((edge.p1.y <= y && edge.p2.y > y) || (edge.p2.y <= y && edge.p1.y > y)) {
-                    activeEdges.push(edge);
-                }
-            }
-            // Sort active edges by x
-            activeEdges.sort(function (a, b) { return a.p1.x + a.tx * (y - a.p1.y) - (b.p1.x + b.tx * (y - b.p1.y)); });
-            // Fill pixels between pairs of intersections
-            for (var i = 0; i < activeEdges.length; i += 2) {
-                var edge1 = activeEdges[i];
-                var edge2 = activeEdges[i + 1];
-                var x1 = edge1.p1.x + edge1.tx * (y - edge1.p1.y);
-                var z1 = edge1.p1.z + edge1.tz * (y - edge1.p1.y);
-                var x2 = edge2.p1.x + edge2.tx * (y - edge2.p1.y);
-                var z2 = edge2.p1.z + edge2.tz * (y - edge2.p1.y);
-                if (x1 > x2) {
-                    _b = [x2, x1], x1 = _b[0], x2 = _b[1];
-                    _c = [z2, z1], z1 = _c[0], z2 = _c[1];
-                }
-                // Log the values for each scanline
-                var tz = (x2 - x1 === 0) ? 0 : ((z2 - z1) / (x2 - x1)).toFixed(6);
-                for (var x = Math.ceil(x1); x <= Math.floor(x2); x++) {
-                    var t = (x - x1) / (x2 - x1);
-                    var z = z1 + t * (z2 - z1);
-                    this_1.updateBuffer(x, y, z, face.color);
-                }
-            }
-        };
-        var this_1 = this;
-        // Process each scanline from ymin to ymax
-        for (var y = ymin; y <= ymax; y++) {
-            _loop_1(y);
-        }
-    };
-    return ZBuffer;
 }());
 function Recorte(face, umin, umax, vmin, vmax) {
     umin = Number(umin);
@@ -660,7 +578,7 @@ function Recorte(face, umin, umax, vmin, vmax) {
         arestas = novasArestas;
         pontos = novosPontos_4;
     }
-    return new Face(pontos, face.color, face.color_other_side, face.line_color);
+    return new Face(pontos, face.color, face.other_side_line_color, face.line_color);
 }
 function RecorteWithColor(face, umin, umax, vmin, vmax) {
     umin = Number(umin);
@@ -691,7 +609,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var x = umin;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_5.push(p2);
@@ -709,7 +627,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var x = umin;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 novosPontos_5.push(Paux);
             }
@@ -739,7 +657,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var x = umax;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_6.push(p2);
@@ -757,7 +675,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var x = umax;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 novosPontos_6.push(Paux);
             }
@@ -787,7 +705,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var y = vmax;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_7.push(p2);
@@ -805,7 +723,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var y = vmax;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 novosPontos_7.push(Paux);
             }
@@ -835,7 +753,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var y = vmin;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_8.push(p2);
@@ -853,7 +771,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var y = vmin;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.color, p2.color, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 novosPontos_8.push(Paux);
             }
@@ -869,14 +787,12 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
         arestas = novasArestas;
         pontos = novosPontos_8;
     }
-    return new Face(pontos, face.color, face.color_other_side, face.line_color);
+    return new Face(pontos, face.color, face.other_side_line_color, face.line_color);
 }
-function interpolateColor(color1, color2, t) {
-    var c1 = color1.match(/\d+/g).map(Number);
-    var c2 = color2.match(/\d+/g).map(Number);
-    var r = Math.round(c1[0] + t * (c2[0] - c1[0]));
-    var g = Math.round(c1[1] + t * (c2[1] - c1[1]));
-    var b = Math.round(c1[2] + t * (c2[2] - c1[2]));
+function interpolateColor(r0, g0, b0, r1, g1, b1, t) {
+    var r = Math.round(r0 + t * (r1 - r0));
+    var g = Math.round(g0 + t * (g1 - g0));
+    var b = Math.round(b0 + t * (b1 - b0));
     return "rgb(".concat(r, ", ").concat(g, ", ").concat(b, ")");
 }
 var Lamp = /** @class */ (function () {

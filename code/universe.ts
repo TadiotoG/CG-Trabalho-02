@@ -1,5 +1,5 @@
-/// <reference path="./surface.ts" />
-/// <reference path="./camera.ts" />
+/// <reference path="./zbufferconst.ts" />
+/// <reference path="./zbuffergouraud.ts" />
 
 let canvas_width = 1000;
 let canvas_height = 800;
@@ -12,17 +12,19 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     rotate_y: Boolean = false;
     lamp: Lamp;
     la: [number, number, number]; // Luz ambiente
-    zbuffer: ZBuffer;
+    zbuffer_const: ZbufferConstante;
+    zbuffer_gouraud: ZbufferGouraud;
     width: number;
     height: number;
 
-    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: [number, number, number], z_buffer: ZBuffer, width: number, height: number){
+    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: [number, number, number], zbuffer_const: ZbufferConstante, zbuffer_gouraud: ZbufferGouraud, width: number, height: number){
         this.ctx = ctx_out;
         this.camera = cam;
         this.matriz_SRU_SRT = this.camera.get_mat_SRU_SRT();
         this.lamp = lamp;
         this.la = ambient_light;
-        this.zbuffer = z_buffer;
+        this.zbuffer_const = zbuffer_const;
+        this.zbuffer_gouraud = zbuffer_gouraud;
         this.width = width;
         this.height = height;
     };
@@ -34,64 +36,95 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
             let amb_light_b = this.surfaces[i].ka[2] * this.la[2];
             for(let j=0; j<this.surfaces[i].double_faces.length; j++){
                 let new_color = "rgb(";                                                         // Ka: number=0.4, Kd: number=0.6, Ks: number=0.5, N: number=2.15
-                new_color += this.get_face_color_constant(this.surfaces[i].double_faces[j].face_SRU, amb_light_r, this.surfaces[i].ks[0], this.surfaces[i].kd[0], this.surfaces[i].n);
+                new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_r, this.surfaces[i].ks[0], this.surfaces[i].kd[0], this.surfaces[i].n);
                 new_color += ",";
-                new_color += this.get_face_color_constant(this.surfaces[i].double_faces[j].face_SRU, amb_light_g, this.surfaces[i].ks[1], this.surfaces[i].kd[1], this.surfaces[i].n);
+                new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_g, this.surfaces[i].ks[1], this.surfaces[i].kd[1], this.surfaces[i].n);
                 new_color += ",";
-                new_color += this.get_face_color_constant(this.surfaces[i].double_faces[j].face_SRU, amb_light_b, this.surfaces[i].ks[2], this.surfaces[i].kd[2], this.surfaces[i].n);
+                new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_b, this.surfaces[i].ks[2], this.surfaces[i].kd[2], this.surfaces[i].n);
                 new_color += ")";
                 // console.log("New color -> ", new_color);
                 this.surfaces[i].double_faces[j].face.color = new_color;
+                // console.log("NEW COLOR -> ", new_color);
             }
         }
     }
 
-    get_face_color_constant(face: Face, amb_light_par: number, ks: number, kd: number, n: number){
+    call_gouraud(){
+        for(let surf=0; surf<this.surfaces.length; surf++){
+            define_vet_normal_vertices(this.surfaces[surf].outp);
+            let amb_light_r = this.surfaces[surf].ka[0] * this.la[0];
+            let amb_light_g = this.surfaces[surf].ka[1] * this.la[1];
+            let amb_light_b = this.surfaces[surf].ka[2] * this.la[2];
+            for(let i=0; i<this.surfaces[surf].outp.length; i++){
+                for(let j=0; j<this.surfaces[surf].outp[0].length; j++){
+                    let teste = (this.get_ilum(this.surfaces[surf].outp[i][j].gouraud, this.surfaces[surf].outp[i][j], amb_light_r, this.surfaces[surf].ks[0], this.surfaces[surf].kd[0], this.surfaces[surf].n));
+                    this.surfaces[surf].outp[i][j].r_gouraud = Number(teste);
+                    this.surfaces[surf].outp[i][j].g_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].gouraud, this.surfaces[surf].outp[i][j], amb_light_g, this.surfaces[surf].ks[1], this.surfaces[surf].kd[1], this.surfaces[surf].n));
+                    this.surfaces[surf].outp[i][j].b_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].gouraud, this.surfaces[surf].outp[i][j], amb_light_b, this.surfaces[surf].ks[2], this.surfaces[surf].kd[2], this.surfaces[surf].n));
+                }
+            }
+            this.surfaces[surf].create_faces(this.matriz_SRU_SRT);
+        }
+        // console.log("Primeira face -> ", this.surfaces[0].double_faces)
+    }
+
+    get_ilum(vet_normal: Vet, centroide: Dot, amb_light_par: number, ks: number, kd: number, n: number){
         let amb_light = amb_light_par;
         // console.log("================================================");
         // console.log("Centroide face = ", face);
         // console.log("Lamp x = ", this.lamp.pos.x);
-        let aux_x = this.lamp.pos.x - face.centroide.x;
-        let aux_y = this.lamp.pos.y - face.centroide.y;
-        let aux_z = this.lamp.pos.z - face.centroide.z;
+        let aux_x = this.lamp.pos.x - centroide.x;
+        let aux_y = this.lamp.pos.y - centroide.y;
+        let aux_z = this.lamp.pos.z - centroide.z;
+
+        let test_vis = new Vet(centroide.x - this.camera.vrp.x, centroide.y - this.camera.vrp.y, centroide.z - this.camera.vrp.z)
+        if(prod_escalar(vet_normal.unitary, test_vis.unitary) < 0){
+            vet_normal = new Vet(-vet_normal.x, -vet_normal.y, -vet_normal.z)
+        }
 
         let vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
         // vet_LampMinusCent.print_obj("Lamp - Centroide");
 
-        let UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, face.vet_normal.unitary)
-        // console.log("UN times UL = ", UN_times_UL);
-        // console.log("vet_normal = ", face.vet_normal.unitary);
+        let UN_escalar_UL = prod_escalar(vet_LampMinusCent.unitary, vet_normal.unitary)
+        // console.log("UN escalar UL = ", UN_escalar_UL);
+        // console.log("vet_normal = ", vet_normal.unitary);
 
-        if(UN_times_UL){
-            let ilum_difusa = this.lamp.il * kd * UN_times_UL;
+        if(UN_escalar_UL > 0){
+            let ilum_difusa = this.lamp.il * kd * UN_escalar_UL;
             // console.log("Ilumincao difusa: ", ilum_difusa)
 
-            aux_x = 2*UN_times_UL*face.vet_normal.unitary.x-vet_LampMinusCent.unitary.x;
-            aux_y = 2*UN_times_UL*face.vet_normal.unitary.y-vet_LampMinusCent.unitary.y;
-            aux_z = 2*UN_times_UL*face.vet_normal.unitary.z-vet_LampMinusCent.unitary.z;
+            aux_x = 2*UN_escalar_UL*vet_normal.unitary.x-vet_LampMinusCent.unitary.x;
+            aux_y = 2*UN_escalar_UL*vet_normal.unitary.y-vet_LampMinusCent.unitary.y;
+            aux_z = 2*UN_escalar_UL*vet_normal.unitary.z-vet_LampMinusCent.unitary.z;
 
             let idk_r = new Vet(aux_x, aux_y, aux_z);
             // idk_r.print_obj("Vet r")
 
-            aux_x = this.camera.vrp.x-face.centroide.x;
-            aux_y = this.camera.vrp.y-face.centroide.y;
-            aux_z = this.camera.vrp.z-face.centroide.z;
+            aux_x = this.camera.vrp.x-centroide.x;
+            aux_y = this.camera.vrp.y-centroide.y;
+            aux_z = this.camera.vrp.z-centroide.z;
 
             let direcao_observ = new Vet(aux_x, aux_y, aux_z);
             // direcao_observ.print_obj("Direcao observ");
 
-            let r_escalar_dir_obs = prod_escalar(idk_r, direcao_observ.unitary);
+            let r_escalar_dir_obs = prod_escalar(idk_r.unitary, direcao_observ.unitary);
             // console.log("R escalar dir ", r_escalar_dir_obs);
+            if(r_escalar_dir_obs > 0){
 
-            let is = this.lamp.il*ks*r_escalar_dir_obs**n;
-            // console.log("k ", ks, "    n -> ", n)
-            // console.log("is -> ", is)
-            // console.log(`${r_escalar_dir_obs} ** ${n} = ${r_escalar_dir_obs**n}`)
-            // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
-            // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
+                let is = this.lamp.il*ks*r_escalar_dir_obs**n;
+                // console.log("k ", ks, "    n -> ", n)
+                // console.log("is -> ", is)
+                // console.log(`${r_escalar_dir_obs} ** ${n} = ${r_escalar_dir_obs**n}`)
+                // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
+                // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
 
-            let result = 4*Math.round(amb_light + ilum_difusa + is);
-            return result.toString(10);
+                let result = Math.round(amb_light + ilum_difusa + is);
+                return result.toString(10);
+            } else {
+                let result = Math.round(amb_light + ilum_difusa);
+                return result.toString(10);
+            }
+            
         } else {
             return amb_light.toString(10);
         }
@@ -101,6 +134,10 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         for(let i=0; i < surface.double_faces.length; i++){
             // console.log("Entrou assim -> ", surface.double_faces[i].face)
             surface.double_faces[i].face = Recorte(surface.double_faces[i].face, 0, this.width, 0, this.height);
+            if(surface.double_faces[i].face.dots.length == 0){ // Caso o recorte retorne uma face sem pontos, a face é tirada da lista de faces
+                surface.double_faces.splice(i);
+                i--;
+            }
             // console.log("Saiu assim -> ", surface.double_faces[i].face)
         }
     };
@@ -115,32 +152,63 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
     };
 
-    calc_zbuffer(){
-        this.zbuffer.initializeBuffers();
+    calc_zbuffer_const(){
         for(let i=0; i<this.surfaces.length; i++){
             for(let j=0; j<this.surfaces[i].double_faces.length; j++){
-                this.zbuffer.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                this.zbuffer_const.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                this.zbuffer_const.ZbufferConstante();
             }
         }
-        for(let x=0; x<this.zbuffer.depthBuffer.length; x++){ // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
-            for(let z=0; z<this.zbuffer.depthBuffer[0].length; z++){
-                if(this.zbuffer.depthBuffer[x][z] < 100000){
-                    console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
-                }
-            }
-        }
+        // console.log("Executou ")
+        // for(let x=0; x<this.zbuffer.depthBuffer.length; x++){ // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
+        //     for(let z=0; z<this.zbuffer.depthBuffer[0].length; z++){
+        //         this.ctx.fillStyle = this.zbuffer.colorBuffer[x][z];
+        //         this.ctx.fillRect(z, x, 1, 1);
+                
+        //             // console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
+        //     }
+        // }
     }
 
-    plot_zbuffer(){
-        for(let i=0; i<this.zbuffer.colorBuffer.length; i++){
-            for(let j=0; j<this.zbuffer.colorBuffer[0].length; j++){
+    calc_zbuffer_gouraud(){
+        // console.log("Teste cores -> ", this.surfaces[0].double_faces[0].face);
+        for(let i=0; i<this.surfaces.length; i++){
+            for(let j=0; j<this.surfaces[i].double_faces.length; j++){
+                this.zbuffer_gouraud.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                this.zbuffer_gouraud.ZbufferGourand();
+            }
+        };
+        // console.log("Executou ")
+        // for(let x=0; x<this.zbuffer.depthBuffer.length; x++){ // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
+        //     for(let z=0; z<this.zbuffer.depthBuffer[0].length; z++){
+        //         this.ctx.fillStyle = this.zbuffer.colorBuffer[x][z];
+        //         this.ctx.fillRect(z, x, 1, 1);
+                
+        //             // console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
+        //     }
+        // }
+    }
+
+    plot_zbuffer_const(){
+        for(let i=0; i<this.zbuffer_const.colorBuffer.length; i++){
+            for(let j=0; j<this.zbuffer_const.colorBuffer[0].length; j++){
                 // console.log(`[${i}][${j}]`)
-                this.ctx.fillStyle = this.zbuffer.colorBuffer[i][j];
+                this.ctx.fillStyle = this.zbuffer_const.colorBuffer[i][j];
                 this.ctx.fillRect(j, i, 1, 1);
             }
         }
     }
 
+    
+    plot_zbuffer_gouraud(){
+        for(let i=0; i<this.zbuffer_gouraud.colorBuffer.length; i++){
+            for(let j=0; j<this.zbuffer_gouraud.colorBuffer[0].length; j++){
+                // console.log(`[${i}][${j}]`)
+                this.ctx.fillStyle = this.zbuffer_gouraud.colorBuffer[i][j];
+                this.ctx.fillRect(j, i, 1, 1);
+            }
+        }
+    }
     draw_face(face: Face){
         // let points = mult_matriz(this.matriz_SRU_SRT, this.get_mat_from_list_of_dots(face.dots))
 
@@ -193,7 +261,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
 
     draw_dot(A: Dot){
         this.ctx.beginPath();
-        this.ctx.fillStyle = A.color;
+        this.ctx.fillStyle = "grey";
         this.ctx.arc(A.x, A.y, 2, 0, 360, false);
         this.ctx.fill();
     };

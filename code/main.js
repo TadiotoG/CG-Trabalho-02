@@ -199,10 +199,10 @@ function get_values_new_surface() {
     kd[2] = aux.value;
     aux = document.getElementById("face_color");
     face_color = aux.value;
-    aux = document.getElementById("other_side_color");
-    other_side_color = aux.value;
     aux = document.getElementById("aresta_color");
-    cor_aresta = aux.value;
+    aresta_color = aux.value;
+    aux = document.getElementById("other_side_aresta_color");
+    other_side_aresta_color = aux.value;
 }
 function get_values_alter_prop() {
     var aux;
@@ -230,10 +230,10 @@ function get_values_alter_prop() {
     kd[2] = aux.value;
     aux = document.getElementById("alter_face_color");
     face_color = aux.value;
-    aux = document.getElementById("alter_other_side_color");
-    other_side_color = aux.value;
     aux = document.getElementById("alter_aresta_color");
-    cor_aresta = aux.value;
+    aresta_color = aux.value;
+    aux = document.getElementById("alter_other_side_aresta_color");
+    other_side_aresta_color = aux.value;
 }
 function msg_click_appears() {
     var mensagem;
@@ -349,24 +349,24 @@ function alter_prop_by_click(universe, A) {
     alter_prop = false;
 }
 function alter_prop_func() {
-    console.log("Quantas superficies -> " + uni.surfaces.length);
+    // console.log("Quantas superficies -> " + uni.surfaces.length)
     get_values_alter_prop();
     var aux;
     aux = uni.surfaces[aux_surf];
-    console.log("Passo 0 -> " + uni.surfaces.length);
+    // console.log("Passo 0 -> " + uni.surfaces.length)
     uni.surfaces.splice(aux_surf, 1);
-    console.log("Passo 1 -> " + uni.surfaces.length);
+    // console.log("Passo 1 -> " + uni.surfaces.length)
     uni.add_surface(aux);
-    console.log("Passo 2 -> " + uni.surfaces.length);
+    // console.log("Passo 2 -> " + uni.surfaces.length)
     aux_surf = uni.surfaces.length - 1;
-    var new_surface = new Surface(0, 0, 0, uni.surfaces[aux_surf].ni, uni.surfaces[aux_surf].nj, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, other_side_color, cor_aresta, uni.surfaces[aux_surf].control_points);
+    var new_surface = new Surface(0, 0, 0, uni.surfaces[aux_surf].ni, uni.surfaces[aux_surf].nj, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, aresta_color, other_side_aresta_color, uni.surfaces[aux_surf].control_points);
     uni.surfaces.splice(aux_surf, 1);
-    console.log("Passo 3 -> " + uni.surfaces.length);
+    // console.log("Passo 3 -> " + uni.surfaces.length)
     uni.add_surface(new_surface);
-    console.log("Passo 4 -> " + uni.surfaces.length);
+    // console.log("Passo 4 -> " + uni.surfaces.length)
     change_world();
     // window_alter_prop_disappears();
-    console.log("QUantas superficies depois -> " + uni.surfaces.length);
+    // console.log("QUantas superficies depois -> " + uni.surfaces.length)
 }
 function change_dot() {
     var aux;
@@ -383,7 +383,7 @@ function change_dot() {
 }
 function create_surface() {
     get_values_new_surface();
-    var surface_01 = new Surface(star_x, star_y, star_z, amount_cp_i, amount_cp_j, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, other_side_color, cor_aresta);
+    var surface_01 = new Surface(star_x, star_y, star_z, amount_cp_i, amount_cp_j, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, aresta_color, other_side_aresta_color);
     uni.add_surface(surface_01);
     change_world();
     window_create_s_disappears();
@@ -465,24 +465,29 @@ function change_world() {
     distance_point = 240;
     // camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height, flag_persp);
     camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
-    zbuffer = new ZBuffer(wind_width, wind_height);
-    uni = new Universe(ctx, camera, my_lamp, luz_ambiente, zbuffer, wind_width, wind_height);
+    zbuffer_const = new ZbufferConstante(wind_width, wind_height);
+    zbuffer_gouraud = new ZbufferGouraud(wind_width, wind_height);
+    uni = new Universe(ctx, camera, my_lamp, luz_ambiente, zbuffer_const, zbuffer_gouraud, wind_width, wind_height);
     for (var i = 0; i < list_of_surfaces.length; i++) {
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
+        uni.cut_surface_withcolor(uni.surfaces[i]);
     }
     if (shading() == "const") {
         uni.update_all_face_colors_constant();
+        uni.calc_zbuffer_const();
+        uni.plot_zbuffer_const();
+    }
+    else if (shading() == "gouraud") {
+        uni.call_gouraud();
+        uni.calc_zbuffer_gouraud();
+        uni.plot_zbuffer_gouraud();
     }
     for (var i = 0; i < list_of_surfaces.length; i++) {
         uni.cut_surface_nocolor(uni.surfaces[i]);
     }
     if (shading() == "pintor") {
         uni.render();
-    }
-    else {
-        uni.calc_zbuffer();
-        uni.plot_zbuffer();
     }
     var ControlPointsCheckbox;
     ControlPointsCheckbox = document.getElementById("check_control_p");
@@ -495,7 +500,7 @@ function change_world() {
     ;
 }
 function erase_canvas() {
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "black";
     ctx.fillRect(0, 0, wind_width, wind_height);
 }
 function get_shading() {
@@ -506,7 +511,7 @@ function get_shading() {
 }
 var canvas = document.createElement("canvas");
 canvas.id = "canvas-giratorio";
-canvas.style.backgroundColor = "white";
+canvas.style.backgroundColor = "black";
 canvas.style.border = "1px solid black";
 document.body.appendChild(canvas);
 var ctx = canvas.getContext("2d");
@@ -571,19 +576,20 @@ var ks;
 ks = [0.5, 0.5, 0.5];
 var n;
 var face_color; // Cor das faces para o pintor
-var other_side_color; // Cor do lado de baixo das faces para pintor
-var cor_aresta;
+var aresta_color; // Cor do lado de baixo das faces para pintor
+var other_side_aresta_color;
 var shading;
 var flag_persp;
 get_shading();
 get_values_to_cam();
-var zbuffer = new ZBuffer(wind_width, wind_height);
+var zbuffer_const = new ZbufferConstante(wind_width, wind_height);
+var zbuffer_gouraud = new ZbufferGouraud(wind_width, wind_height);
 var vrp_camera = new Dot(cam_x, cam_y, cam_z);
 var focal_point_camera = new Dot(focal_x, focal_y, focal_z);
 var distance_point = 240;
 // var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, wind_width, wind_height, flag_persp);
 var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, wind_width, wind_height);
-var uni = new Universe(ctx, camera, new Lamp(lamp_intensidade, lamp_x, lamp_y, lamp_z), luz_ambiente, zbuffer, wind_width, wind_height);
+var uni = new Universe(ctx, camera, new Lamp(lamp_intensidade, lamp_x, lamp_y, lamp_z), luz_ambiente, zbuffer_const, zbuffer_gouraud, wind_width, wind_height);
 var star_x;
 var star_y;
 var star_z;
@@ -598,3 +604,4 @@ var ControlPointsCheckbox;
 //     uni.draw_cp(uni.surfaces[0]);
 // }
 change_world();
+// spline -> camera -> surface -> gouraud -> zbuffer -> universe -> 
