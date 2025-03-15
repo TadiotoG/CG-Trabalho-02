@@ -1,8 +1,9 @@
-/// <reference path="./zbuffer.ts" />
+/// <reference path="./zbufferconst.ts" />
+/// <reference path="./zbuffergouraud.ts" />
 var canvas_width = 1000;
 var canvas_height = 800;
 var Universe = /** @class */ (function () {
-    function Universe(ctx_out, cam, lamp, ambient_light, z_buffer, width, height) {
+    function Universe(ctx_out, cam, lamp, ambient_light, zbuffer_const, zbuffer_gouraud, width, height) {
         this.surfaces = [];
         this.rotate_y = false;
         this.ctx = ctx_out;
@@ -10,7 +11,8 @@ var Universe = /** @class */ (function () {
         this.matriz_SRU_SRT = this.camera.get_mat_SRU_SRT();
         this.lamp = lamp;
         this.la = ambient_light;
-        this.zbuffer = z_buffer;
+        this.zbuffer_const = zbuffer_const;
+        this.zbuffer_gouraud = zbuffer_gouraud;
         this.width = width;
         this.height = height;
     }
@@ -30,6 +32,7 @@ var Universe = /** @class */ (function () {
                 new_color += ")";
                 // console.log("New color -> ", new_color);
                 this.surfaces[i].double_faces[j].face.color = new_color;
+                console.log("NEW COLOR -> ", new_color);
             }
         }
     };
@@ -49,7 +52,7 @@ var Universe = /** @class */ (function () {
             }
             this.surfaces[surf].create_faces(this.matriz_SRU_SRT);
         }
-        console.log("Primeira face -> ", this.surfaces[0].double_faces);
+        // console.log("Primeira face -> ", this.surfaces[0].double_faces)
     };
     Universe.prototype.get_ilum = function (vet_normal, centroide, amb_light_par, ks, kd, n) {
         var amb_light = amb_light_par;
@@ -59,17 +62,21 @@ var Universe = /** @class */ (function () {
         var aux_x = this.lamp.pos.x - centroide.x;
         var aux_y = this.lamp.pos.y - centroide.y;
         var aux_z = this.lamp.pos.z - centroide.z;
+        var test_vis = new Vet(centroide.x - this.camera.vrp.x, centroide.y - this.camera.vrp.y, centroide.z - this.camera.vrp.z);
+        if (prod_escalar(vet_normal.unitary, test_vis.unitary) < 0) {
+            vet_normal = new Vet(-vet_normal.x, -vet_normal.y, -vet_normal.z);
+        }
         var vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
         // vet_LampMinusCent.print_obj("Lamp - Centroide");
-        var UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, vet_normal.unitary);
-        // console.log("UN times UL = ", UN_times_UL);
+        var UN_escalar_UL = prod_escalar(vet_LampMinusCent.unitary, vet_normal.unitary);
+        // console.log("UN escalar UL = ", UN_escalar_UL);
         // console.log("vet_normal = ", vet_normal.unitary);
-        if (UN_times_UL) {
-            var ilum_difusa = this.lamp.il * kd * UN_times_UL;
+        if (UN_escalar_UL > 0) {
+            var ilum_difusa = this.lamp.il * kd * UN_escalar_UL;
             // console.log("Ilumincao difusa: ", ilum_difusa)
-            aux_x = 2 * UN_times_UL * vet_normal.unitary.x - vet_LampMinusCent.unitary.x;
-            aux_y = 2 * UN_times_UL * vet_normal.unitary.y - vet_LampMinusCent.unitary.y;
-            aux_z = 2 * UN_times_UL * vet_normal.unitary.z - vet_LampMinusCent.unitary.z;
+            aux_x = 2 * UN_escalar_UL * vet_normal.unitary.x - vet_LampMinusCent.unitary.x;
+            aux_y = 2 * UN_escalar_UL * vet_normal.unitary.y - vet_LampMinusCent.unitary.y;
+            aux_z = 2 * UN_escalar_UL * vet_normal.unitary.z - vet_LampMinusCent.unitary.z;
             var idk_r = new Vet(aux_x, aux_y, aux_z);
             // idk_r.print_obj("Vet r")
             aux_x = this.camera.vrp.x - centroide.x;
@@ -77,16 +84,22 @@ var Universe = /** @class */ (function () {
             aux_z = this.camera.vrp.z - centroide.z;
             var direcao_observ = new Vet(aux_x, aux_y, aux_z);
             // direcao_observ.print_obj("Direcao observ");
-            var r_escalar_dir_obs = prod_escalar(idk_r, direcao_observ.unitary);
+            var r_escalar_dir_obs = prod_escalar(idk_r.unitary, direcao_observ.unitary);
             // console.log("R escalar dir ", r_escalar_dir_obs);
-            var is = this.lamp.il * ks * Math.pow(r_escalar_dir_obs, n);
-            // console.log("k ", ks, "    n -> ", n)
-            // console.log("is -> ", is)
-            // console.log(`${r_escalar_dir_obs} ** ${n} = ${r_escalar_dir_obs**n}`)
-            // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
-            // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
-            var result = 4 * Math.round(amb_light + ilum_difusa + is);
-            return result.toString(10);
+            if (r_escalar_dir_obs > 0) {
+                var is = this.lamp.il * ks * Math.pow(r_escalar_dir_obs, n);
+                // console.log("k ", ks, "    n -> ", n)
+                // console.log("is -> ", is)
+                // console.log(`${r_escalar_dir_obs} ** ${n} = ${r_escalar_dir_obs**n}`)
+                // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
+                // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
+                var result = Math.round(amb_light + ilum_difusa + is);
+                return result.toString(10);
+            }
+            else {
+                var result = Math.round(amb_light + ilum_difusa);
+                return result.toString(10);
+            }
         }
         else {
             return amb_light.toString(10);
@@ -114,11 +127,11 @@ var Universe = /** @class */ (function () {
         }
     };
     ;
-    Universe.prototype.calc_zbuffer = function () {
+    Universe.prototype.calc_zbuffer_const = function () {
         for (var i = 0; i < this.surfaces.length; i++) {
             for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
-                this.zbuffer.rasterizePolygon(this.surfaces[i].double_faces[j].face);
-                this.zbuffer.ZbufferConstante();
+                this.zbuffer_const.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                this.zbuffer_const.ZbufferConstante();
             }
         }
         // console.log("Executou ")
@@ -130,11 +143,38 @@ var Universe = /** @class */ (function () {
         //     }
         // }
     };
-    Universe.prototype.plot_zbuffer = function () {
-        for (var i = 0; i < this.zbuffer.colorBuffer.length; i++) {
-            for (var j = 0; j < this.zbuffer.colorBuffer[0].length; j++) {
+    Universe.prototype.calc_zbuffer_gouraud = function () {
+        // console.log("Teste cores -> ", this.surfaces[0].double_faces[0].face);
+        for (var i = 0; i < this.surfaces.length; i++) {
+            for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
+                this.zbuffer_gouraud.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                this.zbuffer_gouraud.ZbufferGourand();
+            }
+        }
+        ;
+        // console.log("Executou ")
+        // for(let x=0; x<this.zbuffer.depthBuffer.length; x++){ // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
+        //     for(let z=0; z<this.zbuffer.depthBuffer[0].length; z++){
+        //         this.ctx.fillStyle = this.zbuffer.colorBuffer[x][z];
+        //         this.ctx.fillRect(z, x, 1, 1);
+        //             // console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
+        //     }
+        // }
+    };
+    Universe.prototype.plot_zbuffer_const = function () {
+        for (var i = 0; i < this.zbuffer_const.colorBuffer.length; i++) {
+            for (var j = 0; j < this.zbuffer_const.colorBuffer[0].length; j++) {
                 // console.log(`[${i}][${j}]`)
-                this.ctx.fillStyle = this.zbuffer.colorBuffer[i][j];
+                this.ctx.fillStyle = this.zbuffer_const.colorBuffer[i][j];
+                this.ctx.fillRect(j, i, 1, 1);
+            }
+        }
+    };
+    Universe.prototype.plot_zbuffer_gouraud = function () {
+        for (var i = 0; i < this.zbuffer_gouraud.colorBuffer.length; i++) {
+            for (var j = 0; j < this.zbuffer_gouraud.colorBuffer[0].length; j++) {
+                // console.log(`[${i}][${j}]`)
+                this.ctx.fillStyle = this.zbuffer_gouraud.colorBuffer[i][j];
                 this.ctx.fillRect(j, i, 1, 1);
             }
         }

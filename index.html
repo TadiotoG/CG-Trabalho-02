@@ -164,9 +164,9 @@
 
                     <div class="row">
                         <div class="column">
-                            <input type="radio" name="shading" id="pintor" value="pintor" oninput=change_world() checked>
+                            <input type="radio" name="shading" id="pintor" value="pintor" oninput=change_world()>
                             <label for="pintor">Wireframe</label>
-                            <input type="radio" name="shading" id="const" value="const" oninput=change_world()>
+                            <input type="radio" name="shading" id="const" value="const" oninput=change_world() checked>
                             <label for="const">Constante</label>
                         </div>
                         <div class="column">
@@ -191,19 +191,19 @@
                     <div id="inputs_lamp" class="inputs_control_wind">
                         <div>
                             <label for="lamp_x">X</label>
-                            <input style= "width: 50px" type="number" oninput=change_world() name="lamp_x" id="lamp_x" value="30" step="1">
+                            <input style= "width: 50px" type="number" oninput=change_world() name="lamp_x" id="lamp_x" value="-100" step="10">
                         </div>
                         <div>
                             <label for="lamp_y">Y</label>
-                            <input style= "width: 50px" type="number" oninput=change_world() name="lamp_y" id="lamp_y" value="400" step="1">
+                            <input style= "width: 50px" type="number" oninput=change_world() name="lamp_y" id="lamp_y" value="-100" step="10">
                         </div>
                         <div>
                             <label for="lamp_z">Z</label>
-                            <input style= "width: 50px" type="number" oninput=change_world() name="lamp_z" id="lamp_z" value="30" step="1">
+                            <input style= "width: 50px" type="number" oninput=change_world() name="lamp_z" id="lamp_z" value="-100" step="10">
                         </div>
                         <div style="align-items: center;">
                             <label for="lamp_intensidade">Intensidade</label>
-                            <input style= "width: 50px" type="number" oninput=change_world() name="lamp_intensidade" id="lamp_intensidade" value="30" step="1">
+                            <input style= "width: 50px" type="number" oninput=change_world() name="lamp_intensidade" id="lamp_intensidade" value="300" step="1">
                         </div>
                     </div>
                 </div>
@@ -269,7 +269,7 @@
                 <p style="width: 80px;">Vermelho</p>
                 <div class="column">
                     <label for="ka_verm">KA</label>
-                    <input style= "width: 50px" type="number" name="ka_verm" id="ka_verm" value="0.2" step="0.1">
+                    <input style= "width: 50px" type="number" name="ka_verm" id="ka_verm" value="0.4" step="0.1">
                 </div>
                 <div class="column">
                     <label for="kd_verm">KD</label>
@@ -284,7 +284,7 @@
                 <p style="width: 80px;">Verde</p>
                 <div class="column">
                     <label for="ka_verde">KA</label>
-                    <input style= "width: 50px" type="number" name="ka_verde" id="ka_verde" value="0.4" step="0.1">
+                    <input style= "width: 50px" type="number" name="ka_verde" id="ka_verde" value="0" step="0.1">
                 </div>
                 <div class="column">
                     <label for="kd_verde">KD</label>
@@ -292,22 +292,22 @@
                 </div>
                 <div class="column">
                     <label for="ks_verde">KS</label>
-                    <input style= "width: 50px" type="number" name="ks_verde" id="ks_verde" value="0.5" step="0.1">
+                    <input style= "width: 50px" type="number" name="ks_verde" id="ks_verde" value="0" step="0.1">
                 </div>
             </div>
             <div class="row">
                 <p style="width: 80px;">Azul</p>
                 <div class="column">
                     <label for="ka_azul">KA</label>
-                    <input style= "width: 50px" type="number" name="ka_azul" id="ka_azul" value="0.1" step="0.1">
+                    <input style= "width: 50px" type="number" name="ka_azul" id="ka_azul" value="0.5" step="0.1">
                 </div>
                 <div class="column">
                     <label for="kd_azul">KD</label>
-                    <input style= "width: 50px" type="number" name="kd_azul" id="kd_azul" value="0" step="0.1">
+                    <input style= "width: 50px" type="number" name="kd_azul" id="kd_azul" value="0.2" step="0.1">
                 </div>
                 <div class="column">
                     <label for="ks_azul">KS</label>
-                    <input style= "width: 50px" type="number" name="ks_azul" id="ks_azul" value="0" step="0.1">
+                    <input style= "width: 50px" type="number" name="ks_azul" id="ks_azul" value="0.4" step="0.1">
                 </div>
             </div>
             <div class="row">
@@ -353,11 +353,11 @@
             <div class="row">
                 <div class="column">
                     <label for="res_i">Res. i</label>
-                    <input style= "width: 50px" type="number" name="res_i" id="res_i" value="20" step="1">
+                    <input style= "width: 50px" type="number" name="res_i" id="res_i" value="4" step="1">
                 </div>
                 <div class="column">
                     <label for="res_j">Res. j</label>
-                    <input style= "width: 50px" type="number" name="res_j" id="res_j" value="20" step="1">
+                    <input style= "width: 50px" type="number" name="res_j" id="res_j" value="4" step="1">
                 </div>
             </div>
             <div>
@@ -534,7 +534,8 @@
     <script src="code/camera.js"></script>
     <script src="code/gouraud.js"></script>
     <script src="code/surface.js"></script>
-    <script src="code/zbuffer.js"></script>
+    <script src="code/zbufferconst.js"></script>
+    <script src="code/zbuffergouraud.js"></script>
     <script src="code/universe.js"></script>
     <script src="code/main.js"></script>
 </body>
