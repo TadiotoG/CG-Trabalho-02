@@ -117,7 +117,7 @@ var ZbufferConstante = /** @class */ (function () {
     };
     ZbufferConstante.prototype.AtualizaBufferConstante = function (constant_z, x, y, color) {
         if (constant_z < this.depthBuffer[y][x]) {
-            console.log("Constant_z -> ", constant_z);
+            // console.log("Constant_z -> ", constant_z)
             this.depthBuffer[y][x] = constant_z;
             //console.log(this.depthBuffer[y][x]);
             //console.log(this.colorBuffer[y][x]);

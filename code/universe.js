@@ -110,7 +110,7 @@ var Universe = /** @class */ (function () {
             // console.log("Entrou assim -> ", surface.double_faces[i].face)
             surface.double_faces[i].face = Recorte(surface.double_faces[i].face, 0, this.width, 0, this.height);
             if (surface.double_faces[i].face.dots.length == 0) { // Caso o recorte retorne uma face sem pontos, a face é tirada da lista de faces
-                surface.double_faces.splice(i);
+                surface.double_faces.splice(i, 1);
                 i--;
             }
             // console.log("Saiu assim -> ", surface.double_faces[i].face)
@@ -121,7 +121,7 @@ var Universe = /** @class */ (function () {
         for (var i = 0; i < surface.double_faces.length; i++) {
             surface.double_faces[i].face = RecorteWithColor(surface.double_faces[i].face, 0, this.width, 0, this.height);
             if (surface.double_faces[i].face.dots.length == 0) { // Caso o recorte retorne uma face sem pontos, a face é tirada da lista de faces
-                surface.double_faces.splice(i);
+                surface.double_faces.splice(i, 1);
                 i--;
             }
         }
