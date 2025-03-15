@@ -12,11 +12,11 @@ class ZbufferGouraud {
         this.height = height;
         this.scanline = new Map(); // Inicializa o HashMap
         this.depthBuffer = Array.from({ length: height }, () => Array(width).fill(100000000));
-        this.colorBuffer = Array.from({ length: height }, () => Array(width).fill('#FFFFFF'));
+        this.colorBuffer = Array.from({ length: height }, () => Array(width).fill('#000000'));
         for(let i=0; i<height; i++){
             for(let j=0; j<width; j++){
                 this.depthBuffer[i][j] = 1000000;
-                this.colorBuffer[i][j] = '#FFFFFF';
+                this.colorBuffer[i][j] = '#000000';
             }
         };
         // console.log("")
@@ -129,7 +129,7 @@ class ZbufferGouraud {
                     //console.log(dR, dG, dB);
                     
                     const x1 = Math.ceil(points[i].x);
-                    const x2 = Math.floor(points[next_i].x);
+                    const x2 = Math.ceil(points[next_i].x);
 
                     let R = points[i].r_gouraud;
                     let G = points[i].g_gouraud;

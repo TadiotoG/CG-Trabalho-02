@@ -5,11 +5,11 @@ var ZbufferGouraud = /** @class */ (function () {
         this.height = height;
         this.scanline = new Map(); // Inicializa o HashMap
         this.depthBuffer = Array.from({ length: height }, function () { return Array(width).fill(100000000); });
-        this.colorBuffer = Array.from({ length: height }, function () { return Array(width).fill('#FFFFFF'); });
+        this.colorBuffer = Array.from({ length: height }, function () { return Array(width).fill('#000000'); });
         for (var i = 0; i < height; i++) {
             for (var j = 0; j < width; j++) {
                 this.depthBuffer[i][j] = 1000000;
-                this.colorBuffer[i][j] = '#FFFFFF';
+                this.colorBuffer[i][j] = '#000000';
             }
         }
         ;
@@ -103,7 +103,7 @@ var ZbufferGouraud = /** @class */ (function () {
                     var dB = (points[next_i].b_gouraud - points[i].b_gouraud) / (points[next_i].x - points[i].x);
                     //console.log(dR, dG, dB);
                     var x1 = Math.ceil(points[i].x);
-                    var x2 = Math.floor(points[next_i].x);
+                    var x2 = Math.ceil(points[next_i].x);
                     var R = points[i].r_gouraud;
                     var G = points[i].g_gouraud;
                     var B = points[i].b_gouraud;

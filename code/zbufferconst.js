@@ -5,11 +5,11 @@ var ZbufferConstante = /** @class */ (function () {
         this.height = height;
         this.scanline = new Map(); // Inicializa o HashMap
         this.depthBuffer = Array.from({ length: height }, function () { return Array(width).fill(100000000); });
-        this.colorBuffer = Array.from({ length: height }, function () { return Array(width).fill('#FFFFFF'); });
+        this.colorBuffer = Array.from({ length: height }, function () { return Array(width).fill('#000000'); });
         for (var i = 0; i < height; i++) {
             for (var j = 0; j < width; j++) {
                 this.depthBuffer[i][j] = 1000000;
-                this.colorBuffer[i][j] = '#FFFFFF';
+                this.colorBuffer[i][j] = '#000000';
             }
         }
         ;
@@ -97,7 +97,7 @@ var ZbufferConstante = /** @class */ (function () {
                     // console.log(dz);
                     //console.log(dR, dG, dB);
                     var x1 = Math.ceil(points[i].x);
-                    var x2 = Math.floor(points[next_i].x);
+                    var x2 = Math.ceil(points[next_i].x);
                     var start = x1, end = x2;
                     var dx = points[i].x - x1;
                     // let dx = points[i].x - x1;
