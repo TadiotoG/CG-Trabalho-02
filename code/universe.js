@@ -32,7 +32,7 @@ var Universe = /** @class */ (function () {
                 new_color += ")";
                 // console.log("New color -> ", new_color);
                 this.surfaces[i].double_faces[j].face.color = new_color;
-                console.log("NEW COLOR -> ", new_color);
+                // console.log("NEW COLOR -> ", new_color);
             }
         }
     };
