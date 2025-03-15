@@ -675,7 +675,7 @@ function Recorte (face: Face, umin: number, umax: number, vmin: number, vmax: nu
     
 }
 
-function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, vmax: number): Face {
+function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, vmax: number){
     umin = Number(umin);
     umax = Number(umax);
     vmin = Number(vmin);
@@ -709,7 +709,7 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let x = umin;
                 let y = p1.y + u * (p2.y - p1.y);
                 let z = p1.z + u * (p2.z - p1.z);
-                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
 
                 let Paux = new Dot(x, y, z, color);
 
@@ -730,7 +730,7 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let x = umin;
                 let y = p1.y + u * (p2.y - p1.y);
                 let z = p1.z + u * (p2.z - p1.z);
-                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
 
                 let Paux = new Dot(x, y, z, color);
                 novosPontos.push(Paux);
@@ -766,7 +766,7 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let x = umax;
                 let y = p1.y + u * (p2.y - p1.y);
                 let z = p1.z + u * (p2.z - p1.z);
-                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
 
                 let Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
@@ -786,7 +786,7 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let x = umax;
                 let y = p1.y + u * (p2.y - p1.y);
                 let z = p1.z + u * (p2.z - p1.z);
-                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
 
                 let Paux = new Dot(x, y, z, color);
                 novosPontos.push(Paux);
@@ -822,7 +822,7 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let y = vmax;
                 let x = p1.x + u * (p2.x - p1.x);
                 let z = p1.z + u * (p2.z - p1.z);
-                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
 
                 let Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
@@ -842,7 +842,7 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let y = vmax;
                 let x = p1.x + u * (p2.x - p1.x);
                 let z = p1.z + u * (p2.z - p1.z);
-                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
 
                 let Paux = new Dot(x, y, z, color);
                 novosPontos.push(Paux);
@@ -878,7 +878,7 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let y = vmin;
                 let x = p1.x + u * (p2.x - p1.x);
                 let z = p1.z + u * (p2.z - p1.z);
-                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                let color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
 
                 let Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
