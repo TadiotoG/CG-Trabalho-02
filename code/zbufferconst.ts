@@ -146,6 +146,8 @@ class ZbufferConstante {
     AtualizaBufferConstante(constant_z: number, x: number, y: number, color: string){
         
         if (constant_z < this.depthBuffer[y][x]) {
+            
+            // console.log("Constant_z -> ", constant_z)
             this.depthBuffer[y][x] = constant_z;
             
             //console.log(this.depthBuffer[y][x]);

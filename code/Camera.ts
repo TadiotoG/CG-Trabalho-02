@@ -40,7 +40,16 @@ class Camera {
         this.vet_u = prod_vet(this.vet_v, this.vet_n);
         // this.vet_u.print_obj("Vet u ");
 
-        this.matriz_SRU_SRC = ([
+        // this.matriz_SRU_SRC = ([
+        //     [this.vet_u.unitary.x, this.vet_u.unitary.y, this.vet_u.unitary.z, 0],
+
+        //     [this.vet_v.unitary.x, this.vet_v.unitary.y, this.vet_v.unitary.z, 0],
+
+        //     [this.vet_n.unitary.x, this.vet_n.unitary.y, this.vet_n.unitary.z, 0],
+        //     [0, 0, 0, 1]
+        // ])
+
+        let mat_R = ([
             [this.vet_u.unitary.x, this.vet_u.unitary.y, this.vet_u.unitary.z, 0],
 
             [this.vet_v.unitary.x, this.vet_v.unitary.y, this.vet_v.unitary.z, 0],
@@ -48,6 +57,15 @@ class Camera {
             [this.vet_n.unitary.x, this.vet_n.unitary.y, this.vet_n.unitary.z, 0],
             [0, 0, 0, 1]
         ])
+
+        let mat_T = ([
+            [1, 0, 0, this.vrp.x],
+            [0, 1, 0, this.vrp.y],
+            [0, 0, 1, this.vrp.z],
+            [0, 0, 0, 1]
+        ])
+
+        this.matriz_SRU_SRC = mult_matriz(mat_R, mat_T)
         // print_matriz(this.matriz_SRU_SRC, "SRU_SRC")=
 
         if(this.flag_persp){
@@ -132,8 +150,8 @@ class Camera {
         let mat_aux: number[][];
 
         if(this.flag_persp){
-            mat_aux = mult_matriz(this.matriz_jp, this.matriz_persp);
-            mat_aux = mult_matriz(mat_aux, this.matriz_SRU_SRC);
+            mat_aux = mult_matriz(this.matriz_persp, this.matriz_SRU_SRC);
+            mat_aux = mult_matriz(this.matriz_jp, mat_aux);
         } else {
             mat_aux = mult_matriz(this.matriz_jp, this.matriz_SRU_SRC);
         }

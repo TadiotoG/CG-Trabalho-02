@@ -151,13 +151,14 @@ function get_values_to_cam() {
     luz_ambiente[1] = aux.value;
     aux = document.getElementById("amb_light_b");
     luz_ambiente[2] = aux.value;
-    // let perspCheckBox;
-    // perspCheckBox = document.getElementById("persp");
-    // if (perspCheckBox && perspCheckBox.checked) {
-    //     flag_persp = true;
-    // } else {
-    //     flag_persp = false;
-    // }
+    var perspCheckBox;
+    perspCheckBox = document.getElementById("persp");
+    if (perspCheckBox && perspCheckBox.checked) {
+        flag_persp = true;
+    }
+    else {
+        flag_persp = false;
+    }
     canvas.style.width = wind_width.toString(10) + "px";
     canvas.style.height = wind_height.toString(10) + "px";
     canvas.width = wind_width;
@@ -463,8 +464,8 @@ function change_world() {
     vrp_camera = new Dot(cam_x, cam_y, cam_z);
     focal_point_camera = new Dot(focal_x, focal_y, focal_z);
     distance_point = 240;
-    // camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height, flag_persp);
-    camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
+    camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height, flag_persp);
+    // camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
     zbuffer_const = new ZbufferConstante(wind_width, wind_height);
     zbuffer_gouraud = new ZbufferGouraud(wind_width, wind_height);
     uni = new Universe(ctx, camera, my_lamp, luz_ambiente, zbuffer_const, zbuffer_gouraud, wind_width, wind_height);
@@ -587,8 +588,8 @@ var zbuffer_gouraud = new ZbufferGouraud(wind_width, wind_height);
 var vrp_camera = new Dot(cam_x, cam_y, cam_z);
 var focal_point_camera = new Dot(focal_x, focal_y, focal_z);
 var distance_point = 240;
-// var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, wind_width, wind_height, flag_persp);
-var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, wind_width, wind_height);
+var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, wind_width, wind_height, flag_persp);
+// var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, wind_width, wind_height);
 var uni = new Universe(ctx, camera, new Lamp(lamp_intensidade, lamp_x, lamp_y, lamp_z), luz_ambiente, zbuffer_const, zbuffer_gouraud, wind_width, wind_height);
 var star_x;
 var star_y;

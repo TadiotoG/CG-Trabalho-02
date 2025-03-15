@@ -38,7 +38,7 @@ var ZbufferConstante = /** @class */ (function () {
                     end = face.dots[i];
                 }
                 // console.log("Start -> ", start, "End -> ", end);
-                Dx = end.x - start.x;
+                var real_start_z = Dx = end.x - start.x;
                 Dy = end.y - start.y;
                 Dz = end.z - start.z;
                 Tx = Dx / Dy;
@@ -117,6 +117,7 @@ var ZbufferConstante = /** @class */ (function () {
     };
     ZbufferConstante.prototype.AtualizaBufferConstante = function (constant_z, x, y, color) {
         if (constant_z < this.depthBuffer[y][x]) {
+            console.log("Constant_z -> ", constant_z);
             this.depthBuffer[y][x] = constant_z;
             //console.log(this.depthBuffer[y][x]);
             //console.log(this.colorBuffer[y][x]);
