@@ -609,7 +609,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var x = umin;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_5.push(p2);
@@ -627,7 +627,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var x = umin;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 novosPontos_5.push(Paux);
             }
@@ -657,7 +657,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var x = umax;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_6.push(p2);
@@ -675,7 +675,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var x = umax;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 novosPontos_6.push(Paux);
             }
@@ -705,7 +705,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var y = vmax;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_7.push(p2);
@@ -723,7 +723,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var y = vmax;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 novosPontos_7.push(Paux);
             }
@@ -753,7 +753,7 @@ function RecorteWithColor(face, umin, umax, vmin, vmax) {
                 var y = vmin;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p1.g_gouraud, p1.b_gouraud, u);
+                var color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
                 var Paux = new Dot(x, y, z, color);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_8.push(p2);
