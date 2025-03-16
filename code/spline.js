@@ -14,11 +14,14 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 var Dot = /** @class */ (function () {
-    function Dot(new_x, new_y, new_z, col, r_gou, g_gou, b_gou) {
+    function Dot(new_x, new_y, new_z, col, r_gou, g_gou, b_gou, x_phong, y_phong, z_phong) {
         if (col === void 0) { col = "red"; }
         if (r_gou === void 0) { r_gou = 0; }
         if (g_gou === void 0) { g_gou = 0; }
         if (b_gou === void 0) { b_gou = 0; }
+        if (x_phong === void 0) { x_phong = 0; }
+        if (y_phong === void 0) { y_phong = 0; }
+        if (z_phong === void 0) { z_phong = 0; }
         this.x = new_x;
         this.y = new_y;
         this.z = new_z;
@@ -26,6 +29,9 @@ var Dot = /** @class */ (function () {
         this.r_gouraud = r_gou;
         this.g_gouraud = g_gou;
         this.b_gouraud = b_gou;
+        this.x_phong = x_phong;
+        this.y_phong = y_phong;
+        this.z_phong = z_phong;
     }
     Dot.prototype.print_obj = function (dot_name) {
         console.log(dot_name + "-> (" + this.x + "," + this.y + "," + this.z + ")");

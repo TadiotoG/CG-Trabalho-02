@@ -125,13 +125,13 @@ var Universe = /** @class */ (function () {
                 surface.double_faces.splice(i, 1);
                 i--;
             }
-            console.log("Saiu assim -> ", surface.double_faces[i].face);
+            // console.log("Saiu assim -> ", surface.double_faces[i].face);
         }
-        console.log("Surface cut -> ", surface.double_faces[0].face);
+        // console.log("Surface cut -> ", surface.double_faces[0].face);
     };
     ;
     Universe.prototype.calc_zbuffer_gouraud = function () {
-        console.log("Surface gou-> ", this.surfaces[0].double_faces[0].face);
+        // console.log("Surface gou-> ", this.surfaces[0].double_faces[0].face);
         for (var i = 0; i < this.surfaces.length; i++) {
             for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
                 this.zbuffer_gouraud.rasterizePolygon(this.surfaces[i].double_faces[j].face);
@@ -141,7 +141,7 @@ var Universe = /** @class */ (function () {
         ;
     };
     Universe.prototype.calc_zbuffer_const = function () {
-        console.log("Surface cons-> ", this.surfaces[0].double_faces[0].face);
+        // console.log("Surface cons-> ", this.surfaces[0].double_faces[0].face);
         for (var i = 0; i < this.surfaces.length; i++) {
             for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
                 this.zbuffer_const.rasterizePolygon(this.surfaces[i].double_faces[j].face);

@@ -1,6 +1,6 @@
 /// <reference path="./spline.ts" />
 var Camera = /** @class */ (function () {
-    function Camera(view_reference_point, focal_p, dp, min_x, min_y, max_x, max_y, flag) {
+    function Camera(view_reference_point, focal_p, dp, min_x, min_y, max_x, max_y, min_u, min_v, max_u, max_v, flag) {
         if (flag === void 0) { flag = false; }
         this.width = 100;
         this.height = 100;
@@ -11,6 +11,10 @@ var Camera = /** @class */ (function () {
         this.y_min = min_y;
         this.x_max = max_x;
         this.y_max = max_y;
+        this.v_min = min_v;
+        this.u_min = min_u;
+        this.v_max = max_v;
+        this.u_max = max_u;
         this.flag_persp = flag;
         this.calc_matrizes();
     }
@@ -40,13 +44,13 @@ var Camera = /** @class */ (function () {
             [0, 0, 0, 1]
         ]);
         this.matriz_SRU_SRC = mult_matriz(mat_R, mat_T);
-        // print_matriz(this.matriz_SRU_SRC, "SRU_SRC")=
+        print_matriz(this.matriz_SRU_SRC, "SRU_SRC");
         if (this.flag_persp) {
             this.matriz_persp = this.define_matriz_persp(); // Projecao perspectiva, nao vai ser mais utilizado...
         }
         // print_matriz(this.matriz_persp, "Persp");
         this.matriz_jp = this.define_matriz_jp();
-        // print_matriz(this.matriz_jp, "Jp")
+        print_matriz(this.matriz_jp, "Jp");
     };
     Camera.prototype.define_vector_v = function () {
         var y = new Vet(0, 1, 0);
@@ -82,14 +86,14 @@ var Camera = /** @class */ (function () {
         return mat_aux;
     };
     Camera.prototype.define_matriz_jp = function () {
-        var u_min = this.x_min;
-        var u_max = this.x_max;
-        var v_min = this.y_min;
-        var v_max = this.y_max;
-        var x_max = this.width / 2;
-        var x_min = -this.width / 2;
-        var y_max = this.height / 2;
-        var y_min = -this.height / 2;
+        var u_min = this.u_min;
+        var u_max = this.u_max;
+        var v_min = this.v_min;
+        var v_max = this.v_max;
+        var x_max = this.x_max;
+        var x_min = this.x_min;
+        var y_max = this.y_max;
+        var y_min = this.y_min;
         var aux_1 = -x_min * ((u_max - u_min) / (x_max - x_min)) + u_min;
         var aux_2 = y_min * ((v_max - v_min) / (y_max - y_min)) + v_max;
         var mat_aux;

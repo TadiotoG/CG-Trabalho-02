@@ -16,9 +16,13 @@ class Camera {
     y_min: number;
     x_max: number;
     y_max: number;
+    u_min: number;
+    v_min: number;
+    u_max: number;
+    v_max: number;
     flag_persp: boolean;
 
-    constructor(view_reference_point: Dot, focal_p: Dot, dp: number, min_x: number, min_y: number, max_x: number, max_y: number, flag: boolean = false){
+    constructor(view_reference_point: Dot, focal_p: Dot, dp: number, min_x: number, min_y: number, max_x: number, max_y: number, min_u: number, min_v: number, max_u: number, max_v: number, flag: boolean = false){
         this.vrp = view_reference_point;
         this.focal_point = focal_p;
         this.dp = dp;
@@ -26,6 +30,10 @@ class Camera {
         this.y_min = min_y;
         this.x_max = max_x;
         this.y_max = max_y;
+        this.v_min = min_v;
+        this.u_min = min_u;
+        this.v_max = max_v;
+        this.u_max = max_u;
         this.flag_persp = flag;
         this.calc_matrizes();
     }
@@ -66,7 +74,7 @@ class Camera {
         ])
 
         this.matriz_SRU_SRC = mult_matriz(mat_R, mat_T)
-        // print_matriz(this.matriz_SRU_SRC, "SRU_SRC")=
+        print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
 
         if(this.flag_persp){
             this.matriz_persp = this.define_matriz_persp();// Projecao perspectiva, nao vai ser mais utilizado...
@@ -74,7 +82,7 @@ class Camera {
         // print_matriz(this.matriz_persp, "Persp");
 
         this.matriz_jp = this.define_matriz_jp();
-        // print_matriz(this.matriz_jp, "Jp")
+        print_matriz(this.matriz_jp, "Jp")
     }
 
     private define_vector_v(): Vet{
@@ -122,16 +130,16 @@ class Camera {
     }
 
     private define_matriz_jp(): number[][]{
-        let u_min:number = this.x_min;
-        let u_max:number = this.x_max;
-        let v_min:number = this.y_min;
-        let v_max:number = this.y_max;
+        let u_min:number = this.u_min;
+        let u_max:number = this.u_max;
+        let v_min:number = this.v_min;
+        let v_max:number = this.v_max;
 
-        let x_max:number = this.width / 2;
-        let x_min:number = -this.width / 2;
+        let x_max:number = this.x_max;
+        let x_min:number = this.x_min;
 
-        let y_max:number = this.height / 2;
-        let y_min:number = -this.height / 2;
+        let y_max:number = this.y_max;
+        let y_min:number = this.y_min;
 
         let aux_1:number = -x_min * ((u_max - u_min)/(x_max - x_min)) + u_min;
         let aux_2:number = y_min * ((v_max - v_min)/(y_max - y_min)) + v_max;
@@ -139,9 +147,9 @@ class Camera {
         let mat_aux: number[][];
 
         mat_aux = ([[(u_max - u_min)/(x_max - x_min), 0, 0, aux_1],
-                            [0, (v_min - v_max) / (y_max - y_min), 0, aux_2],
-                            [0, 0, 1, 0],
-                            [0, 0, 0, 1]])
+                    [0, (v_min - v_max) / (y_max - y_min), 0, aux_2],
+                    [0, 0, 1, 0],
+                    [0, 0, 0, 1]])
         
         return mat_aux;
     }

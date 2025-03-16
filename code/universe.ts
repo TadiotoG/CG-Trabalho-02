@@ -150,14 +150,14 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
                 surface.double_faces.splice(i, 1);
                 i--;
             }
-            console.log("Saiu assim -> ", surface.double_faces[i].face);
+            // console.log("Saiu assim -> ", surface.double_faces[i].face);
         }
-        console.log("Surface cut -> ", surface.double_faces[0].face);
+        // console.log("Surface cut -> ", surface.double_faces[0].face);
 
     };
 
     calc_zbuffer_gouraud(){
-        console.log("Surface gou-> ", this.surfaces[0].double_faces[0].face);
+        // console.log("Surface gou-> ", this.surfaces[0].double_faces[0].face);
         for(let i=0; i<this.surfaces.length; i++){
             for(let j=0; j<this.surfaces[i].double_faces.length; j++){
                 this.zbuffer_gouraud.rasterizePolygon(this.surfaces[i].double_faces[j].face);
@@ -167,7 +167,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     }
 
     calc_zbuffer_const(){
-        console.log("Surface cons-> ", this.surfaces[0].double_faces[0].face);
+        // console.log("Surface cons-> ", this.surfaces[0].double_faces[0].face);
         for(let i=0; i<this.surfaces.length; i++){
             for(let j=0; j<this.surfaces[i].double_faces.length; j++){
                 this.zbuffer_const.rasterizePolygon(this.surfaces[i].double_faces[j].face);

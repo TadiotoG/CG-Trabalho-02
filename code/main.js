@@ -141,10 +141,22 @@ function get_values_to_cam() {
     lamp_z = aux.value;
     aux = document.getElementById("lamp_intensidade");
     lamp_intensidade = aux.value;
-    aux = document.getElementById("window_width");
-    wind_width = aux.value;
-    aux = document.getElementById("window_height");
-    wind_height = aux.value;
+    aux = document.getElementById("wind_xmin");
+    wind_xmin = Math.round(Number(aux.value));
+    aux = document.getElementById("wind_xmax");
+    wind_xmax = Math.round(Number(aux.value));
+    aux = document.getElementById("wind_ymin");
+    wind_ymin = Math.round(Number(aux.value));
+    aux = document.getElementById("wind_ymax");
+    wind_ymax = Math.round(Number(aux.value));
+    aux = document.getElementById("wind_umin");
+    wind_umin = Math.round(Number(aux.value));
+    aux = document.getElementById("wind_umax");
+    wind_umax = Math.round(Number(aux.value));
+    aux = document.getElementById("wind_vmin");
+    wind_vmin = Math.round(Number(aux.value));
+    aux = document.getElementById("wind_vmax");
+    wind_vmax = Math.round(Number(aux.value));
     aux = document.getElementById("amb_light_r");
     luz_ambiente[0] = aux.value;
     aux = document.getElementById("amb_light_g");
@@ -159,6 +171,8 @@ function get_values_to_cam() {
     else {
         flag_persp = false;
     }
+    wind_width = wind_umax - wind_umin;
+    wind_height = wind_vmax - wind_vmin;
     canvas.style.width = wind_width.toString(10) + "px";
     canvas.style.height = wind_height.toString(10) + "px";
     canvas.width = wind_width;
@@ -464,7 +478,7 @@ function change_world() {
     vrp_camera = new Dot(cam_x, cam_y, cam_z);
     focal_point_camera = new Dot(focal_x, focal_y, focal_z);
     distance_point = 240;
-    camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height, flag_persp);
+    camera = new Camera(vrp_camera, focal_point_camera, distance_point, wind_xmin, wind_ymin, wind_xmax, wind_ymax, wind_umin, wind_vmin, wind_umax, wind_vmax, flag_persp);
     // camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
     zbuffer_const = new ZbufferConstante(wind_width, wind_height);
     zbuffer_gouraud = new ZbufferGouraud(wind_width, wind_height);
@@ -566,10 +580,18 @@ var lamp_x;
 var lamp_y;
 var lamp_z;
 var lamp_intensidade;
-var wind_width;
-var wind_height;
+var wind_xmin;
+var wind_xmax;
+var wind_ymin;
+var wind_ymax;
+var wind_umin;
+var wind_umax;
+var wind_vmin;
+var wind_vmax;
 var luz_ambiente;
 luz_ambiente = [0, 0, 0]; // Luz ambiente RGB
+var wind_width = wind_umax - wind_umin;
+var wind_height = wind_vmax - wind_vmax;
 // ka kd e ks dos materias sobre RGB
 var ka;
 ka = [0.4, 0.4, 0.4];
@@ -590,7 +612,7 @@ var zbuffer_gouraud = new ZbufferGouraud(wind_width, wind_height);
 var vrp_camera = new Dot(cam_x, cam_y, cam_z);
 var focal_point_camera = new Dot(focal_x, focal_y, focal_z);
 var distance_point = 240;
-var camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, wind_width, wind_height, flag_persp);
+var camera = new Camera(vrp_camera, focal_point_camera, distance_point, wind_xmin, wind_ymin, wind_xmax, wind_ymax, wind_umin, wind_vmin, wind_umax, wind_vmax, flag_persp);
 var uni = new Universe(ctx, camera, new Lamp(lamp_intensidade, lamp_x, lamp_y, lamp_z), luz_ambiente, zbuffer_const, zbuffer_gouraud, wind_width, wind_height);
 var star_x;
 var star_y;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Just a try</title>
+    <title>Superfície B-Spline</title>
 </head>
 
 <style>
@@ -126,7 +126,7 @@
 </style>
 
 <body>
-    <h1>Trabalho 2 - CG</h1>
+    <h1>Gerador e simulador de Superfície B-Spline</h1>
 
     <div id="main">
         <div id="control_buttons">
@@ -135,12 +135,42 @@
                     <h2 class="title">Universo</h2>
                     <div id="inputs_window" class="inputs_control_wind">
                         <div>
-                            <label for="window_width">Largura</label>
-                            <input style= "width: 50px" type="number" oninput=change_world() name="window_width" id="window_width" value="1000" step="1">
+                            <label for="wind_xmin">x_min</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="wind_xmin" id="wind_xmin" value="-40" step="1">
                         </div>
                         <div>
-                            <label for="window_height">Altura</label>
-                            <input style= "width: 50px" type="number" oninput=change_world() name="window_height" id="window_height" value="800" step="1">
+                            <label for="wind_xmax">x_max</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="wind_xmax" id="wind_xmax" value="40" step="1">
+                        </div>
+                    </div>
+                    <div id="inputs_window" class="inputs_control_wind">
+                        <div>
+                            <label for="wind_ymin">y_min</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="wind_ymin" id="wind_ymin" value="-40" step="1">
+                        </div>
+                        <div>
+                            <label for="wind_ymax">y_max</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="wind_ymax" id="wind_ymax" value="24" step="1">
+                        </div>
+                    </div>
+                    <div id="inputs_view_port_x" class="inputs_control_wind">
+                        <div>
+                            <label for="wind_umin">u_min</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="wind_umin" id="wind_umin" value="0" step="1">
+                        </div>
+                        <div>
+                            <label for="wind_umax">u_max</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="wind_umax" id="wind_umax" value="1000" step="1">
+                        </div>
+                    </div>
+                    <div id="inputs_view_port_v" class="inputs_control_wind">
+                        <div>
+                            <label for="wind_vmin">v_min</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="wind_vmin" id="wind_vmin" value="0" step="1">
+                        </div>
+                        <div>
+                            <label for="wind_vmax">v_max</label>
+                            <input style= "width: 50px" type="number" oninput=change_world() name="wind_vmax" id="wind_vmax" value="800" step="1">
                         </div>
                     </div>
                     

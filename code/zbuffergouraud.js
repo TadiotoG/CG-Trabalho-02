@@ -132,7 +132,7 @@ var ZbufferGouraud = /** @class */ (function () {
         //console.log(this.scanline);
     };
     ZbufferGouraud.prototype.AtualizaBufferGourand = function (constant_z, new_R, new_G, new_B, x, y) {
-        console.log("tamanho", this.depthBuffer.length, this.depthBuffer[0].length);
+        //console.log("tamanho", this.depthBuffer.length, this.depthBuffer[0].length);
         if (constant_z < this.depthBuffer[y][x]) {
             this.depthBuffer[y][x] = constant_z;
             //console.log(this.depthBuffer[y][x]);

@@ -7,9 +7,11 @@ class Dot{ // Classe para pontos ou vertices
     r_gouraud: number;
     g_gouraud: number;
     b_gouraud: number;
-    vet_phong: Vet;
+    x_phong: number;
+    y_phong: number;
+    z_phong: number;
 
-    constructor(new_x: number, new_y: number, new_z: number, col: string = "red", r_gou: number = 0, g_gou: number = 0, b_gou: number = 0, vet_phong: Vet = new Vet(0, 0, 0)){
+    constructor(new_x: number, new_y: number, new_z: number, col: string = "red", r_gou: number = 0, g_gou: number = 0, b_gou: number = 0, x_phong: number=0, y_phong: number=0, z_phong: number=0){
         this.x = new_x;
         this.y = new_y;
         this.z = new_z;
@@ -17,7 +19,9 @@ class Dot{ // Classe para pontos ou vertices
         this.r_gouraud = r_gou;
         this.g_gouraud = g_gou;
         this.b_gouraud = b_gou;
-        this.vet_phong = vet_phong
+        this.x_phong = x_phong;
+        this.y_phong = y_phong;
+        this.z_phong = z_phong;
     }
 
     print_obj(dot_name: string){
