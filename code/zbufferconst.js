@@ -4,11 +4,11 @@ var ZbufferConstante = /** @class */ (function () {
         this.width = width;
         this.height = height;
         this.scanline = new Map(); // Inicializa o HashMap
-        this.depthBuffer = Array.from({ length: height }, function () { return Array(width).fill(100000000); });
+        this.depthBuffer = Array.from({ length: height }, function () { return Array(width).fill(-100000000); });
         this.colorBuffer = Array.from({ length: height }, function () { return Array(width).fill('#000000'); });
         for (var i = 0; i < height; i++) {
             for (var j = 0; j < width; j++) {
-                this.depthBuffer[i][j] = 1000000;
+                this.depthBuffer[i][j] = -100000000;
                 this.colorBuffer[i][j] = '#000000';
             }
         }
@@ -18,7 +18,8 @@ var ZbufferConstante = /** @class */ (function () {
         this.Scanline([face]);
     };
     ZbufferConstante.prototype.Scanline = function (faces) {
-        //  console.log("Faces -> ", faces);
+        this.scanline = new Map();
+        // console.log("Faces -> ", faces);
         for (var _i = 0, faces_1 = faces; _i < faces_1.length; _i++) {
             var face = faces_1[_i];
             for (var i = 0; i < face.dots.length; i++) {
@@ -38,7 +39,7 @@ var ZbufferConstante = /** @class */ (function () {
                     end = face.dots[i];
                 }
                 // console.log("Start -> ", start, "End -> ", end);
-                var real_start_z = Dx = end.x - start.x;
+                Dx = end.x - start.x;
                 Dy = end.y - start.y;
                 Dz = end.z - start.z;
                 Tx = Dx / Dy;
@@ -116,7 +117,8 @@ var ZbufferConstante = /** @class */ (function () {
         });
     };
     ZbufferConstante.prototype.AtualizaBufferConstante = function (constant_z, x, y, color) {
-        if (constant_z < this.depthBuffer[y][x]) {
+        // console.log("Z -> ", constant_z)
+        if (constant_z > this.depthBuffer[y][x]) {
             // console.log("Constant_z -> ", constant_z)
             this.depthBuffer[y][x] = constant_z;
             //console.log(this.depthBuffer[y][x]);

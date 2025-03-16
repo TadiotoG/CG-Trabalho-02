@@ -428,6 +428,12 @@ function alter_prop_by_click(universe: Universe, A: Dot){
         aux_dot_y = vet_aux[2];
 
         let aux;
+        aux = document.getElementById("alter_prop_res_i");
+        aux.value = (universe.surfaces[aux_surf].resi);
+
+        aux = document.getElementById("alter_prop_res_j");
+        aux.value = (universe.surfaces[aux_surf].resj);
+
         aux = document.getElementById("alter_prop_ka_verm");
         aux.value = (universe.surfaces[aux_surf].ka[0]);
 
@@ -502,7 +508,7 @@ function change_dot(){
 
 function create_surface(){
     get_values_new_surface();
-    let surface_01 = new Surface(star_x, star_y, star_z, amount_cp_i, amount_cp_j, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, aresta_color, other_side_aresta_color);
+    let surface_01 = new Surface(star_x, star_y, star_z, amount_cp_i, amount_cp_j, 3, 3, res_i, res_j, [ka[0], ka[1], ka[2]], [kd[0], kd[1], kd[2]], [ks[0], ks[1], ks[2]], n, face_color, aresta_color, other_side_aresta_color);
     uni.add_surface(surface_01);
     change_world();
     window_create_s_disappears();
@@ -607,7 +613,7 @@ function change_world(){
     zbuffer_gouraud = new ZbufferGouraud(wind_width, wind_height);
     uni = new Universe(ctx, camera, my_lamp, luz_ambiente, zbuffer_const, zbuffer_gouraud, wind_width, wind_height);
     
-    for(let i=0; i<uni.add_surface.length; i++){
+    for(let i=0; i<list_of_surfaces.length; i++){
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
 
@@ -637,7 +643,7 @@ function change_world(){
     let ControlPointsCheckbox;
     ControlPointsCheckbox = document.getElementById("check_control_p");
     if (ControlPointsCheckbox && ControlPointsCheckbox.checked) {
-        for(let i=0; i<list_of_surfaces.length; i++){
+        for(let i=0; i<uni.surfaces.length; i++){
             uni.draw_cp(uni.surfaces[i]);
         };
     };

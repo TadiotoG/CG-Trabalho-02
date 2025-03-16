@@ -11,11 +11,11 @@ class ZbufferGouraud {
         this.width = width;
         this.height = height;
         this.scanline = new Map(); // Inicializa o HashMap
-        this.depthBuffer = Array.from({ length: height }, () => Array(width).fill(100000000));
+        this.depthBuffer = Array.from({ length: height }, () => Array(width).fill(-100000000));
         this.colorBuffer = Array.from({ length: height }, () => Array(width).fill('#000000'));
         for(let i=0; i<height; i++){
             for(let j=0; j<width; j++){
-                this.depthBuffer[i][j] = 1000000;
+                this.depthBuffer[i][j] = -1000000;
                 this.colorBuffer[i][j] = '#000000';
             }
         };
@@ -27,6 +27,7 @@ class ZbufferGouraud {
     }
 
     Scanline(faces: Array<Face>) {
+        this.scanline = new Map();
         //console.log("Faces -> ", faces);
         for (const face of faces) {
         
@@ -171,7 +172,7 @@ class ZbufferGouraud {
 
     AtualizaBufferGourand(constant_z: number, new_R: number, new_G: number, new_B: number, x: number, y: number){
          //console.log("tamanho", this.depthBuffer.length, this.depthBuffer[0].length);
-        if (constant_z < this.depthBuffer[y][x]) {
+        if (constant_z > this.depthBuffer[y][x]) {
             this.depthBuffer[y][x] = constant_z;
             //console.log(this.depthBuffer[y][x]);
             

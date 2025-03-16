@@ -11,11 +11,11 @@ class ZbufferConstante {
         this.width = width;
         this.height = height;
         this.scanline = new Map(); // Inicializa o HashMap
-        this.depthBuffer = Array.from({ length: height }, () => Array(width).fill(100000000));
+        this.depthBuffer = Array.from({ length: height }, () => Array(width).fill(-100000000));
         this.colorBuffer = Array.from({ length: height }, () => Array(width).fill('#000000'));
         for(let i=0; i<height; i++){
             for(let j=0; j<width; j++){
-                this.depthBuffer[i][j] = 1000000;
+                this.depthBuffer[i][j] = -100000000;
                 this.colorBuffer[i][j] = '#000000';
             }
         };
@@ -25,7 +25,9 @@ class ZbufferConstante {
         this.Scanline([face]);
     }
     Scanline(faces: Array<Face>) {
-        //  console.log("Faces -> ", faces);
+        
+        this.scanline = new Map();
+        // console.log("Faces -> ", faces);
         for (const face of faces) {
 
             for (let i = 0; i < face.dots.length; i++) {
@@ -48,7 +50,6 @@ class ZbufferConstante {
                  }
 
                 // console.log("Start -> ", start, "End -> ", end);
-                let real_start_z = 
                 Dx = end.x - start.x;
                 Dy = end.y - start.y;
                 Dz = end.z - start.z;
@@ -144,8 +145,8 @@ class ZbufferConstante {
 
 
     AtualizaBufferConstante(constant_z: number, x: number, y: number, color: string){
-        
-        if (constant_z < this.depthBuffer[y][x]) {
+        // console.log("Z -> ", constant_z)
+        if (constant_z > this.depthBuffer[y][x]) {
             
             // console.log("Constant_z -> ", constant_z)
             this.depthBuffer[y][x] = constant_z;

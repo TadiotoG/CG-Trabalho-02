@@ -143,7 +143,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     };
 
     cut_surface_withcolor(surface: Surface){
-        console.log("Surface cut -> ", surface.double_faces[0].face);
+        // console.log("Surface cut -> ", surface.double_faces[0].face);
         for(let i=0; i < surface.double_faces.length; i++){
             surface.double_faces[i].face = RecorteWithColor(surface.double_faces[i].face, 0, this.width, 0, this.height);
             if(surface.double_faces[i].face.dots.length == 0){ // Caso o recorte retorne uma face sem pontos, a face é tirada da lista de faces

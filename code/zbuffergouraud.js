@@ -4,11 +4,11 @@ var ZbufferGouraud = /** @class */ (function () {
         this.width = width;
         this.height = height;
         this.scanline = new Map(); // Inicializa o HashMap
-        this.depthBuffer = Array.from({ length: height }, function () { return Array(width).fill(100000000); });
+        this.depthBuffer = Array.from({ length: height }, function () { return Array(width).fill(-100000000); });
         this.colorBuffer = Array.from({ length: height }, function () { return Array(width).fill('#000000'); });
         for (var i = 0; i < height; i++) {
             for (var j = 0; j < width; j++) {
-                this.depthBuffer[i][j] = 1000000;
+                this.depthBuffer[i][j] = -1000000;
                 this.colorBuffer[i][j] = '#000000';
             }
         }
@@ -19,6 +19,7 @@ var ZbufferGouraud = /** @class */ (function () {
         this.Scanline([face]);
     };
     ZbufferGouraud.prototype.Scanline = function (faces) {
+        this.scanline = new Map();
         //console.log("Faces -> ", faces);
         for (var _i = 0, faces_1 = faces; _i < faces_1.length; _i++) {
             var face = faces_1[_i];
@@ -133,7 +134,7 @@ var ZbufferGouraud = /** @class */ (function () {
     };
     ZbufferGouraud.prototype.AtualizaBufferGourand = function (constant_z, new_R, new_G, new_B, x, y) {
         //console.log("tamanho", this.depthBuffer.length, this.depthBuffer[0].length);
-        if (constant_z < this.depthBuffer[y][x]) {
+        if (constant_z > this.depthBuffer[y][x]) {
             this.depthBuffer[y][x] = constant_z;
             //console.log(this.depthBuffer[y][x]);
             this.colorBuffer[y][x] = "rgb(".concat(new_R, ", ").concat(new_G, ", ").concat(new_B, ")");

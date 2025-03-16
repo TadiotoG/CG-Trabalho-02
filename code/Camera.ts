@@ -74,7 +74,7 @@ class Camera {
         ])
 
         this.matriz_SRU_SRC = mult_matriz(mat_R, mat_T)
-        print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
+        // print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
 
         if(this.flag_persp){
             this.matriz_persp = this.define_matriz_persp();// Projecao perspectiva, nao vai ser mais utilizado...
@@ -82,7 +82,7 @@ class Camera {
         // print_matriz(this.matriz_persp, "Persp");
 
         this.matriz_jp = this.define_matriz_jp();
-        print_matriz(this.matriz_jp, "Jp")
+        // print_matriz(this.matriz_jp, "Jp")
     }
 
     private define_vector_v(): Vet{

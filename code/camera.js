@@ -44,13 +44,13 @@ var Camera = /** @class */ (function () {
             [0, 0, 0, 1]
         ]);
         this.matriz_SRU_SRC = mult_matriz(mat_R, mat_T);
-        print_matriz(this.matriz_SRU_SRC, "SRU_SRC");
+        // print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
         if (this.flag_persp) {
             this.matriz_persp = this.define_matriz_persp(); // Projecao perspectiva, nao vai ser mais utilizado...
         }
         // print_matriz(this.matriz_persp, "Persp");
         this.matriz_jp = this.define_matriz_jp();
-        print_matriz(this.matriz_jp, "Jp");
+        // print_matriz(this.matriz_jp, "Jp")
     };
     Camera.prototype.define_vector_v = function () {
         var y = new Vet(0, 1, 0);

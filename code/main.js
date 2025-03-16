@@ -341,6 +341,12 @@ function alter_prop_by_click(universe, A) {
         aux_dot_x = vet_aux[1];
         aux_dot_y = vet_aux[2];
         var aux = void 0;
+        aux = document.getElementById("alter_prop_res_i");
+        aux.value = (universe.surfaces[aux_surf].resi);
+        alert("RESI -> " + aux.value);
+        aux = document.getElementById("alter_prop_res_j");
+        aux.value = (universe.surfaces[aux_surf].resj);
+        alert("RESJ -> " + aux.value);
         aux = document.getElementById("alter_prop_ka_verm");
         aux.value = (universe.surfaces[aux_surf].ka[0]);
         aux = document.getElementById("alter_prop_ka_verde");
@@ -398,7 +404,7 @@ function change_dot() {
 }
 function create_surface() {
     get_values_new_surface();
-    var surface_01 = new Surface(star_x, star_y, star_z, amount_cp_i, amount_cp_j, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, aresta_color, other_side_aresta_color);
+    var surface_01 = new Surface(star_x, star_y, star_z, amount_cp_i, amount_cp_j, 3, 3, res_i, res_j, [ka[0], ka[1], ka[2]], [kd[0], kd[1], kd[2]], [ks[0], ks[1], ks[2]], n, face_color, aresta_color, other_side_aresta_color);
     uni.add_surface(surface_01);
     change_world();
     window_create_s_disappears();
@@ -483,7 +489,7 @@ function change_world() {
     zbuffer_const = new ZbufferConstante(wind_width, wind_height);
     zbuffer_gouraud = new ZbufferGouraud(wind_width, wind_height);
     uni = new Universe(ctx, camera, my_lamp, luz_ambiente, zbuffer_const, zbuffer_gouraud, wind_width, wind_height);
-    for (var i = 0; i < uni.add_surface.length; i++) {
+    for (var i = 0; i < list_of_surfaces.length; i++) {
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
         if (shading() == "gouraud") {
@@ -509,7 +515,7 @@ function change_world() {
     var ControlPointsCheckbox;
     ControlPointsCheckbox = document.getElementById("check_control_p");
     if (ControlPointsCheckbox && ControlPointsCheckbox.checked) {
-        for (var i = 0; i < list_of_surfaces.length; i++) {
+        for (var i = 0; i < uni.surfaces.length; i++) {
             uni.draw_cp(uni.surfaces[i]);
         }
         ;
