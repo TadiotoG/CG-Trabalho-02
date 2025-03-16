@@ -19,7 +19,7 @@ var ZbufferGouraud = /** @class */ (function () {
         this.Scanline([face]);
     };
     ZbufferGouraud.prototype.Scanline = function (faces) {
-        console.log("Faces -> ", faces);
+        //console.log("Faces -> ", faces);
         for (var _i = 0, faces_1 = faces; _i < faces_1.length; _i++) {
             var face = faces_1[_i];
             for (var i = 0; i < face.dots.length; i++) {
@@ -132,7 +132,7 @@ var ZbufferGouraud = /** @class */ (function () {
         //console.log(this.scanline);
     };
     ZbufferGouraud.prototype.AtualizaBufferGourand = function (constant_z, new_R, new_G, new_B, x, y) {
-        // console.log("Compara z = ", constant_z, "    <    ", this.depthBuffer[y][x]);
+        console.log("tamanho", this.depthBuffer.length, this.depthBuffer[0].length);
         if (constant_z < this.depthBuffer[y][x]) {
             this.depthBuffer[y][x] = constant_z;
             //console.log(this.depthBuffer[y][x]);

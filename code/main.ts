@@ -586,9 +586,13 @@ function change_world(){
     zbuffer_gouraud = new ZbufferGouraud(wind_width, wind_height);
     uni = new Universe(ctx, camera, my_lamp, luz_ambiente, zbuffer_const, zbuffer_gouraud, wind_width, wind_height);
     
-    for(let i=0; i<list_of_surfaces.length; i++){
+    for(let i=0; i<uni.add_surface.length; i++){
         uni.surfaces = list_of_surfaces;
         uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
+
+        if(shading() == "gouraud"){
+            uni.call_gouraud();
+        }
         uni.cut_surface_withcolor(uni.surfaces[i]);
     }
 
@@ -597,14 +601,13 @@ function change_world(){
         uni.calc_zbuffer_const();
         uni.plot_zbuffer_const();
     } else if (shading() == "gouraud"){
-        uni.call_gouraud();
         uni.calc_zbuffer_gouraud();
         uni.plot_zbuffer_gouraud();
     }
 
-    for(let i=0; i<list_of_surfaces.length; i++){
-        uni.cut_surface_nocolor(uni.surfaces[i]);
-    }
+    // for(let i=0; i<list_of_surfaces.length; i++){
+    //     uni.cut_surface_nocolor(uni.surfaces[i]);
+    // }
 
     if(shading() == "pintor"){
         uni.render();

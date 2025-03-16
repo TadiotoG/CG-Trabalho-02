@@ -143,16 +143,31 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     };
 
     cut_surface_withcolor(surface: Surface){
+        console.log("Surface cut -> ", surface.double_faces[0].face);
         for(let i=0; i < surface.double_faces.length; i++){
             surface.double_faces[i].face = RecorteWithColor(surface.double_faces[i].face, 0, this.width, 0, this.height);
             if(surface.double_faces[i].face.dots.length == 0){ // Caso o recorte retorne uma face sem pontos, a face é tirada da lista de faces
                 surface.double_faces.splice(i, 1);
                 i--;
             }
+            console.log("Saiu assim -> ", surface.double_faces[i].face);
         }
+        console.log("Surface cut -> ", surface.double_faces[0].face);
+
     };
 
+    calc_zbuffer_gouraud(){
+        console.log("Surface gou-> ", this.surfaces[0].double_faces[0].face);
+        for(let i=0; i<this.surfaces.length; i++){
+            for(let j=0; j<this.surfaces[i].double_faces.length; j++){
+                this.zbuffer_gouraud.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                this.zbuffer_gouraud.ZbufferGourand();
+            }
+        };
+    }
+
     calc_zbuffer_const(){
+        console.log("Surface cons-> ", this.surfaces[0].double_faces[0].face);
         for(let i=0; i<this.surfaces.length; i++){
             for(let j=0; j<this.surfaces[i].double_faces.length; j++){
                 this.zbuffer_const.rasterizePolygon(this.surfaces[i].double_faces[j].face);
@@ -170,24 +185,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         // }
     }
 
-    calc_zbuffer_gouraud(){
-        // console.log("Teste cores -> ", this.surfaces[0].double_faces[0].face);
-        for(let i=0; i<this.surfaces.length; i++){
-            for(let j=0; j<this.surfaces[i].double_faces.length; j++){
-                this.zbuffer_gouraud.rasterizePolygon(this.surfaces[i].double_faces[j].face);
-                this.zbuffer_gouraud.ZbufferGourand();
-            }
-        };
-        // console.log("Executou ")
-        // for(let x=0; x<this.zbuffer.depthBuffer.length; x++){ // Fui ver se eu resolvi o teu problema, mas n consegui, isso aqui vai printar qualquer face que apareca no z buffer
-        //     for(let z=0; z<this.zbuffer.depthBuffer[0].length; z++){
-        //         this.ctx.fillStyle = this.zbuffer.colorBuffer[x][z];
-        //         this.ctx.fillRect(z, x, 1, 1);
-                
-        //             // console.log(`ZBuffer [${x}][${z}] = ${this.zbuffer.depthBuffer[x][z]}  e   ${this.zbuffer.colorBuffer[x][z]}`)
-        //     }
-        // }
-    }
+    
 
     plot_zbuffer_const(){
         for(let i=0; i<this.zbuffer_const.colorBuffer.length; i++){

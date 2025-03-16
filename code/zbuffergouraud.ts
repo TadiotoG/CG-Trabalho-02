@@ -27,7 +27,7 @@ class ZbufferGouraud {
     }
 
     Scanline(faces: Array<Face>) {
-        console.log("Faces -> ", faces);
+        //console.log("Faces -> ", faces);
         for (const face of faces) {
         
            for (let i = 0; i < face.dots.length; i++) {
@@ -170,7 +170,7 @@ class ZbufferGouraud {
     
 
     AtualizaBufferGourand(constant_z: number, new_R: number, new_G: number, new_B: number, x: number, y: number){
-        // console.log("Compara z = ", constant_z, "    <    ", this.depthBuffer[y][x]);
+         //console.log("tamanho", this.depthBuffer.length, this.depthBuffer[0].length);
         if (constant_z < this.depthBuffer[y][x]) {
             this.depthBuffer[y][x] = constant_z;
             //console.log(this.depthBuffer[y][x]);
