@@ -143,7 +143,6 @@ var Universe = /** @class */ (function () {
     Universe.prototype.calc_zbuffer_const = function () {
         // console.log("Surface cons-> ", this.surfaces[0].double_faces[0].face);
         for (var i = 0; i < this.surfaces.length; i++) {
-            console.log("Superficie [", i, "] -> ", this.surfaces[i].double_faces);
             for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
                 this.zbuffer_const.rasterizePolygon(this.surfaces[i].double_faces[j].face);
                 this.zbuffer_const.ZbufferConstante();

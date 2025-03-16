@@ -343,10 +343,8 @@ function alter_prop_by_click(universe, A) {
         var aux = void 0;
         aux = document.getElementById("alter_prop_res_i");
         aux.value = (universe.surfaces[aux_surf].resi);
-        alert("RESI -> " + aux.value);
         aux = document.getElementById("alter_prop_res_j");
         aux.value = (universe.surfaces[aux_surf].resj);
-        alert("RESJ -> " + aux.value);
         aux = document.getElementById("alter_prop_ka_verm");
         aux.value = (universe.surfaces[aux_surf].ka[0]);
         aux = document.getElementById("alter_prop_ka_verde");
