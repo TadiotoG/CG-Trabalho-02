@@ -117,10 +117,10 @@ var Universe = /** @class */ (function () {
         }
     };
     ;
-    Universe.prototype.cut_surface_withcolor = function (surface) {
+    Universe.prototype.cut_surface_withcolor = function (surface, flag) {
         // console.log("Surface cut -> ", surface.double_faces[0].face);
         for (var i = 0; i < surface.double_faces.length; i++) {
-            surface.double_faces[i].face = RecorteWithColor(surface.double_faces[i].face, 0, this.width, 0, this.height);
+            surface.double_faces[i].face = RecorteWithColor(surface.double_faces[i].face, 0, this.width, 0, this.height, flag);
             if (surface.double_faces[i].face.dots.length == 0) { // Caso o recorte retorne uma face sem pontos, a face é tirada da lista de faces
                 surface.double_faces.splice(i, 1);
                 i--;

@@ -619,8 +619,13 @@ function change_world(){
 
         if(shading() == "gouraud"){
             uni.call_gouraud();
+            uni.cut_surface_withcolor(uni.surfaces[i], false);
+        }else if (shading() == "const"){
+            uni.cut_surface_nocolor(uni.surfaces[i]);
+        }else{
+            uni.cut_surface_nocolor(uni.surfaces[i]);
         }
-        uni.cut_surface_withcolor(uni.surfaces[i]);
+        
     }
 
     if(shading() == "const"){
