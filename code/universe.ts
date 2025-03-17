@@ -1,7 +1,7 @@
 /// <reference path="./zbufferconst.ts" />
+/// <reference path="./recortephong.ts" />
 /// <reference path="./zbuffergouraud.ts" />
 /// <reference path="./zbufferphong.ts" />
-/// <reference path="./recortephong.ts" />
 
 let canvas_width = 1000;
 let canvas_height = 800;
@@ -16,10 +16,11 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     la: [number, number, number]; // Luz ambiente
     zbuffer_const: ZbufferConstante;
     zbuffer_gouraud: ZbufferGouraud;
+    zbuffer_phong: ZbufferPhong;
     width: number;
     height: number;
 
-    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: [number, number, number], zbuffer_const: ZbufferConstante, zbuffer_gouraud: ZbufferGouraud, width: number, height: number){
+    constructor(ctx_out: CanvasRenderingContext2D, cam: Camera, lamp: Lamp, ambient_light: [number, number, number], zbuffer_const: ZbufferConstante, zbuffer_gouraud: ZbufferGouraud, zbuffer_phong: ZbufferPhong, width: number, height: number){
         this.ctx = ctx_out;
         this.camera = cam;
         this.matriz_SRU_SRT = this.camera.get_mat_SRU_SRT();
@@ -27,6 +28,7 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         this.la = ambient_light;
         this.zbuffer_const = zbuffer_const;
         this.zbuffer_gouraud = zbuffer_gouraud;
+        this.zbuffer_phong = zbuffer_phong;
         this.width = width;
         this.height = height;
     };
@@ -74,6 +76,24 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         // console.log("Primeira face -> ", this.surfaces[0].double_faces)
     }
 
+    // call_phong(){
+    //     for(let surf=0; surf<this.surfaces.length; surf++){
+    //         if(this.surfaces[surf].cuted == false){
+    //             define_vet_normal_vertices(this.surfaces[surf].outp);
+    //             for(let i=0; i<this.surfaces[surf].outp.length; i++){
+    //                 for(let j=0; j<this.surfaces[surf].outp[0].length; j++){
+    //                     let teste = (this.get_ilum(this.surfaces[surf].outp[i][j].vet_normal, this.surfaces[surf].outp[i][j], amb_light_r, this.surfaces[surf].ks[0], this.surfaces[surf].kd[0], this.surfaces[surf].n));
+    //                     this.surfaces[surf].outp[i][j].r_gouraud = Number(teste);
+    //                     this.surfaces[surf].outp[i][j].g_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].vet_normal, this.surfaces[surf].outp[i][j], amb_light_g, this.surfaces[surf].ks[1], this.surfaces[surf].kd[1], this.surfaces[surf].n));
+    //                     this.surfaces[surf].outp[i][j].b_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].vet_normal, this.surfaces[surf].outp[i][j], amb_light_b, this.surfaces[surf].ks[2], this.surfaces[surf].kd[2], this.surfaces[surf].n));
+    //                 }
+    //             }
+    //             this.surfaces[surf].create_faces(this.matriz_SRU_SRT);
+    //         }
+    //     }
+    //     // console.log("Primeira face -> ", this.surfaces[0].double_faces)
+    // }
+
     get_ilum(vet_normal: Vet, centroide: Dot, amb_light_par: number, ks: number, kd: number, n: number){
         let amb_light = amb_light_par;
         // console.log("================================================");
@@ -87,6 +107,8 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         if(prod_escalar(vet_normal.unitary, test_vis.unitary) < 0){
             vet_normal = new Vet(-vet_normal.x, -vet_normal.y, -vet_normal.z)
         }
+
+        vet_normal.unitary = vet_normal.get_unitary_vector();
 
         let vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
         // vet_LampMinusCent.print_obj("Lamp - Centroide");
@@ -161,6 +183,33 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
 
     };
 
+    cut_surface_phong(surface: Surface){
+        for(let i=0; i < surface.double_faces.length; i++){
+            surface.double_faces[i].face = RecortePhong(surface.double_faces[i].face, 0, this.width, 0, this.height);
+            if(surface.double_faces[i].face.dots.length == 0){ // Caso o recorte retorne uma face sem pontos, a face é tirada da lista de faces
+                surface.double_faces.splice(i, 1);
+                i--;
+            }
+        }
+    };
+
+    calc_zbuffer_phong(){
+        // console.log("Surface gou-> ", this.surfaces[0].double_faces[0].face);
+        for(let i=0; i<this.surfaces.length; i++){
+            if(this.surfaces[i].cuted == false){
+                let amb_light_r = this.surfaces[i].ka[0] * this.la[0];
+                let amb_light_g = this.surfaces[i].ka[1] * this.la[1];
+                let amb_light_b = this.surfaces[i].ka[2] * this.la[2];
+                for(let j=0; j<this.surfaces[i].double_faces.length; j++){
+                    this.zbuffer_phong.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                    this.zbuffer_phong.ZbufferPhong([amb_light_r, amb_light_g, amb_light_b], this.surfaces[i].ks, this.surfaces[i].ks, this.surfaces[i].n, this.surfaces[i].double_faces[j].face_SRU);
+                }
+            }
+        };
+    }
+
+    // ZbufferPhong(amb_light: [number, number, number], ks: [number, number, number], kd: [number, number, number], n: [number, number, number], face_sru: Face) {
+
     calc_zbuffer_gouraud(){
         // console.log("Surface gou-> ", this.surfaces[0].double_faces[0].face);
         for(let i=0; i<this.surfaces.length; i++){
@@ -204,7 +253,16 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         }
     }
 
-    
+    plot_zbuffer_phong(){
+        for(let i=0; i<this.zbuffer_phong.colorBuffer.length; i++){
+            for(let j=0; j<this.zbuffer_phong.colorBuffer[0].length; j++){
+                // console.log(`[${i}][${j}]`)
+                this.ctx.fillStyle = this.zbuffer_phong.colorBuffer[i][j];
+                this.ctx.fillRect(j, i, 1, 1);
+            }
+        }
+    }
+
     plot_zbuffer_gouraud(){
         for(let i=0; i<this.zbuffer_gouraud.colorBuffer.length; i++){
             for(let j=0; j<this.zbuffer_gouraud.colorBuffer[0].length; j++){

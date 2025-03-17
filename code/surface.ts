@@ -314,6 +314,22 @@ class Surface{
                 D.g_gouraud = D_2.g_gouraud;
                 D.b_gouraud = D_2.b_gouraud;
 
+                A.x_phong = A_2.x_phong; 
+                A.y_phong = A_2.y_phong;
+                A.z_phong = A_2.z_phong;
+
+                B.x_phong = B_2.x_phong; 
+                B.y_phong = B_2.y_phong;
+                B.z_phong = B_2.z_phong;
+
+                C.x_phong = C_2.x_phong; 
+                C.y_phong = C_2.y_phong;
+                C.z_phong = C_2.z_phong;
+
+                D.x_phong = D_2.x_phong; 
+                D.y_phong = D_2.y_phong;
+                D.z_phong = D_2.z_phong;
+
                 let arr_dots = [A, B, C, D];
                 let arr_dots_2 = [A_2, B_2, C_2, D_2];
                 this.double_faces.push(new Double_Face(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color), new Face(arr_dots_2, this.face_color, this.other_side_color, this.line_color))); // Cria a face em coordenada de tela e de SRU ao mesmo tempo

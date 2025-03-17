@@ -1,11 +1,11 @@
 /// <reference path="./zbufferconst.ts" />
+/// <reference path="./recortephong.ts" />
 /// <reference path="./zbuffergouraud.ts" />
 /// <reference path="./zbufferphong.ts" />
-/// <reference path="./recortephong.ts" />
 var canvas_width = 1000;
 var canvas_height = 800;
 var Universe = /** @class */ (function () {
-    function Universe(ctx_out, cam, lamp, ambient_light, zbuffer_const, zbuffer_gouraud, width, height) {
+    function Universe(ctx_out, cam, lamp, ambient_light, zbuffer_const, zbuffer_gouraud, zbuffer_phong, width, height) {
         this.surfaces = [];
         this.rotate_y = false;
         this.ctx = ctx_out;
@@ -15,6 +15,7 @@ var Universe = /** @class */ (function () {
         this.la = ambient_light;
         this.zbuffer_const = zbuffer_const;
         this.zbuffer_gouraud = zbuffer_gouraud;
+        this.zbuffer_phong = zbuffer_phong;
         this.width = width;
         this.height = height;
     }
@@ -60,6 +61,23 @@ var Universe = /** @class */ (function () {
         }
         // console.log("Primeira face -> ", this.surfaces[0].double_faces)
     };
+    // call_phong(){
+    //     for(let surf=0; surf<this.surfaces.length; surf++){
+    //         if(this.surfaces[surf].cuted == false){
+    //             define_vet_normal_vertices(this.surfaces[surf].outp);
+    //             for(let i=0; i<this.surfaces[surf].outp.length; i++){
+    //                 for(let j=0; j<this.surfaces[surf].outp[0].length; j++){
+    //                     let teste = (this.get_ilum(this.surfaces[surf].outp[i][j].vet_normal, this.surfaces[surf].outp[i][j], amb_light_r, this.surfaces[surf].ks[0], this.surfaces[surf].kd[0], this.surfaces[surf].n));
+    //                     this.surfaces[surf].outp[i][j].r_gouraud = Number(teste);
+    //                     this.surfaces[surf].outp[i][j].g_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].vet_normal, this.surfaces[surf].outp[i][j], amb_light_g, this.surfaces[surf].ks[1], this.surfaces[surf].kd[1], this.surfaces[surf].n));
+    //                     this.surfaces[surf].outp[i][j].b_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].vet_normal, this.surfaces[surf].outp[i][j], amb_light_b, this.surfaces[surf].ks[2], this.surfaces[surf].kd[2], this.surfaces[surf].n));
+    //                 }
+    //             }
+    //             this.surfaces[surf].create_faces(this.matriz_SRU_SRT);
+    //         }
+    //     }
+    //     // console.log("Primeira face -> ", this.surfaces[0].double_faces)
+    // }
     Universe.prototype.get_ilum = function (vet_normal, centroide, amb_light_par, ks, kd, n) {
         var amb_light = amb_light_par;
         // console.log("================================================");
@@ -135,6 +153,32 @@ var Universe = /** @class */ (function () {
         // console.log("Surface cut -> ", surface.double_faces[0].face);
     };
     ;
+    Universe.prototype.cut_surface_phong = function (surface) {
+        for (var i = 0; i < surface.double_faces.length; i++) {
+            surface.double_faces[i].face = RecortePhong(surface.double_faces[i].face, 0, this.width, 0, this.height);
+            if (surface.double_faces[i].face.dots.length == 0) { // Caso o recorte retorne uma face sem pontos, a face é tirada da lista de faces
+                surface.double_faces.splice(i, 1);
+                i--;
+            }
+        }
+    };
+    ;
+    Universe.prototype.calc_zbuffer_phong = function () {
+        // console.log("Surface gou-> ", this.surfaces[0].double_faces[0].face);
+        for (var i = 0; i < this.surfaces.length; i++) {
+            if (this.surfaces[i].cuted == false) {
+                var amb_light_r = this.surfaces[i].ka[0] * this.la[0];
+                var amb_light_g = this.surfaces[i].ka[1] * this.la[1];
+                var amb_light_b = this.surfaces[i].ka[2] * this.la[2];
+                for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
+                    this.zbuffer_phong.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                    this.zbuffer_phong.ZbufferPhong([amb_light_r, amb_light_g, amb_light_b], this.surfaces[i].ks, this.surfaces[i].ks, this.surfaces[i].n, this.surfaces[i].double_faces[j].face_SRU);
+                }
+            }
+        }
+        ;
+    };
+    // ZbufferPhong(amb_light: [number, number, number], ks: [number, number, number], kd: [number, number, number], n: [number, number, number], face_sru: Face) {
     Universe.prototype.calc_zbuffer_gouraud = function () {
         // console.log("Surface gou-> ", this.surfaces[0].double_faces[0].face);
         for (var i = 0; i < this.surfaces.length; i++) {
@@ -171,6 +215,15 @@ var Universe = /** @class */ (function () {
             for (var j = 0; j < this.zbuffer_const.colorBuffer[0].length; j++) {
                 // console.log(`[${i}][${j}]`)
                 this.ctx.fillStyle = this.zbuffer_const.colorBuffer[i][j];
+                this.ctx.fillRect(j, i, 1, 1);
+            }
+        }
+    };
+    Universe.prototype.plot_zbuffer_phong = function () {
+        for (var i = 0; i < this.zbuffer_phong.colorBuffer.length; i++) {
+            for (var j = 0; j < this.zbuffer_phong.colorBuffer[0].length; j++) {
+                // console.log(`[${i}][${j}]`)
+                this.ctx.fillStyle = this.zbuffer_phong.colorBuffer[i][j];
                 this.ctx.fillRect(j, i, 1, 1);
             }
         }

@@ -1,3 +1,5 @@
+/// <reference path="./spline.ts" />
+
 function get_ilum(vrp: Dot, lamp: Lamp, vet_normal: Vet, centroide: Dot, amb_light_par: number, ks: number, kd: number, n: number){
     let amb_light = amb_light_par;
     // console.log("================================================");
@@ -7,16 +9,16 @@ function get_ilum(vrp: Dot, lamp: Lamp, vet_normal: Vet, centroide: Dot, amb_lig
     let aux_y = lamp.pos.y - centroide.y;
     let aux_z = lamp.pos.z - centroide.z;
 
-    let test_vis = new Vet(centroide.x - this.camera.vrp.x, centroide.y - this.camera.vrp.y, centroide.z - this.camera.vrp.z)
+    let test_vis = new Vet(centroide.x - vrp.x, centroide.y - vrp.y, centroide.z - vrp.z)
     if(prod_escalar(vet_normal.unitary, test_vis.unitary) < 0){
         vet_normal = new Vet(-vet_normal.x, -vet_normal.y, -vet_normal.z)
     }
 
     let vet_LampMinusCent = new Vet(aux_x, aux_y, aux_z);
-    // vet_LampMinusCent.print_obj("Lamp - Centroide");
+    vet_LampMinusCent.print_obj("Lamp - Centroide");
 
     let UN_times_UL = prod_escalar(vet_LampMinusCent.unitary, vet_normal.unitary)
-    // console.log("vet_normal = ", vet_normal.unitary);
+    console.log("vet_normal = ", vet_normal.unitary);
 
     if(UN_times_UL > 0){
         let ilum_difusa = lamp.il * kd * UN_times_UL;
@@ -65,13 +67,18 @@ class ZbufferPhong {
     height: number;
     depthBuffer: number[][];
     colorBuffer: string[][];
+    vrp: Dot;
+    lamp: Lamp;
 
-    constructor(width: number, height: number) {
+
+    constructor(width: number, height: number, vrp: Dot, lamp: Lamp) {
         this.width = width;
         this.height = height;
         this.scanline = new Map(); // Inicializa o HashMap
         this.depthBuffer = Array.from({ length: height+10 }, () => Array(width+10).fill(-100000000));
         this.colorBuffer = Array.from({ length: height+10 }, () => Array(width+10).fill('#000000'));
+        this.vrp = vrp;
+        this.lamp = lamp;
         for(let i=0; i<height+10; i++){
             for(let j=0; j<width+10; j++){
                 this.depthBuffer[i][j] = -1000000;
@@ -80,6 +87,8 @@ class ZbufferPhong {
         };
         // console.log("")
     }
+
+    // function get_ilum(vrp: Dot, lamp: Lamp, vet_normal: Vet, centroide: Dot, amb_light_par: number, ks: number, kd: number, n: number){
 
     rasterizePolygon(face: Face) {
         this.Scanline([face]);
@@ -152,18 +161,18 @@ class ZbufferPhong {
         }
     }
 
-    updateHash(y: number, x: number, z: number, new_R: number, new_G: number, new_B: number,) {
+    updateHash(y: number, x: number, z: number, i_phong: number, j_phong: number, k_phong: number,) {
         if (!this.scanline.has(y)) { 
             this.scanline.set(y, []);
         }
 
         let listaDePontos = this.scanline.get(y);
-        let novoPonto = new Dot(x, y, z, `rgb(${0}, ${0}, ${0})`, 0, 0, 0, new_R, new_G, new_B);
+        let novoPonto = new Dot(x, y, z, `rgb(${0}, ${0}, ${0})`, 0, 0, 0, i_phong, j_phong, k_phong);
 
         listaDePontos!.push(novoPonto);
     }
     
-    ZbufferPhong() {
+    ZbufferPhong(amb_light: [number, number, number], ks: [number, number, number], kd: [number, number, number], n: number, face_sru: Face) {
         this.scanline.forEach((points, y) => {
             points = points.sort((a, b) => a.x - b.x);
             
@@ -197,9 +206,9 @@ class ZbufferPhong {
                     const x1 = Math.ceil(points[i].x);
                     const x2 = Math.ceil(points[next_i].x);
 
-                    let R = points[i].x_phong;
-                    let G = points[i].y_phong;
-                    let B = points[i].z_phong;
+                    let new_i = points[i].x_phong;
+                    let new_j = points[i].y_phong;
+                    let new_k = points[i].z_phong;
 
                     let start = x1, end = x2;
 
@@ -216,12 +225,12 @@ class ZbufferPhong {
                     
                     for (let x = start; x <= end; x++) {
                         // console.log(`x = ${x}   y = ${y}`)
-                        this.AtualizaBufferGourand(z1, R, G, B, x, Math.round(y));
+                        this.AtualizaBufferGourand(z1, new_i, new_j, new_k, x, Math.round(y), amb_light, ks, kd, n, face_sru);
                         //console.log(points[new_i].r_gouraud, points[new_i].g_gouraud, points[new_i].b_gouraud);
                         z1 += dz;
-                        R += di;
-                        G += dj;
-                        B += dk;
+                        new_i += di;
+                        new_j += dj;
+                        new_k += dk;
                     }
                 }
             }
@@ -233,15 +242,16 @@ class ZbufferPhong {
         //console.log(this.scanline);
     }
 
-    
-
-    AtualizaBufferGourand(constant_z: number, new_R: number, new_G: number, new_B: number, x: number, y: number){
+    AtualizaBufferGourand(constant_z: number, i_phong: number, j_phong: number, k_phong: number, x: number, y: number, amb_light: [number, number, number], ks: [number, number, number], kd: [number, number, number], n: number, face_sru: Face){
          //console.log("tamanho", this.depthBuffer.length, this.depthBuffer[0].length);
         if (constant_z > this.depthBuffer[y][x]) {
             this.depthBuffer[y][x] = constant_z;
             //console.log(this.depthBuffer[y][x]);
+            let r_phong = get_ilum(this.vrp, this.lamp, new Vet(i_phong, j_phong, k_phong), new Dot(x, y, constant_z), amb_light[0], ks[0], kd[0], n[0])
+            let g_phong = get_ilum(this.vrp, this.lamp, new Vet(i_phong, j_phong, k_phong), new Dot(x, y, constant_z), amb_light[1], ks[1], kd[1], n[1])
+            let b_phong = get_ilum(this.vrp, this.lamp, new Vet(i_phong, j_phong, k_phong), new Dot(x, y, constant_z), amb_light[2], ks[2], kd[2], n[2])
             
-            this.colorBuffer[y][x] = `rgb(${new_R}, ${new_G}, ${new_B})`;
+            this.colorBuffer[y][x] = `rgb(${r_phong}, ${g_phong}, ${b_phong})`;
             //console.log(this.depthBuffer);
         }
     }

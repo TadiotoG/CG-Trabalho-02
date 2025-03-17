@@ -507,7 +507,8 @@ function change_world() {
     // camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
     zbuffer_const = new ZbufferConstante(wind_width, wind_height);
     zbuffer_gouraud = new ZbufferGouraud(wind_width, wind_height);
-    uni = new Universe(ctx, camera, my_lamp, luz_ambiente, zbuffer_const, zbuffer_gouraud, wind_width, wind_height);
+    zbuffer_phong = new ZbufferPhong(wind_width, wind_height, vrp_camera, my_lamp);
+    uni = new Universe(ctx, camera, my_lamp, luz_ambiente, zbuffer_const, zbuffer_gouraud, zbuffer_phong, wind_width, wind_height);
     uni.surfaces = list_of_surfaces;
     for (var i = 0; i < uni.surfaces.length; i++) {
         test_surface(vrp_camera, focal_point_camera, uni.surfaces[i]);
@@ -525,8 +526,19 @@ function change_world() {
                 uni.update_all_face_colors_constant();
                 uni.cut_surface_nocolor(uni.surfaces[i]);
             }
-            else {
+            else if (shading() == "pintor") {
                 uni.cut_surface_nocolor(uni.surfaces[i]);
+            }
+            else if (shading() == "phong") {
+                define_vet_normal_phong(uni.surfaces[i].outp);
+                uni.cut_surface_phong(uni.surfaces[i]);
+                var amb_light_r = uni.surfaces[i].ka[0] * uni.la[0];
+                var amb_light_g = uni.surfaces[i].ka[1] * uni.la[1];
+                var amb_light_b = uni.surfaces[i].ka[2] * uni.la[2];
+                for (var j = 0; j < uni.surfaces[i].double_faces.length; j++) {
+                    uni.zbuffer_phong.rasterizePolygon(uni.surfaces[i].double_faces[j].face);
+                    uni.zbuffer_phong.ZbufferPhong([amb_light_r, amb_light_g, amb_light_b], uni.surfaces[i].ks, uni.surfaces[i].ks, uni.surfaces[i].n, uni.surfaces[i].double_faces[j].face_SRU);
+                }
             }
         }
     }
@@ -535,12 +547,11 @@ function change_world() {
         uni.plot_zbuffer_const();
     }
     else if (shading() == "gouraud") {
-        // uni.calc_zbuffer_gouraud();
         uni.plot_zbuffer_gouraud();
     }
-    // for(let i=0; i<list_of_surfaces.length; i++){
-    //     uni.cut_surface_nocolor(uni.surfaces[i]);
-    // }
+    else if (shading() == "phong") {
+        uni.plot_zbuffer_phong();
+    }
     if (shading() == "pintor") {
         uni.render();
     }
@@ -650,11 +661,13 @@ get_shading();
 get_values_to_cam();
 var zbuffer_const = new ZbufferConstante(wind_width, wind_height);
 var zbuffer_gouraud = new ZbufferGouraud(wind_width, wind_height);
+var lamp = new Lamp(lamp_intensidade, lamp_x, lamp_y, lamp_z);
 var vrp_camera = new Dot(cam_x, cam_y, cam_z);
+var zbuffer_phong = new ZbufferPhong(wind_width, wind_height, vrp_camera, lamp);
 var focal_point_camera = new Dot(focal_x, focal_y, focal_z);
 var distance_point = 240;
 var camera = new Camera(vrp_camera, focal_point_camera, distance_point, wind_xmin, wind_ymin, wind_xmax, wind_ymax, wind_umin, wind_vmin, wind_umax, wind_vmax, flag_persp);
-var uni = new Universe(ctx, camera, new Lamp(lamp_intensidade, lamp_x, lamp_y, lamp_z), luz_ambiente, zbuffer_const, zbuffer_gouraud, wind_width, wind_height);
+var uni = new Universe(ctx, camera, lamp, luz_ambiente, zbuffer_const, zbuffer_gouraud, zbuffer_phong, wind_width, wind_height);
 var star_x;
 var star_y;
 var star_z;
