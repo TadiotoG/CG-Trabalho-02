@@ -11,10 +11,10 @@ class ZbufferGouraud {
         this.width = width;
         this.height = height;
         this.scanline = new Map(); // Inicializa o HashMap
-        this.depthBuffer = Array.from({ length: height+100 }, () => Array(width+100).fill(-100000000));
-        this.colorBuffer = Array.from({ length: height+100 }, () => Array(width+100).fill('#000000'));
-        for(let i=0; i<height+100; i++){
-            for(let j=0; j<width+100; j++){
+        this.depthBuffer = Array.from({ length: height+10 }, () => Array(width+10).fill(-100000000));
+        this.colorBuffer = Array.from({ length: height+10 }, () => Array(width+10).fill('#000000'));
+        for(let i=0; i<height+10; i++){
+            for(let j=0; j<width+10; j++){
                 this.depthBuffer[i][j] = -1000000;
                 this.colorBuffer[i][j] = '#000000';
             }
