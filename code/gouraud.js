@@ -53,9 +53,9 @@ function define_vet_normal_phong(LFD) {
                 vet_sum = VetA_plus_VetB(vet_sum, vet_aux);
             }
             vet_sum.unitary = vet_sum.get_unitary_vector();
-            LFD[i][j].x_phong = vet_sum.unitary.x;
-            LFD[i][j].y_phong = vet_sum.unitary.y;
-            LFD[i][j].z_phong = vet_sum.unitary.z;
+            LFD[i][j].x_phong = vet_sum.x;
+            LFD[i][j].y_phong = vet_sum.y;
+            LFD[i][j].z_phong = vet_sum.z;
         }
     }
 }

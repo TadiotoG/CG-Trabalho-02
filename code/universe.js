@@ -114,7 +114,7 @@ var Universe = /** @class */ (function () {
     ;
     Universe.prototype.cut_surface_phong = function (surface) {
         for (var i = 0; i < surface.double_faces.length; i++) {
-            surface.double_faces[i].face = RecortePhong(surface.double_faces[i].face, 0, this.width, 0, this.height);
+            surface.double_faces[i] = RecortePhong(surface.double_faces[i], 0, this.width, 0, this.height);
             if (surface.double_faces[i].face.dots.length == 0) {
                 surface.double_faces.splice(i, 1);
                 i--;
@@ -129,7 +129,7 @@ var Universe = /** @class */ (function () {
                 var amb_light_g = this.surfaces[i].ka[1] * this.la[1];
                 var amb_light_b = this.surfaces[i].ka[2] * this.la[2];
                 for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
-                    this.zbuffer_phong.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                    this.zbuffer_phong.rasterizePolygon(this.surfaces[i].double_faces[j]);
                     this.zbuffer_phong.ZbufferPhong([amb_light_r, amb_light_g, amb_light_b], this.surfaces[i].ks, this.surfaces[i].ks, this.surfaces[i].n, this.surfaces[i].double_faces[j].face_SRU);
                 }
             }
