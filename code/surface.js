@@ -15,6 +15,7 @@ var Surface = /** @class */ (function () {
         if (other_side_col === void 0) { other_side_col = "red"; }
         if (cor_aresta === void 0) { cor_aresta = "blue"; }
         if (cp === void 0) { cp = [[new Dot(123, 123, 123)]]; }
+        this.cuted = false;
         this.control_points = Array(ni).fill(null).map(function () { return Array(nj).fill(new Dot(0, 0, 0)); });
         this.control_points_screen = Array(ni).fill(null).map(function () { return Array(nj).fill(new Dot(0, 0, 0)); });
         this.outp = Array(resolutioni).fill(null).map(function () { return Array(resolutionj).fill(new Dot(0, 0, 0)); });
@@ -248,6 +249,21 @@ var Surface = /** @class */ (function () {
                 this.double_faces.push(new Double_Face(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color), new Face(arr_dots_2, this.face_color, this.other_side_color, this.line_color))); // Cria a face em coordenada de tela e de SRU ao mesmo tempo
             }
         }
+    };
+    Surface.prototype.get_centroide = function () {
+        var sum_x = 0;
+        var sum_y = 0;
+        var sum_z = 0;
+        var counter = 0;
+        for (var i = 0; i < this.resi; i++) {
+            for (var j = 0; j < this.resj; j++) {
+                sum_x += this.outp[i][j].x;
+                sum_y += this.outp[i][j].y;
+                sum_z += this.outp[i][j].z;
+                counter++;
+            }
+        }
+        return new Dot(sum_x / counter, sum_y / counter, sum_z / counter);
     };
     // create_faces(matriz_SRU_SRT: number[][]){ // Essa funcao foi projetada para ser chamada no momento de plotar, para que tenhamos as coordenadas de tela de cada vértice/face, pois se pegassemos diretamente os pontos sem a conversao SRU_SRT, teriamos as coordenadas de mundo, o que nao traria informações uteis
     //     let ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat()) // ps = points_screen

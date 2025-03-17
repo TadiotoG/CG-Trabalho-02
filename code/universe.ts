@@ -31,39 +31,43 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
 
     update_all_face_colors_constant(){
         for(let i=0; i<this.surfaces.length; i++){
-            let amb_light_r = this.surfaces[i].ka[0] * this.la[0];
-            let amb_light_g = this.surfaces[i].ka[1] * this.la[1];
-            let amb_light_b = this.surfaces[i].ka[2] * this.la[2];
-            for(let j=0; j<this.surfaces[i].double_faces.length; j++){
-                let new_color = "rgb(";                                                         // Ka: number=0.4, Kd: number=0.6, Ks: number=0.5, N: number=2.15
-                new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_r, this.surfaces[i].ks[0], this.surfaces[i].kd[0], this.surfaces[i].n);
-                new_color += ",";
-                new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_g, this.surfaces[i].ks[1], this.surfaces[i].kd[1], this.surfaces[i].n);
-                new_color += ",";
-                new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_b, this.surfaces[i].ks[2], this.surfaces[i].kd[2], this.surfaces[i].n);
-                new_color += ")";
-                // console.log("New color -> ", new_color);
-                this.surfaces[i].double_faces[j].face.color = new_color;
-                // console.log("NEW COLOR -> ", new_color);
+            if(this.surfaces[i].cuted == false){
+                let amb_light_r = this.surfaces[i].ka[0] * this.la[0];
+                let amb_light_g = this.surfaces[i].ka[1] * this.la[1];
+                let amb_light_b = this.surfaces[i].ka[2] * this.la[2];
+                for(let j=0; j<this.surfaces[i].double_faces.length; j++){
+                    let new_color = "rgb(";                                                         // Ka: number=0.4, Kd: number=0.6, Ks: number=0.5, N: number=2.15
+                    new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_r, this.surfaces[i].ks[0], this.surfaces[i].kd[0], this.surfaces[i].n);
+                    new_color += ",";
+                    new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_g, this.surfaces[i].ks[1], this.surfaces[i].kd[1], this.surfaces[i].n);
+                    new_color += ",";
+                    new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_b, this.surfaces[i].ks[2], this.surfaces[i].kd[2], this.surfaces[i].n);
+                    new_color += ")";
+                    // console.log("New color -> ", new_color);
+                    this.surfaces[i].double_faces[j].face.color = new_color;
+                    // console.log("NEW COLOR -> ", new_color);
+                }
             }
         }
     }
 
     call_gouraud(){
         for(let surf=0; surf<this.surfaces.length; surf++){
-            define_vet_normal_vertices(this.surfaces[surf].outp);
-            let amb_light_r = this.surfaces[surf].ka[0] * this.la[0];
-            let amb_light_g = this.surfaces[surf].ka[1] * this.la[1];
-            let amb_light_b = this.surfaces[surf].ka[2] * this.la[2];
-            for(let i=0; i<this.surfaces[surf].outp.length; i++){
-                for(let j=0; j<this.surfaces[surf].outp[0].length; j++){
-                    let teste = (this.get_ilum(this.surfaces[surf].outp[i][j].gouraud, this.surfaces[surf].outp[i][j], amb_light_r, this.surfaces[surf].ks[0], this.surfaces[surf].kd[0], this.surfaces[surf].n));
-                    this.surfaces[surf].outp[i][j].r_gouraud = Number(teste);
-                    this.surfaces[surf].outp[i][j].g_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].gouraud, this.surfaces[surf].outp[i][j], amb_light_g, this.surfaces[surf].ks[1], this.surfaces[surf].kd[1], this.surfaces[surf].n));
-                    this.surfaces[surf].outp[i][j].b_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].gouraud, this.surfaces[surf].outp[i][j], amb_light_b, this.surfaces[surf].ks[2], this.surfaces[surf].kd[2], this.surfaces[surf].n));
+            if(this.surfaces[surf].cuted == false){
+                define_vet_normal_vertices(this.surfaces[surf].outp);
+                let amb_light_r = this.surfaces[surf].ka[0] * this.la[0];
+                let amb_light_g = this.surfaces[surf].ka[1] * this.la[1];
+                let amb_light_b = this.surfaces[surf].ka[2] * this.la[2];
+                for(let i=0; i<this.surfaces[surf].outp.length; i++){
+                    for(let j=0; j<this.surfaces[surf].outp[0].length; j++){
+                        let teste = (this.get_ilum(this.surfaces[surf].outp[i][j].vet_normal, this.surfaces[surf].outp[i][j], amb_light_r, this.surfaces[surf].ks[0], this.surfaces[surf].kd[0], this.surfaces[surf].n));
+                        this.surfaces[surf].outp[i][j].r_gouraud = Number(teste);
+                        this.surfaces[surf].outp[i][j].g_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].vet_normal, this.surfaces[surf].outp[i][j], amb_light_g, this.surfaces[surf].ks[1], this.surfaces[surf].kd[1], this.surfaces[surf].n));
+                        this.surfaces[surf].outp[i][j].b_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].vet_normal, this.surfaces[surf].outp[i][j], amb_light_b, this.surfaces[surf].ks[2], this.surfaces[surf].kd[2], this.surfaces[surf].n));
+                    }
                 }
+                this.surfaces[surf].create_faces(this.matriz_SRU_SRT);
             }
-            this.surfaces[surf].create_faces(this.matriz_SRU_SRT);
         }
         // console.log("Primeira face -> ", this.surfaces[0].double_faces)
     }
@@ -150,7 +154,6 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
                 surface.double_faces.splice(i, 1);
                 i--;
             }
-            // console.log("Saiu assim -> ", surface.double_faces[i].face);
         }
         // console.log("Surface cut -> ", surface.double_faces[0].face);
 
@@ -159,9 +162,11 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     calc_zbuffer_gouraud(){
         // console.log("Surface gou-> ", this.surfaces[0].double_faces[0].face);
         for(let i=0; i<this.surfaces.length; i++){
-            for(let j=0; j<this.surfaces[i].double_faces.length; j++){
-                this.zbuffer_gouraud.rasterizePolygon(this.surfaces[i].double_faces[j].face);
-                this.zbuffer_gouraud.ZbufferGourand();
+            if(this.surfaces[i].cuted == false){
+                for(let j=0; j<this.surfaces[i].double_faces.length; j++){
+                    this.zbuffer_gouraud.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                    this.zbuffer_gouraud.ZbufferGourand();
+                }
             }
         };
     }
@@ -169,9 +174,11 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
     calc_zbuffer_const(){
         // console.log("Surface cons-> ", this.surfaces[0].double_faces[0].face);
         for(let i=0; i<this.surfaces.length; i++){
-            for(let j=0; j<this.surfaces[i].double_faces.length; j++){
-                this.zbuffer_const.rasterizePolygon(this.surfaces[i].double_faces[j].face);
-                this.zbuffer_const.ZbufferConstante();
+            if(this.surfaces[i].cuted == false){
+                for(let j=0; j<this.surfaces[i].double_faces.length; j++){
+                    this.zbuffer_const.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                    this.zbuffer_const.ZbufferConstante();
+                }
             }
         }
         // console.log("Executou ")
@@ -184,8 +191,6 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         //     }
         // }
     }
-
-    
 
     plot_zbuffer_const(){
         for(let i=0; i<this.zbuffer_const.colorBuffer.length; i++){
@@ -298,8 +303,10 @@ class Universe { // Deve ser atraves dessa classe que a comunicacao com o front-
         let all_double_faces = [];
 
         for(let i=0; i<this.surfaces.length; i++){
-            for(let j=0; j<this.surfaces[i].double_faces.length; j++){
-                all_double_faces.push(this.surfaces[i].double_faces[j]);
+            if(this.surfaces[i].cuted == false){
+                for(let j=0; j<this.surfaces[i].double_faces.length; j++){
+                    all_double_faces.push(this.surfaces[i].double_faces[j]);
+                }
             }
         }
 

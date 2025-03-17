@@ -3,7 +3,7 @@ class Dot{ // Classe para pontos ou vertices
     y: number;
     z: number;
     color: string;
-    gouraud: Vet;
+    vet_normal: Vet;
     r_gouraud: number;
     g_gouraud: number;
     b_gouraud: number;

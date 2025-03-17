@@ -472,6 +472,27 @@ function get_dot_and_surface_by_click(universe, A) {
     }
     return [which_surf, x_closer, y_closer];
 }
+function test_surface(vrp, focal_point, surface) {
+    var cent = surface.get_centroide();
+    var vet_vrp_minus_fp = new Vet(vrp.x - focal_point.x, vrp.y - focal_point.y, vrp.z - focal_point.z);
+    var vet_vrp_minus_cent = new Vet(vrp.x - cent.x, vrp.y - cent.y, vrp.z - cent.z);
+    var test_o = prod_escalar(vet_vrp_minus_cent.unitary, vet_vrp_minus_fp.unitary);
+    var dist_vrp_surf = calc_distance(vrp, cent);
+    console.log("Distancia -> ", dist_vrp_surf);
+    var aux_y;
+    aux_y = document.getElementById("cut_far");
+    var far = Number(aux_y.value);
+    console.log("Far->", far);
+    aux_y = document.getElementById("cut_near");
+    var near = Number(aux_y.value);
+    console.log("Near->", near);
+    if (test_o < 0 || dist_vrp_surf > far || dist_vrp_surf < near) {
+        surface.cuted = true;
+    }
+    else {
+        surface.cuted = false;
+    }
+}
 function change_world() {
     erase_canvas();
     get_values_to_cam();
@@ -489,16 +510,19 @@ function change_world() {
     uni = new Universe(ctx, camera, my_lamp, luz_ambiente, zbuffer_const, zbuffer_gouraud, wind_width, wind_height);
     for (var i = 0; i < list_of_surfaces.length; i++) {
         uni.surfaces = list_of_surfaces;
-        uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
-        if (shading() == "gouraud") {
-            uni.call_gouraud();
-            uni.cut_surface_withcolor(uni.surfaces[i], false);
-        }
-        else if (shading() == "const") {
-            uni.cut_surface_nocolor(uni.surfaces[i]);
-        }
-        else {
-            uni.cut_surface_nocolor(uni.surfaces[i]);
+        test_surface(vrp_camera, focal_point_camera, uni.surfaces[i]);
+        if (uni.surfaces[i].cuted == false) {
+            uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
+            if (shading() == "gouraud") {
+                uni.call_gouraud();
+                uni.cut_surface_withcolor(uni.surfaces[i], false);
+            }
+            else if (shading() == "const") {
+                uni.cut_surface_nocolor(uni.surfaces[i]);
+            }
+            else {
+                uni.cut_surface_nocolor(uni.surfaces[i]);
+            }
         }
     }
     if (shading() == "const") {
@@ -520,7 +544,10 @@ function change_world() {
     ControlPointsCheckbox = document.getElementById("check_control_p");
     if (ControlPointsCheckbox && ControlPointsCheckbox.checked) {
         for (var i = 0; i < uni.surfaces.length; i++) {
-            uni.draw_cp(uni.surfaces[i]);
+            if (uni.surfaces[i].cuted == false) {
+                uni.draw_cp(uni.surfaces[i]);
+            }
+            ;
         }
         ;
     }

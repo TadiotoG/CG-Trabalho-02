@@ -24,7 +24,7 @@ function define_vet_normal_vertices(LFD) {
                 vet_sum = VetA_plus_VetB(vet_sum, vet_aux);
             }
             vet_sum.unitary = vet_sum.get_unitary_vector();
-            LFD[i][j].gouraud = vet_sum;
+            LFD[i][j].vet_normal = vet_sum;
         }
     }
 }

@@ -34,6 +34,7 @@ class Surface{
     face_color: string;
     other_side_color: string;
     line_color: string;
+    cuted: boolean = false;
 
     constructor(star_x: number, star_y: number, star_z: number, ni: number, nj: number, ti:number, tj:number, resolutioni: number, resolutionj: number, Ka: [number, number, number], Kd: [number, number, number], Ks: [number, number, number], N: number=2.15, face_col: string = "black", other_side_col: string = "red", cor_aresta: string = "blue", cp: Dot[][] = [[new Dot(123, 123, 123)]]){
         this.control_points = Array(ni).fill(null).map(() => Array(nj).fill(new Dot(0,0,0)))
@@ -318,6 +319,22 @@ class Surface{
                 this.double_faces.push(new Double_Face(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color), new Face(arr_dots_2, this.face_color, this.other_side_color, this.line_color))); // Cria a face em coordenada de tela e de SRU ao mesmo tempo
             }
         }
+    }
+
+    get_centroide(){
+        let sum_x: number = 0;
+        let sum_y: number = 0;
+        let sum_z: number = 0;
+        let counter: number = 0;
+        for(let i=0; i<this.resi; i++){
+            for(let j=0; j<this.resj; j++){
+                sum_x += this.outp[i][j].x;
+                sum_y += this.outp[i][j].y;
+                sum_z += this.outp[i][j].z;
+                counter++;
+            }
+        }
+        return new Dot(sum_x/counter, sum_y/counter, sum_z/counter);
     }
 
     // create_faces(matriz_SRU_SRT: number[][]){ // Essa funcao foi projetada para ser chamada no momento de plotar, para que tenhamos as coordenadas de tela de cada vértice/face, pois se pegassemos diretamente os pontos sem a conversao SRU_SRT, teriamos as coordenadas de mundo, o que nao traria informações uteis

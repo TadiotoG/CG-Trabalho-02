@@ -19,38 +19,42 @@ var Universe = /** @class */ (function () {
     ;
     Universe.prototype.update_all_face_colors_constant = function () {
         for (var i = 0; i < this.surfaces.length; i++) {
-            var amb_light_r = this.surfaces[i].ka[0] * this.la[0];
-            var amb_light_g = this.surfaces[i].ka[1] * this.la[1];
-            var amb_light_b = this.surfaces[i].ka[2] * this.la[2];
-            for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
-                var new_color = "rgb("; // Ka: number=0.4, Kd: number=0.6, Ks: number=0.5, N: number=2.15
-                new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_r, this.surfaces[i].ks[0], this.surfaces[i].kd[0], this.surfaces[i].n);
-                new_color += ",";
-                new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_g, this.surfaces[i].ks[1], this.surfaces[i].kd[1], this.surfaces[i].n);
-                new_color += ",";
-                new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_b, this.surfaces[i].ks[2], this.surfaces[i].kd[2], this.surfaces[i].n);
-                new_color += ")";
-                // console.log("New color -> ", new_color);
-                this.surfaces[i].double_faces[j].face.color = new_color;
-                // console.log("NEW COLOR -> ", new_color);
+            if (this.surfaces[i].cuted == false) {
+                var amb_light_r = this.surfaces[i].ka[0] * this.la[0];
+                var amb_light_g = this.surfaces[i].ka[1] * this.la[1];
+                var amb_light_b = this.surfaces[i].ka[2] * this.la[2];
+                for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
+                    var new_color = "rgb("; // Ka: number=0.4, Kd: number=0.6, Ks: number=0.5, N: number=2.15
+                    new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_r, this.surfaces[i].ks[0], this.surfaces[i].kd[0], this.surfaces[i].n);
+                    new_color += ",";
+                    new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_g, this.surfaces[i].ks[1], this.surfaces[i].kd[1], this.surfaces[i].n);
+                    new_color += ",";
+                    new_color += this.get_ilum(this.surfaces[i].double_faces[j].face_SRU.vet_normal, this.surfaces[i].double_faces[j].face_SRU.centroide, amb_light_b, this.surfaces[i].ks[2], this.surfaces[i].kd[2], this.surfaces[i].n);
+                    new_color += ")";
+                    // console.log("New color -> ", new_color);
+                    this.surfaces[i].double_faces[j].face.color = new_color;
+                    // console.log("NEW COLOR -> ", new_color);
+                }
             }
         }
     };
     Universe.prototype.call_gouraud = function () {
         for (var surf = 0; surf < this.surfaces.length; surf++) {
-            define_vet_normal_vertices(this.surfaces[surf].outp);
-            var amb_light_r = this.surfaces[surf].ka[0] * this.la[0];
-            var amb_light_g = this.surfaces[surf].ka[1] * this.la[1];
-            var amb_light_b = this.surfaces[surf].ka[2] * this.la[2];
-            for (var i = 0; i < this.surfaces[surf].outp.length; i++) {
-                for (var j = 0; j < this.surfaces[surf].outp[0].length; j++) {
-                    var teste = (this.get_ilum(this.surfaces[surf].outp[i][j].gouraud, this.surfaces[surf].outp[i][j], amb_light_r, this.surfaces[surf].ks[0], this.surfaces[surf].kd[0], this.surfaces[surf].n));
-                    this.surfaces[surf].outp[i][j].r_gouraud = Number(teste);
-                    this.surfaces[surf].outp[i][j].g_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].gouraud, this.surfaces[surf].outp[i][j], amb_light_g, this.surfaces[surf].ks[1], this.surfaces[surf].kd[1], this.surfaces[surf].n));
-                    this.surfaces[surf].outp[i][j].b_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].gouraud, this.surfaces[surf].outp[i][j], amb_light_b, this.surfaces[surf].ks[2], this.surfaces[surf].kd[2], this.surfaces[surf].n));
+            if (this.surfaces[surf].cuted == false) {
+                define_vet_normal_vertices(this.surfaces[surf].outp);
+                var amb_light_r = this.surfaces[surf].ka[0] * this.la[0];
+                var amb_light_g = this.surfaces[surf].ka[1] * this.la[1];
+                var amb_light_b = this.surfaces[surf].ka[2] * this.la[2];
+                for (var i = 0; i < this.surfaces[surf].outp.length; i++) {
+                    for (var j = 0; j < this.surfaces[surf].outp[0].length; j++) {
+                        var teste = (this.get_ilum(this.surfaces[surf].outp[i][j].vet_normal, this.surfaces[surf].outp[i][j], amb_light_r, this.surfaces[surf].ks[0], this.surfaces[surf].kd[0], this.surfaces[surf].n));
+                        this.surfaces[surf].outp[i][j].r_gouraud = Number(teste);
+                        this.surfaces[surf].outp[i][j].g_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].vet_normal, this.surfaces[surf].outp[i][j], amb_light_g, this.surfaces[surf].ks[1], this.surfaces[surf].kd[1], this.surfaces[surf].n));
+                        this.surfaces[surf].outp[i][j].b_gouraud = Number(this.get_ilum(this.surfaces[surf].outp[i][j].vet_normal, this.surfaces[surf].outp[i][j], amb_light_b, this.surfaces[surf].ks[2], this.surfaces[surf].kd[2], this.surfaces[surf].n));
+                    }
                 }
+                this.surfaces[surf].create_faces(this.matriz_SRU_SRT);
             }
-            this.surfaces[surf].create_faces(this.matriz_SRU_SRT);
         }
         // console.log("Primeira face -> ", this.surfaces[0].double_faces)
     };
@@ -125,7 +129,6 @@ var Universe = /** @class */ (function () {
                 surface.double_faces.splice(i, 1);
                 i--;
             }
-            // console.log("Saiu assim -> ", surface.double_faces[i].face);
         }
         // console.log("Surface cut -> ", surface.double_faces[0].face);
     };
@@ -133,9 +136,11 @@ var Universe = /** @class */ (function () {
     Universe.prototype.calc_zbuffer_gouraud = function () {
         // console.log("Surface gou-> ", this.surfaces[0].double_faces[0].face);
         for (var i = 0; i < this.surfaces.length; i++) {
-            for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
-                this.zbuffer_gouraud.rasterizePolygon(this.surfaces[i].double_faces[j].face);
-                this.zbuffer_gouraud.ZbufferGourand();
+            if (this.surfaces[i].cuted == false) {
+                for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
+                    this.zbuffer_gouraud.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                    this.zbuffer_gouraud.ZbufferGourand();
+                }
             }
         }
         ;
@@ -143,9 +148,11 @@ var Universe = /** @class */ (function () {
     Universe.prototype.calc_zbuffer_const = function () {
         // console.log("Surface cons-> ", this.surfaces[0].double_faces[0].face);
         for (var i = 0; i < this.surfaces.length; i++) {
-            for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
-                this.zbuffer_const.rasterizePolygon(this.surfaces[i].double_faces[j].face);
-                this.zbuffer_const.ZbufferConstante();
+            if (this.surfaces[i].cuted == false) {
+                for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
+                    this.zbuffer_const.rasterizePolygon(this.surfaces[i].double_faces[j].face);
+                    this.zbuffer_const.ZbufferConstante();
+                }
             }
         }
         // console.log("Executou ")
@@ -260,8 +267,10 @@ var Universe = /** @class */ (function () {
         var _this = this;
         var all_double_faces = [];
         for (var i = 0; i < this.surfaces.length; i++) {
-            for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
-                all_double_faces.push(this.surfaces[i].double_faces[j]);
+            if (this.surfaces[i].cuted == false) {
+                for (var j = 0; j < this.surfaces[i].double_faces.length; j++) {
+                    all_double_faces.push(this.surfaces[i].double_faces[j]);
+                }
             }
         }
         all_double_faces.sort(function (faceA, faceB) {

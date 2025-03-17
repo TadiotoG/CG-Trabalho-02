@@ -198,8 +198,22 @@
                     <label for="check_control_p">Desenhar pontos de controle</label>
                     <input type="checkbox" name="check_control_p" id="check_control_p" style="margin-bottom: 20px;" oninput=change_world() checked>
 
-                    <label for="persp">Persp</label>
-                    <input type="checkbox" name="persp" id="persp" style="margin-bottom: 20px;" oninput=change_world()>
+                    <!-- <label for="persp">Persp</label>
+                    <input type="checkbox" name="persp" id="persp" style="margin-bottom: 20px;" oninput=change_world()> -->
+
+                    <div>
+                        <p class="title">Recorte</p>
+                        <div class="row">
+                            <div class="column">
+                                <label for="cut_far">Far</label>
+                                <input style= "width: 50px" type="number" oninput=change_world() name="cut_far" id="cut_far" value="1000" step="5">
+                            </div>
+                            <div class="column">
+                                <label for="cut_near">Near</label>
+                                <input style= "width: 50px" type="number" oninput=change_world() name="cut_near" id="cut_near" value="10" step="5">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <div id="lamp" class="control_wind">
