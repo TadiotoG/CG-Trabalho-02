@@ -645,7 +645,7 @@ function change_world(){
             uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
             if(shading() == "gouraud"){
                 uni.call_gouraud();
-                uni.cut_surface_withcolor(uni.surfaces[i], false);
+                uni.cut_surface_withcolor(uni.surfaces[i]);
             }else if (shading() == "const"){
                 uni.cut_surface_nocolor(uni.surfaces[i]);
             }else{

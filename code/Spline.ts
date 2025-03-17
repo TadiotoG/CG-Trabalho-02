@@ -681,7 +681,7 @@ function Recorte (face: Face, umin: number, umax: number, vmin: number, vmax: nu
     
 }
 
-function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, vmax: number, flag: boolean) {
+function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, vmax: number) {
     umin = Number(umin);
     umax = Number(umax);
     vmin = Number(vmin);
@@ -717,11 +717,7 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let z = p1.z + u * (p2.z - p1.z);
                 let color;
                 let gouraud;
-                if(flag){
-                    color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }else{
-                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }
+                gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
                 let Paux = new Dot(x, y, z, color, gouraud[0], gouraud[1], gouraud[2]);
 
                 if (Paux.x == p2.x && Paux.y == p2.y) {
@@ -743,11 +739,9 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let z = p1.z + u * (p2.z - p1.z);
                 let color;
                 let gouraud;
-                if(flag){
-                    color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }else{
-                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }
+                
+                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
+
                 let Paux = new Dot(x, y, z, color, gouraud[0], gouraud[1], gouraud[2]);
                 novosPontos.push(Paux);
             }
@@ -782,14 +776,11 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let x = umax;
                 let y = p1.y + u * (p2.y - p1.y);
                 let z = p1.z + u * (p2.z - p1.z);
-                
                 let color;
                 let gouraud;
-                if(flag){
-                    color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }else{
-                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }
+                
+                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
+
                 let Paux = new Dot(x, y, z, color, gouraud[0], gouraud[1], gouraud[2]);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos.push(p2);
@@ -810,11 +801,9 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let z = p1.z + u * (p2.z - p1.z);
                 let color;
                 let gouraud;
-                if(flag){
-                    color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }else{
-                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }
+                
+                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
+
                 let Paux = new Dot(x, y, z, color, gouraud[0], gouraud[1], gouraud[2]);
                 novosPontos.push(Paux);
             }
@@ -851,11 +840,10 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let z = p1.z + u * (p2.z - p1.z);
                 let color;
                 let gouraud;
-                if(flag){
-                    color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }else{
-                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }
+
+                
+                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
+
                 let Paux = new Dot(x, y, z, color, gouraud[0], gouraud[1], gouraud[2]);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos.push(p2);
@@ -876,11 +864,9 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let z = p1.z + u * (p2.z - p1.z);
                 let color;
                 let gouraud;
-                if(flag){
-                    color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }else{
-                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }
+                
+                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
+
                 let Paux = new Dot(x, y, z, color, gouraud[0], gouraud[1], gouraud[2]);
                 novosPontos.push(Paux);
             }
@@ -917,11 +903,8 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let z = p1.z + u * (p2.z - p1.z);
                 let color;
                 let gouraud;
-                if(flag){
-                    color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }else{
-                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }
+                
+                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
                 let Paux = new Dot(x, y, z, color, gouraud[0], gouraud[1], gouraud[2]);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos.push(p2);
@@ -942,11 +925,8 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
                 let z = p1.z + u * (p2.z - p1.z);
                 let color;
                 let gouraud;
-                if(flag){
-                    color = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }else{
-                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u, flag);
-                }
+                
+                    gouraud = interpolateColor(p1.r_gouraud, p1.g_gouraud, p1.b_gouraud, p2.r_gouraud, p2.g_gouraud, p2.b_gouraud, u);
                 let Paux = new Dot(x, y, z, color, gouraud[0], gouraud[1], gouraud[2]);
                 novosPontos.push(Paux);
             }
@@ -967,16 +947,14 @@ function RecorteWithColor(face: Face, umin: number, umax: number, vmin: number, 
     return new Face(pontos, face.color, face.other_side_line_color, face.line_color);
 }
 
-function interpolateColor(r0: number, g0: number, b0: number, r1: number, g1: number, b1: number, t: number, flag: boolean): number[] | string {
+function interpolateColor(r0: number, g0: number, b0: number, r1: number, g1: number, b1: number, t: number): number[] {
     const r = Math.round(r0 + t * (r1 - r0));
     const g = Math.round(g0 + t * (g1 - g0));
     const b = Math.round(b0 + t * (b1 - b0));
 
-    if(flag){
-        return `rgb(${r}, ${g}, ${b})`;
-    }else{
-        return [r, g, b];
-    }
+
+    return [r, g, b];
+
     
 }
 

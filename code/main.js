@@ -478,14 +478,14 @@ function test_surface(vrp, focal_point, surface) {
     var vet_vrp_minus_cent = new Vet(vrp.x - cent.x, vrp.y - cent.y, vrp.z - cent.z);
     var test_o = prod_escalar(vet_vrp_minus_cent.unitary, vet_vrp_minus_fp.unitary);
     var dist_vrp_surf = calc_distance(vrp, cent);
-    console.log("Distancia -> ", dist_vrp_surf);
+    // console.log("Distancia -> ", dist_vrp_surf);
     var aux_y;
     aux_y = document.getElementById("cut_far");
     var far = Number(aux_y.value);
-    console.log("Far->", far);
+    // console.log("Far->", far)
     aux_y = document.getElementById("cut_near");
     var near = Number(aux_y.value);
-    console.log("Near->", near);
+    // console.log("Near->", near)
     if (test_o < 0 || dist_vrp_surf > far || dist_vrp_surf < near) {
         surface.cuted = true;
     }
@@ -515,7 +515,7 @@ function change_world() {
             uni.surfaces[i].create_faces(uni.matriz_SRU_SRT);
             if (shading() == "gouraud") {
                 uni.call_gouraud();
-                uni.cut_surface_withcolor(uni.surfaces[i], false);
+                uni.cut_surface_withcolor(uni.surfaces[i]);
             }
             else if (shading() == "const") {
                 uni.cut_surface_nocolor(uni.surfaces[i]);
