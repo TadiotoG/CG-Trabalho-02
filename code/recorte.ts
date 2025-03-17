@@ -1,12 +1,12 @@
-/// <reference path="recortecolor.ts" />
+/// <reference path="gouraud.ts" />
 
-function RecortePhong (face: Face, umin: number, umax: number, vmin: number, vmax: number) {
+function Recorte (face: Face, umin: number, umax: number, vmin: number, vmax: number) {
     umin = Number(umin);
     umax = Number(umax);
     vmin = Number(vmin);
     vmax = Number(vmax);
 
-    
+
     let pontos = face.dots;
     let arestas: Aresta[] = [];
 
@@ -29,19 +29,16 @@ function RecortePhong (face: Face, umin: number, umax: number, vmin: number, vma
             let p2 = arestas.p2;
             let u;
         
-            if (p1.x < umin && p2.x >= umin) { 
+            if (p1.x < umin && p2.x >= umin) {  
                 u = (umin - p1.x) / (p2.x - p1.x);
                 let x = umin;
                 let y = p1.y + u * (p2.y - p1.y);
                 let z = p1.z + u * (p2.z - p1.z);
-                let i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                let j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                let k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
                 
-                let Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                let Paux = new Dot(x, y, z);
 
                 if(Paux.x == p2.x && Paux.y == p2.y){
-                    novosPontos.push(p2)
+                    novosPontos.push(p2);
                 }else{
                     novosPontos.push(Paux);
                     novosPontos.push(p2);
@@ -57,11 +54,8 @@ function RecortePhong (face: Face, umin: number, umax: number, vmin: number, vma
                 let x = umin;
                 let y = p1.y + u * (p2.y - p1.y);
                 let z = p1.z + u * (p2.z - p1.z);
-                let i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                let j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                let k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
 
-                let Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                let Paux = new Dot(x, y, z);
                 novosPontos.push(Paux);
             }
         });
@@ -89,16 +83,12 @@ function RecortePhong (face: Face, umin: number, umax: number, vmin: number, vma
             let u;
         
             if (p1.x > umax && p2.x < umax) {
-
                 u = (umax - p1.x) / (p2.x - p1.x);
                 let x = umax;
                 let y = p1.y + u * (p2.y - p1.y);
                 let z = p1.z + u * (p2.z - p1.z);
-                let i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                let j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                let k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
 
-                let Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                let Paux = new Dot(x, y, z);
                 if(Paux.x == p2.x && Paux.y == p2.y){
                     novosPontos.push(p2);
                 }else{
@@ -117,11 +107,8 @@ function RecortePhong (face: Face, umin: number, umax: number, vmin: number, vma
                 let x = umax;
                 let y = p1.y + u * (p2.y - p1.y);
                 let z = p1.z + u * (p2.z - p1.z);
-                let i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                let j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                let k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
 
-                let Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                let Paux = new Dot(x, y, z);
                 novosPontos.push(Paux);
             }
         });
@@ -138,7 +125,7 @@ function RecortePhong (face: Face, umin: number, umax: number, vmin: number, vma
     }
 
     let recorteInferior = pontos.some(ponto => ponto.y > vmax);
-   
+    
     if(recorteInferior){
 
         let novosPontos: Dot[] = []
@@ -153,11 +140,8 @@ function RecortePhong (face: Face, umin: number, umax: number, vmin: number, vma
                 let y = vmax;  
                 let x = p1.x + u * (p2.x - p1.x);
                 let z = p1.z + u * (p2.z - p1.z);
-                let i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                let j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                let k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
 
-                let Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                let Paux = new Dot(x, y, z);
                 if(Paux.x == p2.x && Paux.y == p2.y){
                     novosPontos.push(p2);
                 }else{
@@ -176,11 +160,8 @@ function RecortePhong (face: Face, umin: number, umax: number, vmin: number, vma
                 let y = vmax;
                 let x = p1.x + u * (p2.x - p1.x);
                 let z = p1.z + u * (p2.z - p1.z);
-                let i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                let j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                let k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
 
-                let Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                let Paux = new Dot(x, y, z);
                 novosPontos.push(Paux);
             }
         });
@@ -210,11 +191,8 @@ function RecortePhong (face: Face, umin: number, umax: number, vmin: number, vma
                 let y = vmin;  
                 let x = p1.x + u * (p2.x - p1.x);
                 let z = p1.z + u * (p2.z - p1.z);
-                let i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                let j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                let k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
 
-                let Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                let Paux = new Dot(x, y, z);
                 if(Paux.x == p2.x && Paux.y == p2.y){
                     novosPontos.push(p2);
                     
@@ -233,11 +211,8 @@ function RecortePhong (face: Face, umin: number, umax: number, vmin: number, vma
                 let y = vmin;
                 let x = p1.x + u * (p2.x - p1.x);
                 let z = p1.z + u * (p2.z - p1.z);
-                let i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                let j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                let k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
 
-                let Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                let Paux = new Dot(x, y, z);
                 novosPontos.push(Paux);
             }
         });
@@ -255,3 +230,8 @@ function RecortePhong (face: Face, umin: number, umax: number, vmin: number, vma
     return new Face(pontos, face.color, face.other_side_line_color, face.line_color);
     
 }
+
+
+
+
+

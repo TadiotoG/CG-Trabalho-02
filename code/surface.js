@@ -1,6 +1,4 @@
-/// <reference path="./camera.ts" />
-// import { get } from "lodash";
-// import { random } from "lodash"
+/// <reference path="./Camera.ts" />
 var Double_Face = /** @class */ (function () {
     function Double_Face(normal_face, face_sru) {
         this.face = normal_face;
@@ -34,7 +32,6 @@ var Surface = /** @class */ (function () {
         this.other_side_color = other_side_col;
         this.line_color = cor_aresta;
         this.double_faces = [];
-        // console.log(`x = ${star_x}  y = ${star_y}   z = ${star_z}`);
         if (cp.length == 1) {
             for (var i = 0; i < ni; i++) {
                 for (var j = 0; j < nj; j++) {
@@ -48,29 +45,19 @@ var Surface = /** @class */ (function () {
         }
         this.generateSurface();
     }
-    // callfp(ctx: CanvasRenderingContext2D, vrp: Dot) {
-    //     this.faces.forEach((face, i) => {
-    //         let normal = prod_escalar(this.faces_SRU[i].get_normal().unitary, new Vet(vrp.x, vrp.y, vrp.z).unitary);
-    //         face.fillpoly(ctx, vrp, vrp, normal);
-    //     })
-    // }
     Surface.prototype.SplineKnots = function (u, n, t) {
         var j;
-        // Primeiros 't' nós iguais a 0
         for (j = 0; j < t; j++) {
             u[j] = 0;
         }
-        // Nós intermediários uniformemente distribuídos
         for (; j <= n; j++) {
             u[j] = j - t + 1;
         }
-        // Últimos 't' nós iguais ao último valor válido
         for (; j <= n + t; j++) {
-            u[j] = n - t + 1; // Alterado de "n - t + 2" para "n - t + 1" para evitar fechamento
+            u[j] = n - t + 1;
         }
     };
     Surface.prototype.SplineBlend = function (k, t, u, v) {
-        // console.log(`k=${k}, t=${t}, u[k]=${u[k]}, u[k+1]=${u[k+1]}, v=${v}`);
         if (t == 1) {
             return u[k] <= v && v < u[k + 1] ? 1 : 0;
         }
@@ -152,22 +139,17 @@ var Surface = /** @class */ (function () {
             }
         }
     };
-    // Transforma os pontos em uma matriz normal para a conversao utilizando a matriz_SRU_SRT
     Surface.prototype.get_cp_as_mat = function () {
         var _this = this;
         var mat_aux = Array(4).fill(null).map(function () { return Array((_this.ni) * (_this.nj)).fill(0); });
         for (var x = 0; x < this.ni; x++) {
             for (var y = 0; y < this.nj; y++) {
-                // console.log(`[${x}][${y}] = ${this.control_points[x][y].x}`)
                 mat_aux[0][x * this.nj + y] = this.control_points[x][y].x;
                 mat_aux[1][x * this.nj + y] = this.control_points[x][y].y;
                 mat_aux[2][x * this.nj + y] = this.control_points[x][y].z;
                 mat_aux[3][x * this.nj + y] = 1;
-                // alert(x+y)
             }
         }
-        // print_matriz(mat_aux, "MINHA MATRIZINHA")
-        // alert("ESTOPI")
         return mat_aux;
     };
     Surface.prototype.get_outp_as_mat = function () {
@@ -183,7 +165,6 @@ var Surface = /** @class */ (function () {
         }
         return mat_aux;
     };
-    // A estrutura utilizada para multiplicar a matriz (M_SRU_SRT), pede para que cada "Dot" seja uma coluna e o x, y, z e 1, sejam as linhas, a funcao abaixo faz com que dessa estrutura possamos converter novamente para uma matriz de dots "normal" (Dot[][])
     Surface.prototype.update_cp_with_mat = function (normal_mat) {
         for (var i = 0; i < this.ni; i++) {
             for (var j = 0; j < this.nj; j++) {
@@ -202,28 +183,11 @@ var Surface = /** @class */ (function () {
             }
         }
     };
-    // update_faces_SRU(){
-    //     this.faces_SRU = []
-    //     for(let i=0; i<this.resi-1; i++){
-    //         for(let j=0; j<this.resj-1; j++){
-    //             let A = new Dot(this.outp[i][j].x, this.outp[i][j].y, this.outp[i][j].z)
-    //             let B = new Dot(this.outp[i+1][j].x, this.outp[i+1][j].y, this.outp[i+1][j].z)
-    //             let C = new Dot(this.outp[i+1][j+1].x, this.outp[i+1][j+1].y, this.outp[i+1][j+1].z)
-    //             let D = new Dot(this.outp[i][j+1].x, this.outp[i][j+1].y, this.outp[i][j+1].z)
-    //             let arr_dots = [A, D, C, B]
-    //             this.faces_SRU.push(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color));
-    //         }
-    //     }
-    // }
     Surface.prototype.create_faces = function (matriz_SRU_SRT) {
-        var ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat()); // ps = points_screen
+        var ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat());
         this.double_faces = [];
         for (var i = 0; i < this.resi - 1; i++) {
             for (var j = 0; j < this.resj - 1; j++) { // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca
-                // let A = new Dot(ps[0][i*this.resj+j]/ps[3][i*this.resj+j], ps[1][i*this.resj+j]/ps[3][i*this.resj+j], ps[2][i*this.resj+j])
-                // let B = new Dot(ps[0][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[1][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[2][(i+1)*this.resj+j])
-                // let C = new Dot(ps[0][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[1][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[2][(i+1)*this.resj+(j+1)])
-                // let D = new Dot(ps[0][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[1][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[2][i*this.resj+(j+1)])
                 var A = new Dot(ps[0][i * this.resj + j], ps[1][i * this.resj + j], ps[2][i * this.resj + j]);
                 var B = new Dot(ps[0][(i + 1) * this.resj + j], ps[1][(i + 1) * this.resj + j], ps[2][(i + 1) * this.resj + j]);
                 var C = new Dot(ps[0][(i + 1) * this.resj + (j + 1)], ps[1][(i + 1) * this.resj + (j + 1)], ps[2][(i + 1) * this.resj + (j + 1)]);
@@ -277,22 +241,7 @@ var Surface = /** @class */ (function () {
         }
         return new Dot(sum_x / counter, sum_y / counter, sum_z / counter);
     };
-    // create_faces(matriz_SRU_SRT: number[][]){ // Essa funcao foi projetada para ser chamada no momento de plotar, para que tenhamos as coordenadas de tela de cada vértice/face, pois se pegassemos diretamente os pontos sem a conversao SRU_SRT, teriamos as coordenadas de mundo, o que nao traria informações uteis
-    //     let ps = mult_matriz(matriz_SRU_SRT, this.get_outp_as_mat()) // ps = points_screen
-    //     this.faces = [];
-    //     for(let i=0; i<this.resi-1; i++){
-    //         for(let j=0; j<this.resj-1; j++){ // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca
-    //             let A = new Dot(ps[0][i*this.resj+j]/ps[3][i*this.resj+j], ps[1][i*this.resj+j]/ps[3][i*this.resj+j], ps[2][i*this.resj+j])
-    //             let B = new Dot(ps[0][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[1][i*this.resj+(j+1)]/ps[3][i*this.resj+(j+1)], ps[2][i*this.resj+(j+1)])
-    //             let C = new Dot(ps[0][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[1][(i+1)*this.resj+(j+1)]/ps[3][(i+1)*this.resj+(j+1)], ps[2][(i+1)*this.resj+(j+1)])
-    //             let D = new Dot(ps[0][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[1][(i+1)*this.resj+j]/ps[3][(i+1)*this.resj+j], ps[2][(i+1)*this.resj+j])
-    //             let arr_dots = [A, B, C, D]
-    //             this.faces.push(new Face(arr_dots, this.face_color, this.other_side_color, this.line_color));
-    //         }
-    //     }
-    // }
     Surface.prototype.define_dots_screen = function (matriz_SRU_SRT) {
-        // console.log("Get cp as mat -> ", this.get_cp_as_mat())
         var cp = mult_matriz(matriz_SRU_SRT, this.get_cp_as_mat());
         for (var i = 0; i < this.ni; i++) {
             for (var j = 0; j < this.nj; j++) { // A matriz resultado esta em formato diferente do retornado pela operacao de mult de matriz, por isso essa conversao maluca

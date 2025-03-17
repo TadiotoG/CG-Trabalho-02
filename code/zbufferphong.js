@@ -1,9 +1,6 @@
-/// <reference path="./spline.ts" />
+/// <reference path="zbuffergouraud.ts" />
 function get_ilum(vrp, lamp, vet_normal, centroide, amb_light_par, ks, kd, n) {
     var amb_light = amb_light_par;
-    // console.log("================================================");
-    // console.log("Centroide face = ", face);
-    // console.log("Lamp x = ", lamp.pos.x);
     var aux_x = lamp.pos.x - centroide.x;
     var aux_y = lamp.pos.y - centroide.y;
     var aux_z = lamp.pos.z - centroide.z;
@@ -21,22 +18,13 @@ function get_ilum(vrp, lamp, vet_normal, centroide, amb_light_par, ks, kd, n) {
         aux_y = 2 * UN_times_UL * vet_normal.unitary.y - vet_LampMinusCent.unitary.y;
         aux_z = 2 * UN_times_UL * vet_normal.unitary.z - vet_LampMinusCent.unitary.z;
         var idk_r = new Vet(aux_x, aux_y, aux_z);
-        // idk_r.print_obj("Vet r")
         aux_x = vrp.x - centroide.x;
         aux_y = vrp.y - centroide.y;
         aux_z = vrp.z - centroide.z;
         var direcao_observ = new Vet(aux_x, aux_y, aux_z);
-        // direcao_observ.print_obj("Direcao observ");
         var r_escalar_dir_obs = prod_escalar(idk_r.unitary, direcao_observ.unitary);
-        // console.log("r.s -> ", r_escalar_dir_obs)
         if (r_escalar_dir_obs > 0) {
-            // console.log("R escalar dir ", r_escalar_dir_obs);
             var is = lamp.il * ks * Math.pow(r_escalar_dir_obs, n);
-            // console.log("k ", ks, "    n -> ", n)
-            // console.log("is -> ", is)
-            // console.log(`${r_escalar_dir_obs} ** ${n} = ${r_escalar_dir_obs**n}`)
-            // console.log("Cor = ", String((amb_light + ilum_difusa + is)));
-            // console.log(`${amb_light} + ${ilum_difusa} + ${is}`);
             var result = Math.round(amb_light + ilum_difusa + is);
             return result.toString(10);
         }
@@ -53,7 +41,7 @@ var ZbufferPhong = /** @class */ (function () {
     function ZbufferPhong(width, height, vrp, lamp) {
         this.width = width;
         this.height = height;
-        this.scanline = new Map(); // Inicializa o HashMap
+        this.scanline = new Map();
         this.depthBuffer = Array.from({ length: height + 10 }, function () { return Array(width + 10).fill(-100000000); });
         this.colorBuffer = Array.from({ length: height + 10 }, function () { return Array(width + 10).fill('#000000'); });
         this.vrp = vrp;
@@ -65,15 +53,12 @@ var ZbufferPhong = /** @class */ (function () {
             }
         }
         ;
-        // console.log("")
     }
-    // function get_ilum(vrp: Dot, lamp: Lamp, vet_normal: Vet, centroide: Dot, amb_light_par: number, ks: number, kd: number, n: number){
     ZbufferPhong.prototype.rasterizePolygon = function (face) {
         this.Scanline([face]);
     };
     ZbufferPhong.prototype.Scanline = function (faces) {
         this.scanline = new Map();
-        //console.log("Faces -> ", faces);
         for (var _i = 0, faces_1 = faces; _i < faces_1.length; _i++) {
             var face = faces_1[_i];
             for (var i = 0; i < face.dots.length; i++) {
@@ -151,56 +136,40 @@ var ZbufferPhong = /** @class */ (function () {
                     var i_phong2 = points[next_i].x_phong;
                     var j_phong2 = points[next_i].y_phong;
                     var k_phong2 = points[next_i].z_phong;
-                    // if(points[i].x > points[next_i].x){
-                    //     z1 = points[next_i].z;
-                    //     z2 = points[i].z;
-                    // }
-                    //console.log(points[i].x, points[i+1].x, points[i].z, points[i+1].z);
                     var dz = (z2 - z1) / (points[next_i].x - points[i].x);
                     var di = (i_phong2 - i_phong) / (points[next_i].x - points[i].x);
                     var dj = (j_phong2 - j_phong) / (points[next_i].x - points[i].x);
                     var dk = (k_phong2 - k_phong) / (points[next_i].x - points[i].x);
-                    // console.log(dz);
-                    //console.log(dR, dG, dB);
                     var x1 = Math.ceil(points[i].x);
                     var x2 = Math.ceil(points[next_i].x);
-                    var R = points[i].x_phong;
-                    var G = points[i].y_phong;
-                    var B = points[i].z_phong;
+                    var new_i = points[i].x_phong;
+                    var new_j = points[i].y_phong;
+                    var new_k = points[i].z_phong;
                     var start = x1, end = x2;
                     if (x1 > x2) {
                         start = x2;
                         end = x1;
-                        console.log("Invertido ", x1, "  >   ", x2); // NUNCA DEVE SER PRINTADO
-                        // points.sort((a, b) => a.x - b.x);
                     }
                     var dx = points[i].x - x1;
                     z1 += dx * dz;
                     for (var x = start; x <= end; x++) {
-                        // console.log(`x = ${x}   y = ${y}`)
-                        _this.AtualizaBufferGourand(z1, R, G, B, x, Math.round(y), amb_light, ks, kd, n, face_sru);
-                        //console.log(points[new_i].r_gouraud, points[new_i].g_gouraud, points[new_i].b_gouraud);
+                        _this.AtualizaBufferGourand(z1, new_i, new_j, new_k, x, Math.round(y), amb_light, ks, kd, n, face_sru);
                         z1 += dz;
-                        R += di;
-                        G += dj;
-                        B += dk;
+                        new_i += di;
+                        new_j += dj;
+                        new_k += dk;
                     }
                 }
             }
         });
-        //console.log(this.depthBuffer[0][150]);
-        //console.log(this.scanline);
     };
     ZbufferPhong.prototype.AtualizaBufferGourand = function (constant_z, i_phong, j_phong, k_phong, x, y, amb_light, ks, kd, n, face_sru) {
-        //console.log("tamanho", this.depthBuffer.length, this.depthBuffer[0].length);
         if (constant_z > this.depthBuffer[y][x]) {
             this.depthBuffer[y][x] = constant_z;
-            //console.log(this.depthBuffer[y][x]);
             var r_phong = get_ilum(this.vrp, this.lamp, new Vet(i_phong, j_phong, k_phong), new Dot(x, y, constant_z), amb_light[0], ks[0], kd[0], n[0]);
             var g_phong = get_ilum(this.vrp, this.lamp, new Vet(i_phong, j_phong, k_phong), new Dot(x, y, constant_z), amb_light[1], ks[1], kd[1], n[1]);
             var b_phong = get_ilum(this.vrp, this.lamp, new Vet(i_phong, j_phong, k_phong), new Dot(x, y, constant_z), amb_light[2], ks[2], kd[2], n[2]);
             this.colorBuffer[y][x] = "rgb(".concat(r_phong, ", ").concat(g_phong, ", ").concat(b_phong, ")");
-            //console.log(this.depthBuffer);
         }
     };
     return ZbufferPhong;

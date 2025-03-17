@@ -1,5 +1,4 @@
 /// <reference path="./universe.ts" />
-// Todas as funcoes call, sao os gatilhos disponiveis no front, que chamam funcoes do back
 function call_create_surface() {
     var aux;
     aux = document.getElementById("new_surface");
@@ -121,7 +120,7 @@ function window_change_dot_disappears() {
 }
 function get_values_to_cam() {
     var aux;
-    aux = document.getElementById("cam_y"); // Pega o valor do input no html 
+    aux = document.getElementById("cam_y");
     cam_y = aux.value;
     aux = document.getElementById("cam_x");
     cam_x = aux.value;
@@ -180,7 +179,7 @@ function get_values_to_cam() {
 }
 function get_values_new_surface() {
     var aux;
-    aux = document.getElementById("surface_begin_x"); // Pega o valor do input no html 
+    aux = document.getElementById("surface_begin_x");
     star_x = Number(aux.value);
     aux = document.getElementById("surface_begin_y");
     star_y = Number(aux.value);
@@ -252,12 +251,12 @@ function get_values_alter_prop() {
 }
 function msg_click_appears() {
     var mensagem;
-    mensagem = document.getElementById("mensagem_clique"); // Pega o valor do input no html 
+    mensagem = document.getElementById("mensagem_clique");
     mensagem.style = "transition: opacity 0.4s ease-in-out;";
-    mensagem.style.opacity = "1"; // Torna visível
+    mensagem.style.opacity = "1";
     setTimeout(function () {
         mensagem.style = "transition: opacity 4s ease-in-out;";
-        mensagem.style.opacity = "0"; // Desvanece após 5 segundos
+        mensagem.style.opacity = "0";
     }, 400);
 }
 function alter_cp_by_click(universe, A) {
@@ -277,7 +276,7 @@ function alter_cp_by_click(universe, A) {
         aux.value = Math.round(universe.surfaces[aux_surf].control_points[aux_dot_x][aux_dot_y].y);
         aux = document.getElementById("change_dot_z");
         aux.value = Math.round(universe.surfaces[aux_surf].control_points[aux_dot_x][aux_dot_y].z);
-        open_wind_change_dot(); // Abre a janela de alteracao das coordenadas de ponto de controle
+        open_wind_change_dot();
     }
     selecting_dot = false;
 }
@@ -287,7 +286,7 @@ function remove_surface_by_click(universe, A) {
         alert("Não foi encontrado nenhuma superfície próximo ao local clicado!");
     }
     else {
-        universe.surfaces.splice(vet_aux[0], 1); // Remove a superficie na pos vet_aux[0]
+        universe.surfaces.splice(vet_aux[0], 1);
         change_world();
     }
     remove_surf = false;
@@ -307,7 +306,7 @@ function translada_surface_by_click(universe, A) {
 }
 function escala_surface_by_click(universe, A) {
     var vet_aux = get_dot_and_surface_by_click(universe, A);
-    if (vet_aux[1] == -1) { // Se o usuario clicar nao clicar próximo o suficiente
+    if (vet_aux[1] == -1) {
         alert("Não foi encontrado nenhuma superfície próximo ao local clicado!");
     }
     else {
@@ -368,24 +367,16 @@ function alter_prop_by_click(universe, A) {
     alter_prop = false;
 }
 function alter_prop_func() {
-    // console.log("Quantas superficies -> " + uni.surfaces.length)
     get_values_alter_prop();
     var aux;
     aux = uni.surfaces[aux_surf];
-    // console.log("Passo 0 -> " + uni.surfaces.length)
     uni.surfaces.splice(aux_surf, 1);
-    // console.log("Passo 1 -> " + uni.surfaces.length)
     uni.add_surface(aux);
-    // console.log("Passo 2 -> " + uni.surfaces.length)
     aux_surf = uni.surfaces.length - 1;
     var new_surface = new Surface(0, 0, 0, uni.surfaces[aux_surf].ni, uni.surfaces[aux_surf].nj, 3, 3, res_i, res_j, ka, kd, ks, n, face_color, aresta_color, other_side_aresta_color, uni.surfaces[aux_surf].control_points);
     uni.surfaces.splice(aux_surf, 1);
-    // console.log("Passo 3 -> " + uni.surfaces.length)
     uni.add_surface(new_surface);
-    // console.log("Passo 4 -> " + uni.surfaces.length)
     change_world();
-    // window_alter_prop_disappears();
-    // console.log("QUantas superficies depois -> " + uni.surfaces.length)
 }
 function change_dot() {
     var aux;
@@ -456,10 +447,10 @@ function rotaciona_surf() {
     aux_z.value = 0;
 }
 function get_dot_and_surface_by_click(universe, A) {
-    var x_closer = -1; // Salva qual ponto é na coordenada x,y
+    var x_closer = -1;
     var y_closer = -1;
-    var which_surf = -1; // Salva em qual superficie esta o ponto mais perto
-    var closer_dist = 10000; // Salva a menor distancia
+    var which_surf = -1;
+    var closer_dist = 10000;
     for (var i = 0; i < universe.surfaces.length; i++) {
         universe.surfaces[i].define_dots_screen(universe.matriz_SRU_SRT);
         var pos = universe.surfaces[i].find_closer_cp_to_dot(A);
@@ -478,14 +469,11 @@ function test_surface(vrp, focal_point, surface) {
     var vet_vrp_minus_cent = new Vet(vrp.x - cent.x, vrp.y - cent.y, vrp.z - cent.z);
     var test_o = prod_escalar(vet_vrp_minus_cent.unitary, vet_vrp_minus_fp.unitary);
     var dist_vrp_surf = calc_distance(vrp, cent);
-    // console.log("Distancia -> ", dist_vrp_surf);
     var aux_y;
     aux_y = document.getElementById("cut_far");
     var far = Number(aux_y.value);
-    // console.log("Far->", far)
     aux_y = document.getElementById("cut_near");
     var near = Number(aux_y.value);
-    // console.log("Near->", near)
     if (test_o < 0 || dist_vrp_surf > far || dist_vrp_surf < near) {
         surface.cuted = true;
     }
@@ -497,14 +485,12 @@ function change_world() {
     erase_canvas();
     get_values_to_cam();
     get_shading();
-    // console.log(`X = ${cam_x} Y = ${cam_y} Z = ${cam_z}`);
     var my_lamp = new Lamp(lamp_intensidade, lamp_x, lamp_y, lamp_z);
     var list_of_surfaces = uni.surfaces;
     vrp_camera = new Dot(cam_x, cam_y, cam_z);
     focal_point_camera = new Dot(focal_x, focal_y, focal_z);
     distance_point = 240;
     camera = new Camera(vrp_camera, focal_point_camera, distance_point, wind_xmin, wind_ymin, wind_xmax, wind_ymax, wind_umin, wind_vmin, wind_umax, wind_vmax, flag_persp);
-    // camera = new Camera(vrp_camera, focal_point_camera, distance_point, 0, 0, canvas_width, canvas_height);
     zbuffer_const = new ZbufferConstante(wind_width, wind_height);
     zbuffer_gouraud = new ZbufferGouraud(wind_width, wind_height);
     zbuffer_phong = new ZbufferPhong(wind_width, wind_height, vrp_camera, my_lamp);
@@ -591,7 +577,7 @@ el.addEventListener("click", function (e) {
     var rect = e.target.getBoundingClientRect();
     var x = Math.floor(e.clientX - rect.left);
     var y = Math.floor(e.clientY - rect.top);
-    if (selecting_dot) { // Esse emaranhado de ifs, dao conta de qual funcionalidade envolvendo selecao por click esta sendo feita
+    if (selecting_dot) {
         alter_cp_by_click(uni, new Dot(x, y, 0));
     }
     else if (remove_surf) {
@@ -613,15 +599,15 @@ el.addEventListener("click", function (e) {
 });
 var main = document.getElementById("main");
 main.appendChild(canvas);
-var translada_surface = false; // Quando essa var for true, vai ser possível clicar na tela e selecionar com base nos pontos de controle e alterar uma propriedade da superficie
-var escala_surface = false; // Quando essa var for true, vai ser possível clicar na tela e selecionar com base nos pontos de controle e alterar uma propriedade da superficie
-var rotaciona_surface = false; // Quando essa var for true, vai ser possível clicar na tela e selecionar com base nos pontos de controle e alterar uma propriedade da superficie
-var selecting_dot = false; // Quando essa var for true, vai ser possível clicar na tela e selecionar com base nos pontos de controle e alterar uma propriedade da superficie
-var remove_surf = false; // Quando essa var for true, vai ser possível clicar na tela e selecionar com base nos pontos de controle e alterar uma propriedade da superficie
-var alter_prop = false; // Quando essa var for true, vai ser possível clicar na tela e selecionar com base nos pontos de controle e alterar uma propriedade da superficie
-var aux_surf; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
-var aux_dot_x; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
-var aux_dot_y; // Variavel usada como memoria na hora de alterar a coord de um ponto de controle
+var translada_surface = false;
+var escala_surface = false;
+var rotaciona_surface = false;
+var selecting_dot = false;
+var remove_surf = false;
+var alter_prop = false;
+var aux_surf;
+var aux_dot_x;
+var aux_dot_y;
 var cam_x;
 var cam_y;
 var cam_z;
@@ -641,10 +627,9 @@ var wind_umax;
 var wind_vmin;
 var wind_vmax;
 var luz_ambiente;
-luz_ambiente = [0, 0, 0]; // Luz ambiente RGB
+luz_ambiente = [0, 0, 0];
 var wind_width = wind_umax - wind_umin;
 var wind_height = wind_vmax - wind_vmax;
-// ka kd e ks dos materias sobre RGB
 var ka;
 ka = [0.4, 0.4, 0.4];
 var kd;
@@ -652,8 +637,8 @@ kd = [0.7, 0.7, 0.7];
 var ks;
 ks = [0.5, 0.5, 0.5];
 var n;
-var face_color; // Cor das faces para o pintor
-var aresta_color; // Cor do lado de baixo das faces para pintor
+var face_color;
+var aresta_color;
 var other_side_aresta_color;
 var shading;
 var flag_persp;
@@ -677,9 +662,5 @@ var res_i;
 var res_j;
 create_surface();
 var ControlPointsCheckbox;
-// ControlPointsCheckbox = document.getElementById("check_control_p");
-// if (ControlPointsCheckbox && ControlPointsCheckbox.checked) {
-//     uni.draw_cp(uni.surfaces[0]);
-// }
 change_world();
-// spline -> camera -> surface -> gouraud -> zbuffer -> universe -> 
+//spline -> camera -> surface -> gouraud -> recorte -> recortecolor -> recortephong -> zbufferconst -> zbuffergouraud -> zbufferphong -> universe -> main

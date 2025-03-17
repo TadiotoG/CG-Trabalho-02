@@ -1,7 +1,7 @@
-/// <reference path="./gouraud.ts" />
+/// <reference path="zbufferconst.ts" />
 
 class ZbufferGouraud {
-    scanline: Map<number, Array<Dot>>; // HashMap para armazenar os valores
+    scanline: Map<number, Array<Dot>>; 
     width: number;
     height: number;
     depthBuffer: number[][];
@@ -10,7 +10,7 @@ class ZbufferGouraud {
     constructor(width: number, height: number) {
         this.width = width;
         this.height = height;
-        this.scanline = new Map(); // Inicializa o HashMap
+        this.scanline = new Map(); 
         this.depthBuffer = Array.from({ length: height+10 }, () => Array(width+10).fill(-100000000));
         this.colorBuffer = Array.from({ length: height+10 }, () => Array(width+10).fill('#000000'));
         for(let i=0; i<height+10; i++){
@@ -19,7 +19,7 @@ class ZbufferGouraud {
                 this.colorBuffer[i][j] = '#000000';
             }
         };
-        // console.log("")
+
     }
 
     rasterizePolygon(face: Face) {
@@ -28,7 +28,7 @@ class ZbufferGouraud {
 
     Scanline(faces: Array<Face>) {
         this.scanline = new Map();
-        //console.log("Faces -> ", faces);
+     
         for (const face of faces) {
         
            for (let i = 0; i < face.dots.length; i++) {
@@ -115,19 +115,14 @@ class ZbufferGouraud {
                     let z1 = points[i].z;
                     let z2 = points[next_i].z;
 
-                    // if(points[i].x > points[next_i].x){
-                    //     z1 = points[next_i].z;
-                    //     z2 = points[i].z;
-                    // }
-                    //console.log(points[i].x, points[i+1].x, points[i].z, points[i+1].z);
                     
                     const dz = (z2 - z1) / (points[next_i].x - points[i].x);
-                    // console.log(dz);
+                    
                     
                     const dR = (points[next_i].r_gouraud - points[i].r_gouraud) / (points[next_i].x - points[i].x);
                     const dG = (points[next_i].g_gouraud - points[i].g_gouraud) / (points[next_i].x - points[i].x);
                     const dB = (points[next_i].b_gouraud - points[i].b_gouraud) / (points[next_i].x - points[i].x);
-                    //console.log(dR, dG, dB);
+ 
                     
                     const x1 = Math.ceil(points[i].x);
                     const x2 = Math.ceil(points[next_i].x);
@@ -141,18 +136,17 @@ class ZbufferGouraud {
                     if(x1 > x2){
                         start = x2;
                         end = x1;
-                        console.log("Invertido ", x1, "  >   ", x2); // NUNCA DEVE SER PRINTADO
-
-                        // points.sort((a, b) => a.x - b.x);
+                        
+                        
                     }
 
                     let dx = points[i].x - x1;
                     z1 += dx * dz;
                     
                     for (let x = start; x <= end; x++) {
-                        // console.log(`x = ${x}   y = ${y}`)
+                        
                         this.AtualizaBufferGourand(z1, R, G, B, x, Math.round(y));
-                        //console.log(points[new_i].r_gouraud, points[new_i].g_gouraud, points[new_i].b_gouraud);
+                        
                         z1 += dz;
                         R += dR;
                         G += dG;
@@ -162,22 +156,18 @@ class ZbufferGouraud {
             }
         });
 
-        //console.log(this.depthBuffer[0][150]);
-        
-
-        //console.log(this.scanline);
     }
 
     
 
     AtualizaBufferGourand(constant_z: number, new_R: number, new_G: number, new_B: number, x: number, y: number){
-         //console.log("tamanho", this.depthBuffer.length, this.depthBuffer[0].length);
+         
         if (constant_z > this.depthBuffer[y][x]) {
             this.depthBuffer[y][x] = constant_z;
-            //console.log(this.depthBuffer[y][x]);
+          
             
             this.colorBuffer[y][x] = `rgb(${new_R}, ${new_G}, ${new_B})`;
-            //console.log(this.depthBuffer);
+  
         }
     }
 }

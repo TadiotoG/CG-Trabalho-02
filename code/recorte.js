@@ -1,5 +1,5 @@
-/// <reference path="recortecolor.ts" />
-function RecortePhong(face, umin, umax, vmin, vmax) {
+/// <reference path="gouraud.ts" />
+function Recorte(face, umin, umax, vmin, vmax) {
     umin = Number(umin);
     umax = Number(umax);
     vmin = Number(vmin);
@@ -27,10 +27,7 @@ function RecortePhong(face, umin, umax, vmin, vmax) {
                 var x = umin;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                var j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                var k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
-                var Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                var Paux = new Dot(x, y, z);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_1.push(p2);
                 }
@@ -47,10 +44,7 @@ function RecortePhong(face, umin, umax, vmin, vmax) {
                 var x = umin;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                var j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                var k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
-                var Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                var Paux = new Dot(x, y, z);
                 novosPontos_1.push(Paux);
             }
         });
@@ -78,10 +72,7 @@ function RecortePhong(face, umin, umax, vmin, vmax) {
                 var x = umax;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                var j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                var k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
-                var Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                var Paux = new Dot(x, y, z);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_2.push(p2);
                 }
@@ -98,10 +89,7 @@ function RecortePhong(face, umin, umax, vmin, vmax) {
                 var x = umax;
                 var y = p1.y + u * (p2.y - p1.y);
                 var z = p1.z + u * (p2.z - p1.z);
-                var i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                var j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                var k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
-                var Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                var Paux = new Dot(x, y, z);
                 novosPontos_2.push(Paux);
             }
         });
@@ -129,10 +117,7 @@ function RecortePhong(face, umin, umax, vmin, vmax) {
                 var y = vmax;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                var j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                var k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
-                var Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                var Paux = new Dot(x, y, z);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_3.push(p2);
                 }
@@ -149,10 +134,7 @@ function RecortePhong(face, umin, umax, vmin, vmax) {
                 var y = vmax;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                var j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                var k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
-                var Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                var Paux = new Dot(x, y, z);
                 novosPontos_3.push(Paux);
             }
         });
@@ -180,10 +162,7 @@ function RecortePhong(face, umin, umax, vmin, vmax) {
                 var y = vmin;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                var j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                var k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
-                var Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                var Paux = new Dot(x, y, z);
                 if (Paux.x == p2.x && Paux.y == p2.y) {
                     novosPontos_4.push(p2);
                 }
@@ -200,10 +179,7 @@ function RecortePhong(face, umin, umax, vmin, vmax) {
                 var y = vmin;
                 var x = p1.x + u * (p2.x - p1.x);
                 var z = p1.z + u * (p2.z - p1.z);
-                var i = p1.x_phong + u * (p2.x_phong - p1.x_phong);
-                var j = p1.y_phong + u * (p2.y_phong - p1.y_phong);
-                var k = p1.z_phong + u * (p2.z_phong - p1.z_phong);
-                var Paux = new Dot(x, y, z, "red", 0, 0, 0, i, j, k);
+                var Paux = new Dot(x, y, z);
                 novosPontos_4.push(Paux);
             }
         });

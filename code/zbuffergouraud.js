@@ -1,9 +1,9 @@
-/// <reference path="./gouraud.ts" />
+/// <reference path="zbufferconst.ts" />
 var ZbufferGouraud = /** @class */ (function () {
     function ZbufferGouraud(width, height) {
         this.width = width;
         this.height = height;
-        this.scanline = new Map(); // Inicializa o HashMap
+        this.scanline = new Map();
         this.depthBuffer = Array.from({ length: height + 10 }, function () { return Array(width + 10).fill(-100000000); });
         this.colorBuffer = Array.from({ length: height + 10 }, function () { return Array(width + 10).fill('#000000'); });
         for (var i = 0; i < height + 10; i++) {
@@ -13,14 +13,12 @@ var ZbufferGouraud = /** @class */ (function () {
             }
         }
         ;
-        // console.log("")
     }
     ZbufferGouraud.prototype.rasterizePolygon = function (face) {
         this.Scanline([face]);
     };
     ZbufferGouraud.prototype.Scanline = function (faces) {
         this.scanline = new Map();
-        //console.log("Faces -> ", faces);
         for (var _i = 0, faces_1 = faces; _i < faces_1.length; _i++) {
             var face = faces_1[_i];
             for (var i = 0; i < face.dots.length; i++) {
@@ -92,17 +90,10 @@ var ZbufferGouraud = /** @class */ (function () {
                 if ((Math.floor(points[next_i].x) - Math.ceil(points[i].x)) > 0) {
                     var z1 = points[i].z;
                     var z2 = points[next_i].z;
-                    // if(points[i].x > points[next_i].x){
-                    //     z1 = points[next_i].z;
-                    //     z2 = points[i].z;
-                    // }
-                    //console.log(points[i].x, points[i+1].x, points[i].z, points[i+1].z);
                     var dz = (z2 - z1) / (points[next_i].x - points[i].x);
-                    // console.log(dz);
                     var dR = (points[next_i].r_gouraud - points[i].r_gouraud) / (points[next_i].x - points[i].x);
                     var dG = (points[next_i].g_gouraud - points[i].g_gouraud) / (points[next_i].x - points[i].x);
                     var dB = (points[next_i].b_gouraud - points[i].b_gouraud) / (points[next_i].x - points[i].x);
-                    //console.log(dR, dG, dB);
                     var x1 = Math.ceil(points[i].x);
                     var x2 = Math.ceil(points[next_i].x);
                     var R = points[i].r_gouraud;
@@ -112,15 +103,11 @@ var ZbufferGouraud = /** @class */ (function () {
                     if (x1 > x2) {
                         start = x2;
                         end = x1;
-                        console.log("Invertido ", x1, "  >   ", x2); // NUNCA DEVE SER PRINTADO
-                        // points.sort((a, b) => a.x - b.x);
                     }
                     var dx = points[i].x - x1;
                     z1 += dx * dz;
                     for (var x = start; x <= end; x++) {
-                        // console.log(`x = ${x}   y = ${y}`)
                         _this.AtualizaBufferGourand(z1, R, G, B, x, Math.round(y));
-                        //console.log(points[new_i].r_gouraud, points[new_i].g_gouraud, points[new_i].b_gouraud);
                         z1 += dz;
                         R += dR;
                         G += dG;
@@ -129,16 +116,11 @@ var ZbufferGouraud = /** @class */ (function () {
                 }
             }
         });
-        //console.log(this.depthBuffer[0][150]);
-        //console.log(this.scanline);
     };
     ZbufferGouraud.prototype.AtualizaBufferGourand = function (constant_z, new_R, new_G, new_B, x, y) {
-        //console.log("tamanho", this.depthBuffer.length, this.depthBuffer[0].length);
         if (constant_z > this.depthBuffer[y][x]) {
             this.depthBuffer[y][x] = constant_z;
-            //console.log(this.depthBuffer[y][x]);
             this.colorBuffer[y][x] = "rgb(".concat(new_R, ", ").concat(new_G, ", ").concat(new_B, ")");
-            //console.log(this.depthBuffer);
         }
     };
     return ZbufferGouraud;

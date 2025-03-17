@@ -1,4 +1,4 @@
-/// <reference path="./spline.ts" />
+/// <reference path="./Spline.ts" />
 var Camera = /** @class */ (function () {
     function Camera(view_reference_point, focal_p, dp, min_x, min_y, max_x, max_y, min_u, min_v, max_u, max_v, flag) {
         if (flag === void 0) { flag = false; }
@@ -20,17 +20,8 @@ var Camera = /** @class */ (function () {
     }
     Camera.prototype.calc_matrizes = function () {
         this.vet_n = VetA_minus_VetB(this.vrp, this.focal_point);
-        // this.vet_n.print_obj("Vet n ");
         this.vet_v = this.define_vector_v();
-        // this.vet_v.print_obj("Vet v ");
         this.vet_u = prod_vet(this.vet_v, this.vet_n);
-        // this.vet_u.print_obj("Vet u ");
-        // this.matriz_SRU_SRC = ([
-        //     [this.vet_u.unitary.x, this.vet_u.unitary.y, this.vet_u.unitary.z, 0],
-        //     [this.vet_v.unitary.x, this.vet_v.unitary.y, this.vet_v.unitary.z, 0],
-        //     [this.vet_n.unitary.x, this.vet_n.unitary.y, this.vet_n.unitary.z, 0],
-        //     [0, 0, 0, 1]
-        // ])
         var mat_R = ([
             [this.vet_u.unitary.x, this.vet_u.unitary.y, this.vet_u.unitary.z, 0],
             [this.vet_v.unitary.x, this.vet_v.unitary.y, this.vet_v.unitary.z, 0],
@@ -44,13 +35,10 @@ var Camera = /** @class */ (function () {
             [0, 0, 0, 1]
         ]);
         this.matriz_SRU_SRC = mult_matriz(mat_R, mat_T);
-        // print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
         if (this.flag_persp) {
-            this.matriz_persp = this.define_matriz_persp(); // Projecao perspectiva, nao vai ser mais utilizado...
+            this.matriz_persp = this.define_matriz_persp();
         }
-        // print_matriz(this.matriz_persp, "Persp");
         this.matriz_jp = this.define_matriz_jp();
-        // print_matriz(this.matriz_jp, "Jp")
     };
     Camera.prototype.define_vector_v = function () {
         var y = new Vet(0, 1, 0);
@@ -74,7 +62,6 @@ var Camera = /** @class */ (function () {
             [z_vp, this.vrp.z],
             [1, 1]]);
         mat_src = mult_matriz(this.matriz_SRU_SRC, mat_sru);
-        // print_matriz(mat_src, "SRC");
         var new_z_vp = mat_src[2][0];
         var new_z_prp = mat_src[2][1];
         var mat_aux; // 

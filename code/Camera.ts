@@ -1,4 +1,4 @@
-/// <reference path="./spline.ts" />
+/// <reference path="./Spline.ts" />
 
 class Camera {
     vrp: Dot;
@@ -40,22 +40,13 @@ class Camera {
 
     calc_matrizes(){
         this.vet_n = VetA_minus_VetB(this.vrp, this.focal_point);
-        // this.vet_n.print_obj("Vet n ");
+        
 
         this.vet_v = this.define_vector_v();
-        // this.vet_v.print_obj("Vet v ");
+        
 
         this.vet_u = prod_vet(this.vet_v, this.vet_n);
-        // this.vet_u.print_obj("Vet u ");
-
-        // this.matriz_SRU_SRC = ([
-        //     [this.vet_u.unitary.x, this.vet_u.unitary.y, this.vet_u.unitary.z, 0],
-
-        //     [this.vet_v.unitary.x, this.vet_v.unitary.y, this.vet_v.unitary.z, 0],
-
-        //     [this.vet_n.unitary.x, this.vet_n.unitary.y, this.vet_n.unitary.z, 0],
-        //     [0, 0, 0, 1]
-        // ])
+        
 
         let mat_R = ([
             [this.vet_u.unitary.x, this.vet_u.unitary.y, this.vet_u.unitary.z, 0],
@@ -74,15 +65,14 @@ class Camera {
         ])
 
         this.matriz_SRU_SRC = mult_matriz(mat_R, mat_T)
-        // print_matriz(this.matriz_SRU_SRC, "SRU_SRC")
+        
 
         if(this.flag_persp){
-            this.matriz_persp = this.define_matriz_persp();// Projecao perspectiva, nao vai ser mais utilizado...
+            this.matriz_persp = this.define_matriz_persp();
         }
-        // print_matriz(this.matriz_persp, "Persp");
-
+        
         this.matriz_jp = this.define_matriz_jp();
-        // print_matriz(this.matriz_jp, "Jp")
+        
     }
 
     private define_vector_v(): Vet{
@@ -101,7 +91,7 @@ class Camera {
         return mat_aux;
     }
 
-    private define_matriz_persp(): number[][]{ // Projecao perspectiva, nao vai ser mais utilizado...
+    private define_matriz_persp(): number[][]{ 
         let mat_sru: number[][];
         let mat_src: number[][];
 
@@ -115,7 +105,7 @@ class Camera {
                     [1, 1]])
 
         mat_src = mult_matriz(this.matriz_SRU_SRC, mat_sru);
-        // print_matriz(mat_src, "SRC");
+        
 
         let new_z_vp = mat_src[2][0]
         let new_z_prp = mat_src[2][1]
